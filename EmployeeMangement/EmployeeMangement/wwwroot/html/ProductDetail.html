@@ -1,0 +1,666 @@
+﻿<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
+<head>
+    <!-- ucMeta-->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <!-- ucMeta./.-->
+    <!-- ucCSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/icons.min.css" rel="stylesheet" />
+    <link href="/assets/css/app.min.css" rel="stylesheet" />
+    <link href="/assets/css/custom.min.css" rel="stylesheet" />
+    <link href="/assets/css/dropzone.css" rel="stylesheet" />
+    <link href="/assets/css/glightbox.min.css" rel="stylesheet" />
+    <!-- ucCSS./. -->
+    <title>Product Detail</title>
+</head>
+<body>
+    <div id="layout-wrapper">
+        <!-- ucTopBar -->
+        <header id="page-topbar">
+            <div class="layout-width">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box horizontal-logo">
+                            <a href="#" class="logo logo-dark">
+                                <span class="logo-sm">
+                                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/images/logo-dark.png" alt="" height="17">
+                                </span>
+                            </a>
+
+                            <a href="#" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/images/logo-light.png" alt="" height="17">
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"
+                                id="topnav-hamburger-icon">
+                            <span class="hamburger-icon">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <div class="ms-1 header-item d-none d-sm-flex">
+                            <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                                    data-toggle="fullscreen">
+                                <i class='bx bx-fullscreen fs-22'></i>
+                            </button>
+                        </div>
+
+                        <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
+                            <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                <i class='bx bx-bell fs-22'></i>
+                                <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">
+                                    3<span class="visually-hidden">unread messages</span>
+                                </span>
+                            </button>
+
+
+                        </div>
+
+                        <div class="dropdown ms-sm-3 header-item topbar-user">
+                            <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                <span class="d-flex align-items-center">
+                                    <img class="rounded-circle header-profile-user" src="/assets/images/users/avatar-1.jpg"
+                                         alt="Header Avatar">
+                                    <span class="text-start ms-xl-2">
+                                        <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">Anna Adame</span>
+                                        <span class="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">Founder</span>
+                                    </span>
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <h6 class="dropdown-header">Welcome Anna!</h6>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Profile</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Messages</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Lock screen</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- ucTopBar./. -->
+        <!-- ucMenu-->
+        <div class="app-menu navbar-menu">
+            <!-- MENU LOGO -->
+            <div class="navbar-brand-box">
+                <!-- Dark Logo-->
+                <a href="index.html" class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/images/logo-dark.png" alt="" height="35">
+                    </span>
+                </a>
+                <!-- Light Logo-->
+                <a href="index.html" class="logo logo-light">
+                    <span class="logo-sm">
+                        <img src="/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/images/logo-light.png" alt="" height="35">
+                    </span>
+                </a>
+
+                <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+                    <i class="ri-record-circle-line"></i>
+                </button>
+            </div>
+
+            <!-- MENU LIST -->
+            <div id="scrollbar">
+                <div class="container-fluid">
+
+                    <div id="two-column-menu">
+                    </div>
+                    <ul class="navbar-nav" id="navbar-nav">
+                        <li class="menu-title"><span>DASHBOARDS</span></li>
+
+                        <!-- Index -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="index.html">
+                                <i class="ri-home-4-line"></i>
+                                <span>Dashboards</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title"><span>AUTHENCATION</span></li>
+
+                        <!-- Account -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#group2" data-bs-toggle="collapse">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Tài khoản</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="group2">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="AccountCategory.html" class="nav-link">Thể loại tài khoản</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="AccountList.html" class="nav-link">Danh sách tài khoản</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="menu-title"><span>PAGES</span></li>
+
+                        <!-- Article -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#group3" data-bs-toggle="collapse">
+                                <i class="ri-file-list-3-line"></i>
+                                <span data-key="t-forms">Tin tức</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="group3">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="ArticleCategory.html" class="nav-link">Thể loại tin tức</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="ArticleList.html" class="nav-link">Danh sách tin tức</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Gallery -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#group4" data-bs-toggle="collapse">
+                                <i class="ri-file-list-3-line"></i>
+                                <span data-key="t-forms">Bộ sưu tập</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="group4">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="GalleryCategory.html" class="nav-link">Thể loại bộ sưu tập</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="GalleryList.html" class="nav-link">Danh sách bộ sưu tập</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Product -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#group5" data-bs-toggle="collapse">
+                                <i class="ri-file-list-3-line"></i>
+                                <span data-key="t-forms">Sản phẩm</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="group5">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="ProductCategory.html" class="nav-link">Thể loại sản phẩm</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="ProductList.html" class="nav-link">Danh sách sản phẩm</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Order -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="OrderList.html">
+                                <i class="ri-file-list-3-line"></i>
+                                <span data-key="t-forms">Đơn hàng</span>
+                            </a>
+                        </li>
+
+                        <!-- Icons -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="IconList.html">
+                                <i class="ri-file-list-3-line"></i>
+                                <span data-key="t-forms">Danh sách icon</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Sidebar -->
+            </div>
+            <div class="sidebar-background"></div>
+        </div>
+        <div class="vertical-overlay"></div><!-- Vertical Overlay-->
+        <!-- ucMenu./.-->
+
+        <div class="main-content">
+            <!-- PAGE-WRAPPER -->
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+                                <!-- HeadingMain -->
+                                <h4 class="mb-sm-0">
+
+                                    Chi tiết sản phẩm
+
+                                </h4>
+                                <!-- HeadingMain./. -->
+                                <!-- ucBreadcrumb -->
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="#">Dasboard</a></li>
+                                        <li class="breadcrumb-item active">Title</li>
+                                    </ol>
+                                </div>
+                                <!-- ucBreadcrumb./. -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ContentMain -->
+
+                    <div class="form-box">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thông tin cơ bản</h5>
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <label class="form-label">Thể loại</label>
+                                        <select class="form-select">
+                                            <option value="" selected>Chọn thể loại</option>
+                                            <option value="1">Category 1</option>
+                                            <option value="2">Category 2</option>
+                                        </select>
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <label class="form-label">Trạng thái</label>
+                                        <select class="form-select">
+                                            <option value="" selected>Chọn trạng thái</option>
+                                            <option value="true">Kích hoạt</option>
+                                            <option value="false">Tạm khóa</option>
+                                        </select>
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <label class="form-label">Ngày đăng</label>
+                                        <input type="text" class="form-control" placeholder="Ngày đăng">
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <label class="form-label">Người đăng</label>
+                                        <input type="text" class="form-control" placeholder="Người đăng">
+                                    </div>
+
+
+                                    <div class="card-body pb-0 avatar-container">
+                                        <label class="form-label">Hình đại diện</label>
+                                        <div class="text-center">
+                                            <div class="position-relative d-flex justify-content-center border border-dark rounded">
+                                                <div class="position-absolute top-0 start-100 translate-middle">
+                                                    <label for="avatar-file-upload" class="mb-0" data-bs-toggle="tooltip" data-bs-placement="right" title="Upload ảnh đại diện">
+                                                        <div class="avatar-xs">
+                                                            <div class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                <i class="ri-upload-cloud-2-fill"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                    <input class="form-control d-none" value="" id="avatar-file-upload" type="file"
+                                                           accept="image/png, image/gif, image/jpeg">
+                                                </div>
+                                                <div class="avatar-xxl">
+                                                    <div class="avatar-title bg-light rounded">
+                                                        <img class="avatar-preview avatar-xxl p-2 h-auto" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="input-group mt-2">
+                                            <input type="text" class="form-control avatar-file-url" placeholder="Url hình đại diện">
+                                            <a class="btn btn-icon border bg-light text-danger avatar-remove" href="#">
+                                                <i class="ri-delete-bin-5-line"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card-body">
+                                        <label class="form-label">Bộ sưu tập</label>
+                                        <div class="dropzon-container">
+                                            <div class="dropzone">
+                                                <div class="fallback">
+                                                    <input name="file" type="file" multiple="multiple">
+                                                </div>
+                                                <div class="dz-message needsclick">
+                                                    <div class="mb-3">
+                                                        <i class="display-4 text-muted ri-upload-cloud-2-fill"></i>
+                                                    </div>
+
+                                                    <h5>Drop files here or click to upload.</h5>
+                                                </div>
+                                            </div>
+                                            <div class="input-group mt-2">
+                                                <input type="text" class="form-control" placeholder="Url bộ sưu tập">
+                                                <a class="btn btn-icon border bg-light text-danger" href="#">
+                                                    <i class="ri-delete-bin-5-line"></i>
+                                                </a>
+                                            </div>
+                                            <ul class="list-unstyled mb-0" id="dropzone-preview">
+                                                <li class="mt-2" id="dropzone-preview-list">
+                                                    <!-- This is used as the file preview template -->
+                                                    <div class="border rounded">
+                                                        <div class="d-flex align-items-center p-2">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar-sm bg-light rounded">
+                                                                    <img data-dz-thumbnail class="img-fluid rounded d-block" src="/assets/images/new-document.png"
+                                                                         alt="Preview" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1 text-truncate-one-lines">
+                                                                <div class="pt-1">
+                                                                    <h5 class="fs-14 mb-1" data-dz-name>&nbsp;</h5>
+                                                                    <p class="fs-13 text-muted mb-0" data-dz-size></p>
+                                                                    <strong class="error text-danger" data-dz-errormessage></strong>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-shrink-0 ms-3">
+                                                                <button data-dz-remove class="btn btn-sm btn-danger">Delete</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <!-- end dropzon-preview -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thông tin chính</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" placeholder="Tiêu đề">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Mô tả</label>
+                                            <textarea class="form-control" placeholder="Mô tả" rows="3"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label>Nội dung</label>
+                                            <div class="ckeditor-classic"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thông tin khác</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Mã số</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">#</span>
+                                                        <input type="text" class="form-control" placeholder="Mã số">
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Vị trí</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-arrow-up-down-line"></i>
+                                                        </span>
+                                                        <select class="form-select">
+                                                            <option value="" selected></option>
+                                                            <option value="1">01</option>
+                                                            <option value="2">02</option>
+                                                            <option value="3">03</option>
+                                                            <option value="4">04</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Lượt xem</label>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-eye-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="lượt xem">
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Code</label>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-code-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Code">
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Old price</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-money-dollar-circle-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Old price">
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Price</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-money-dollar-circle-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Price">
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Số lượng</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-bubble-chart-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Số lượng">
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Bảo hành</label>
+                                                    <div class="input-group has-validation mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-shake-hands-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Bảo hành">
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end col -->
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Khuyến mãi</label>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-percent-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Khuyến mãi">
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Phụ kiện</label>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-tools-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Phụ kiện">
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12 col-sm-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Từ khóa liên quan</label>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">
+                                                            <i class="ri-price-tag-2-line"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" placeholder="Từ khóa 1, Từ khóa 2, ...">
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- messagebox -->
+                                <div class="mt-3 alert-box">
+                                    <!-- Info Alert -->
+                                    <div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show" role="alert">
+                                        <i class="ri-airplay-line label-icon"></i><strong>Info</strong> - message
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Success Alert -->
+                                    <div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show d-none" role="alert">
+                                        <i class="ri-notification-off-line label-icon"></i><strong>Success</strong> - message
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Danger Alert -->
+                                    <div class="alert alert-danger alert-dismissible alert-label-icon rounded-label fade show d-none" role="alert">
+                                        <i class="ri-error-warning-line label-icon"></i><strong>Danger</strong> - message
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Warning Alert -->
+                                    <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show d-none" role="alert">
+                                        <i class="ri-alert-line label-icon"></i><strong>Warning</strong> - message
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>
+
+                                <!-- buttonbox -->
+                                <div class="text-center mb-3">
+                                    <button type="submit" class="btn btn-primary w-sm">
+                                        <i class="ri-send-plane-line"></i>
+                                        Submit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary w-sm">
+                                        <i class="ri-arrow-go-back-line"></i>
+                                        Back
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ContentMain./. -->
+
+                </div>
+            </div>
+            <!-- PAGE-WRAPPER./. -->
+            <!-- ucFooter -->
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="text-center">
+                                <p class="mb-0">
+                                    &copy;
+                                    <script>document.write(new Date().getFullYear())</script> Computing Academy
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- ucFooter./. -->
+        </div>
+    </div>
+
+    <!-- ucScript -->
+    <script src="/assets/js/layout.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/simplebar.min.js"></script>
+    <script src="/assets/js/waves.min.js"></script>
+    <script src="/assets/js/ckeditor.js"></script>
+    <script src="/assets/js/dropzone-min.js"></script>
+    <script src="/assets/js/glightbox.min.js"></script>
+    <script src="/assets/js/lord-icon-2.1.0.js"></script>
+    <script src="/assets/js/particles.js"></script>
+    <script src="/assets/js/particles.app.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <!-- ucScript./. -->
+</body>
+</html>

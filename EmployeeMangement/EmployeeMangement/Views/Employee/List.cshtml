@@ -1,0 +1,106 @@
+﻿@await Html.PartialAsync("Header")
+
+<!-- Layout Wrapper -->
+<div class="layout-wrapper d-flex" style="min-height:100vh;">
+
+    <!-- SIDEBAR -->
+    <div class="app-menu navbar-menu" style="width:255px; flex-shrink:0;">
+        <div class="navbar-brand-box">
+            <a href="index.html" class="logo logo-dark">
+                <span class="logo-sm">
+                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                </span>
+                <span class="logo-lg">
+                    <img src="/assets/images/logo-dark.png" alt="" height="35">
+                </span>
+            </a>
+
+            <a href="index.html" class="logo logo-light">
+                <span class="logo-sm">
+                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                </span>
+                <span class="logo-lg">
+                    <img src="/assets/images/logo-light.png" alt="" height="35">
+                </span>
+            </a>
+
+            <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+                <i class="ri-record-circle-line"></i>
+            </button>
+        </div>
+
+        <div id="scrollbar" style="height: calc(100vh - 70px); overflow-y:auto;">
+            <div class="container-fluid">
+                <ul class="navbar-nav" id="navbar-nav">
+                    <li class="menu-title"><span>DASHBOARDS</span></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="index.html">
+                            <i class="ri-home-4-line"></i>
+                            <span>Dashboards</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title"><span>Trang</span></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#group3" data-bs-toggle="collapse">
+                            <i class="ri-user-2-line"></i>
+                            <span>Nhân viên</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="group3">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <button id="employee-list-link" class="nav-link">Danh sách nhân viên</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#group4" data-bs-toggle="collapse">
+                            <i class="ri-building-line"></i>
+                            <span>Phòng ban</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="group4">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <button id="department-list-link" class="nav-link">Danh sách phòng ban</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#group5" data-bs-toggle="collapse">
+                            <i class="ri-road-map-line"></i>
+                            <span>Vị trí công tác</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="group5">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <button id="jobposition-list-link" class="nav-link">Danh sách vị trí</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="sidebar-background"></div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="flex-grow-1" style="background-color:#f8f9fa; overflow-y:auto;">
+        <main>
+            <div id="content-main">
+               
+            </div>
+        </main>
+    </div>
+
+</div>
+
+<div class="vertical-overlay"></div>

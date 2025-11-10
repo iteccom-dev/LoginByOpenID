@@ -1,0 +1,173 @@
+﻿<style>
+    /* Ép header bảng luôn nền trắng, chữ đen, không gradient */
+    .table thead.thead-white th {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #dee2e6 !important;
+        box-shadow: none !important;
+        background-image: none !important;
+    }
+
+    /* Nếu hệ thống đang bật dark mode vẫn giữ trắng */
+    [data-bs-theme="dark"] .table thead.thead-white th {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+</style> 
+<div class="container-fluid">
+
+    <!-- Bộ lọc -->
+    <div class="card filter-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Danh sách phòng ban</span>
+            <button class="btn btn-success" id="btnAdd">
+                <i class="ri-add-line me-1"></i> Thêm phòng ban
+            </button>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label fw-semibold">Tìm kiếm</label>
+                    <div class="position-relative">
+                        <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="search" id="keyword" class="form-control ps-5" placeholder="Tên, email, phone...">
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">Trạng thái</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Tất cả</option>
+                        <option value="Active">Kích hoạt</option>
+                        <option value="Inactive">Tạm khóa</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">Chức vụ</label>
+                    <select class="form-select" id="positionFilter"><option value="">Tất cả</option></select>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">Phòng ban</label>
+                    <select class="form-select" id="departmentFilter"><option value="">Tất cả</option></select>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">Vị trí công tác</label>
+                    <select class="form-select" id="jobPositionFilter"><option value="">Tất cả</option></select>
+                </div>
+            </div>
+
+            <!-- Row 2: date range + actions -->
+            <div class="row g-3 align-items-center mt-2">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label fw-semibold">Ngày tạo</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="date" id="createDateFrom" class="form-control form-control-sm">
+                        <span>-</span>
+                        <input type="date" id="createDateTo" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 ms-auto text-end">
+                    <button type="button" class="btn btn-outline-secondary" id="clearFilter">Xóa bộ lọc</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Danh sách phòng ban -->
+    <div class="card list-card shadow-sm border-0">
+        <div class="card-body p-0">
+            <!-- Responsive Table Wrapper -->
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0 text-dark border">
+                    <thead class="thead-white">
+                        <tr>
+                            <th scope="col" class="text-center" style="width: 50px;">
+                                <input type="checkbox" class="form-check-input">
+                            </th>
+                            <th scope="col" style="min-width: 60px;">ID</th>
+                            <th scope="col" style="min-width: 100px;">Mã phòng</th>
+                            <th scope="col" style="min-width: 150px;">Tên phòng</th>
+                            <th scope="col" class="text-center" style="min-width: 160px;">Trưởng phòng</th>
+                            <th scope="col" class="text-center" style="min-width: 120px;">Số nhân viên</th>
+                            <th scope="col" class="text-center" style="min-width: 120px;">Trạng thái</th>
+                            <th scope="col" class="text-center" style="min-width: 100px;">Hành động</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="departmentList">
+                        <tr>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input">
+                            </td>
+                            <td><span class="fw-bold text-primary">01</span></td>
+                            <td><span class="fw-medium">PB001</span></td>
+                            <td><span class="fw-medium text-truncate d-inline-block" style="max-width: 120px;">Phòng Kỹ Thuật</span></td>
+                            <td class="text-center">
+                                <span class="fw-medium text-break">Hahahahahahhahahahahahhahhahahhahah</span>
+                            </td>
+                            <td class="text-center">
+                                <i class="ri-team-line text-primary me-1"></i>
+                                <span class="fw-semibold">12</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">Kích hoạt</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="dropup dropdown-action">
+                                    <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-2-fill"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <a href="#" class="dropdown-item view-item-btn text-primary">
+                                                <i class="ri-eye-fill fs-16 me-1"></i> Xem chi tiết
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown-item edit-item-btn text-warning">
+                                                <i class="ri-edit-fill fs-16 me-1"></i> Chỉnh sửa
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown-item remove-item-btn text-danger delete-item-btn">
+                                                <i class="ri-delete-bin-5-fill fs-16 me-1"></i> Xóa bỏ
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    @Html.Partial("~/Views/Shared/Page/_DepartmentCreateUpdate.cshtml")
+    @Html.Partial("~/Views/Shared/Page/_DepartmentDetail.cshtml")
+
+
+
+    <!-- Không có dữ liệu -->
+    <div class="text-center no-data d-none" id="noData">
+        <i class="ri-inbox-line" style="font-size: 3rem; color: #cbd5e1;"></i>
+        <p class="mt-3 fw-medium">Không có dữ liệu phù hợp</p>
+    </div>
+
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-end" id="paginationD"></ul>
+    </nav>
+</div>
+
+<script>
+    document.dispatchEvent(new CustomEvent("componentLoaded", {
+        detail: { script: "/js/department.js" } // file JS riêng của trang này
+    }));
+</script>

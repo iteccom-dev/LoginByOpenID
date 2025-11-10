@@ -1,0 +1,86 @@
+﻿<div class="modal fade" id="DepartmentCreateUpdate" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white">Thêm / Sửa phòng ban</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <form id="departmentForm">
+                    <input type="hidden" id="departmentId" />
+
+                    <!-- === 1. THÔNG TIN CƠ BẢN === -->
+                    <h6 class="fw-bold text-uppercase text-primary mb-3">1. Thông tin cơ bản</h6>
+
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Mã phòng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="DepartmentCode" placeholder="Nhập mã phòng">
+                        </div>
+
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Tên phòng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="departmentName" placeholder="Nhập tên phòng">
+                        </div>
+
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Tên trưởng phòng</label>
+                            <select class="form-select" id="managerSelect">
+                                <option value="">-- Chọn Trưởng phòng --</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" id="statusSelect">
+                                <option value="1">Kích hoạt</option>
+                                <option value="0">Tạm khóa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <!-- === 2. THÔNG TIN HỆ THỐNG === -->
+                    <h6 class="fw-bold text-uppercase text-primary mb-3">2. Thông tin hệ thống</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Người tạo</label>
+                            <input type="text" class="form-control" id="createdBy" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày tạo</label>
+                            <input type="text" class="form-control" id="createdDate" readonly>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Người chỉnh sửa</label>
+                            <input type="text" class="form-control" id="updatedBy" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày chỉnh sửa</label>
+                            <input type="text" class="form-control" id="updatedDate" readonly>
+                        </div>
+                        <input type="hidden" id="avatarMediaId" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-primary" id="btnSaveDepartment">
+                    <i class="ri-save-3-line me-1"></i> Lưu phòng ban
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

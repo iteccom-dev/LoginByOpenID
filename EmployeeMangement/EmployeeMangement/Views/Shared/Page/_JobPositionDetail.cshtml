@@ -1,0 +1,72 @@
+﻿<!-- Modal Chi tiết Vị trí công tác -->
+<div class="modal fade" id="jobPositionDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Chi tiết vị trí công tác</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <form>
+                    <!-- THÔNG TIN CƠ BẢN -->
+                    <h6 class="fw-bold text-uppercase text-info mb-3">1. Thông tin cơ bản</h6>
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Mã vị trí</label>
+                            <input type="text" class="form-control" id="detailJobPositionCode" readonly>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Tên vị trí</label>
+                            <input type="text" class="form-control" id="detailJobPositionName" readonly>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Từ khóa</label>
+                            <input type="text" class="form-control" id="detailKeyword" readonly>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" id="detailAddress" readonly>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <input type="text" class="form-control" id="detailStatusText" readonly>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <!-- THÔNG TIN HỆ THỐNG -->
+                    <h6 class="fw-bold text-uppercase text-info mb-3">2. Thông tin hệ thống</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Người tạo</label>
+                            <input type="text" class="form-control" id="detailCreatedBy" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Ngày tạo</label>
+                            <input type="text" class="form-control" id="detailCreatedDate" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Người cập nhật</label>
+                            <input type="text" class="form-control" id="detailUpdatedBy" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Ngày cập nhật</label>
+                            <input type="text" class="form-control" id="detailUpdatedDate" readonly>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ri-close-line me-1"></i> Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

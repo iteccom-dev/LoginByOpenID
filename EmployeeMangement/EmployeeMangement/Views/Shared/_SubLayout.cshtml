@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CRUD_Product</title>
+
+    <!-- Bootstrap & Core CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Admin Template Styles -->
+
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link href="~/assets/css/icons.min.css" rel="stylesheet" />
+    <link href="~/assets/css/app.min.css" rel="stylesheet" />
+    <link href="~/assets/css/custom.min.css" rel="stylesheet" />
+    <link href="~/assets/css/dropzone.css" rel="stylesheet" />
+    <link href="~/assets/css/glightbox.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    @RenderBody()
+
+
+
+
+
+
+
+    <!-- ========== Scripts ========== -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/assets/js/simplebar.min.js"></script>
+    <script src="~/assets/js/waves.min.js"></script>
+    <script src="~/assets/js/ckeditor.js"></script>
+    <script src="~/assets/js/dropzone-min.js"></script>
+    <script src="~/assets/js/glightbox.min.js"></script>
+    <script src="~/assets/js/lord-icon-2.1.0.js"></script>
+    <script src="~/assets/js/particles.js"></script>
+    <script src="~/assets/js/particles.app.js"></script>
+    <script src="~/assets/js/app.js"></script>
+    <script src="~/js/submain.js"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+
+</body>
+</html>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
