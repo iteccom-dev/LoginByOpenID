@@ -10,4 +10,8 @@
     <ProjectReference Include="..\DBContexts.OIDC_Management\DBContexts.OIDC_Management.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
 </Project>
