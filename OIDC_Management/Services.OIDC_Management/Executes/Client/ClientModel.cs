@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Services.OIDC_Management.Executes
 {
-    public class ClientCommand
+    public class ClientModel
     {
+
     }
 }

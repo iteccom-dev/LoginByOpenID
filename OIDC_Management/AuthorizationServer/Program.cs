@@ -1,10 +1,18 @@
+
+using DBContexts.OIDC_Management.Entities;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OIDCDemo.AuthorizationServer;
-using OIDCDemo.AuthorizationServer.AuthorizationClient;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
+using Services.OIDC_Management.Executes;
+using Services.OIDC_Management.Executes.AuthorizationClient;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<oidcIdentityContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
@@ -15,14 +23,16 @@ var tokenIssuingOptions = builder.Configuration.GetSection("TokenIssuing").Get<T
 
 builder.Services.AddSingleton(tokenIssuingOptions);
 builder.Services.AddSingleton(JwkLoader.LoadFromDefault());
-builder.Services.AddTransient<IAuthorizationClientService>(services => new FakeAuthorizationClientService(
-    (id) => id == "oidc-demo-client" ? new AuthorizationClient() { 
-        ClientId = "oidc-demo-client", 
-        RedirectUri = "https://localhost:7100/signin-oidc"
-    } : null
-    ));
-
+builder.Services.AddScoped<AuthorizationClientModel>();
+builder.Services.AddScoped<AuthorizationClientOne>();
+builder.Services.AddScoped<ClientCommand>();
+builder.Services.AddScoped<ClientMany>();
+builder.Services.AddScoped<ClientOne>();
+builder.Services.AddScoped<ClientModel>();
+builder.Services.AddScoped<PasswordHasher>();
 var app = builder.Build();
+
+
 
 app.MapGet("/.well-known/openid-configuration", () =>
 {

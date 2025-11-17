@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using OIDCDemo.AuthorizationServer.AuthorizationClient;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
+using Services.OIDC_Management.Executes.AuthorizationClient;
 using System.CodeDom.Compiler;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using static Services.OIDC_Management.Executes.AuthorizationClient.AuthorizationClientModel;
 
 namespace OIDCDemo.AuthorizationServer.Controllers
 {
@@ -21,72 +23,85 @@ namespace OIDCDemo.AuthorizationServer.Controllers
         private readonly JsonWebKey jsonWebKey;
         private readonly ICodeStorage codeStorage;
         private readonly IRefreshTokenStorageFactory refreshTokenStorageFactory;
-        private readonly IAuthorizationClientService authorizationClientService;
+        private readonly AuthorizationClientOne authorizationClientOne;
+        private readonly AuthorizationClientModel authorizationClientModel;
 
         public AuthorizeController(
             TokenIssuingOptions tokenIssuingOptions,
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
             IRefreshTokenStorageFactory refreshTokenStorageFactory,
-            IAuthorizationClientService authorizationClientService, 
-            ILogger<AuthorizeController> logger)
+            AuthorizationClientOne authorizationClientOne, 
+            ILogger<AuthorizeController> logger,
+        AuthorizationClientModel  authorizationClientModel)
         {
             this.tokenIssuingOptions = tokenIssuingOptions;
             this.jsonWebKey = jsonWebKey;
             this.codeStorage = codeStorage;
             this.refreshTokenStorageFactory = refreshTokenStorageFactory;
-            this.authorizationClientService = authorizationClientService;
+            this.authorizationClientOne = authorizationClientOne;
             this.logger = logger;
+            this.authorizationClientModel = authorizationClientModel;
         }
 
+        // Hiển thị form login email/password
         public IActionResult Index(AuthenticationRequestModel authenticateRequest)
         {
             ValidateAuthenticateRequestModel(authenticateRequest);
             return View(authenticateRequest);
         }
 
+        // Người dùng submit email + password
         [HttpPost]
-        public IActionResult AuthorizeAsync(AuthenticationRequestModel authenticateRequest, string user, string[] scopes)
+        public async Task<IActionResult> AuthorizeAsync(AuthenticationRequestModel authenticateRequest, string email, string password)
         {
-            ArgumentNullException.ThrowIfNull(nameof(authenticateRequest));
-            ArgumentException.ThrowIfNullOrEmpty(nameof(user));
-            ArgumentNullException.ThrowIfNull(scopes);
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                ModelState.AddModelError("", "Email và mật khẩu không được bỏ trống");
+                return View(authenticateRequest);
+            }
 
-            ValidateAuthenticateRequestModel(authenticateRequest);
-
-            var client = authorizationClientService.FindById(authenticateRequest.ClientId);
+            // Lấy client từ DB
+            var client = await authorizationClientOne.FindByClientId(authenticateRequest.ClientId);
             if (client == null)
             {
                 return BadRequest("Invalid client_id");
             }
 
-            if (client.RedirectUri != authenticateRequest.RedirectUri)
+            if (!client.RedirectUris.Split(';').Contains(authenticateRequest.RedirectUri))
             {
                 return BadRequest("Invalid redirect_uri");
             }
 
+            // Xác thực user bằng email/password
+            var user = await authorizationClientOne.CheckAccount(email, password);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
+                return View(authenticateRequest);
+            }
+
+            // Tạo code
             string code = GenerateAuthenticationCode();
-            if (!codeStorage.TryAddCode(code, new CodeStorageValue() {
+            if (!codeStorage.TryAddCode(code, new CodeStorageValue()
+            {
                 Code = code,
                 ClientId = authenticateRequest.ClientId,
                 OriginalRedirectUri = authenticateRequest.RedirectUri,
                 ExpiryTime = DateTime.Now.AddSeconds(CodeResponseValidSeconds),
                 Nonce = authenticateRequest.Nonce,
-                User = user,
+                User = user,          // lưu user id
                 Scope = authenticateRequest.Scope
-            }
-            )) 
+            }))
             {
-                throw new Exception("Error storing code"); 
+                throw new Exception("Error storing code");
             }
 
             var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
 
-            string viewName = "SubmitForm"; // we can change to another view if we need to support response_modes other than form_post
-
             logger.LogInformation("New authentication code issued: {c}", code);
 
-            return View(viewName, new CodeFlowResponseViewModel()
+            return View("SubmitForm", new CodeFlowResponseViewModel()
             {
                 Code = codeFlowModel.Code,
                 RedirectUri = authenticateRequest.RedirectUri,
@@ -95,37 +110,47 @@ namespace OIDCDemo.AuthorizationServer.Controllers
         }
 
         [HttpPost("/token")]
-        [ResponseCache(NoStore = true)] // https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        public IActionResult GetTokenAsync(string grant_type, string? code, string? refresh_token, string redirect_uri)
+        [ResponseCache(NoStore = true)]
+        public async Task<IActionResult> GetTokenAsync(string grant_type, string? code, string? refresh_token, string redirect_uri, [FromForm] string client_id, [FromForm] string client_secret)
         {
             if (grant_type == "authorization_code")
             {
-                if (string.IsNullOrEmpty(code))
+                if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(client_id) || string.IsNullOrEmpty(client_secret))
                 {
-                    return BadRequest();
+                    return BadRequest("Missing parameters");
                 }
 
+                // Lấy code từ storage
                 if (!codeStorage.TryGetToken(code, out var codeStorageValue) || codeStorageValue == null)
                 {
-                    return BadRequest();
+                    return BadRequest("Invalid code");
                 }
 
+                // Kiểm tra redirect_uri
                 if (codeStorageValue.OriginalRedirectUri != redirect_uri)
                 {
-                    return BadRequest();
+                    return BadRequest("Invalid redirect_uri");
                 }
 
-                var client = authorizationClientService.FindById(codeStorageValue.ClientId);
+                // Lấy client từ DB
+                var client = await authorizationClientOne.FindByClientId(client_id);
                 if (client == null)
                 {
-                    return BadRequest();
+                    return BadRequest("Invalid client_id");
                 }
 
-                codeStorage.TryRemove(code); // code can not be reused
+                // Kiểm tra client_secret
+                if (client.ClientSecret != client_secret)
+                {
+                    return BadRequest("Invalid client_secret");
+                }
 
-                // refresh token can actually be implemented as a JWT or an unique id string
+                codeStorage.TryRemove(code); // code không được dùng lại
+
+                // Tạo refresh token
                 var refreshToken = GenerateRefreshToken();
-                while (!refreshTokenStorageFactory.GetTokenStorage().TryAddToken(refreshToken)) { // a bit ugly here :|, this can run FOREVER
+                while (!refreshTokenStorageFactory.GetTokenStorage().TryAddToken(refreshToken))
+                {
                     refreshToken = GenerateRefreshToken();
                 }
 
@@ -135,7 +160,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     IdToken = GenerateIdToken(codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken,
-                    ExpiresIn = TokenResponseValidSeconds // valid in 20 minutes
+                    ExpiresIn = TokenResponseValidSeconds
                 };
 
                 logger.LogInformation("access_token: {t}", result.AccessToken);

@@ -32,6 +32,7 @@ builder.Services.AddAuthentication(options =>
 {
     openIdOptions.ClientId = options.ClientId;
     openIdOptions.Authority = options.Issuer;
+    openIdOptions.ClientSecret = options.ClientSecret;
     openIdOptions.ResponseType = OpenIdConnectResponseType.Code;
     openIdOptions.CallbackPath = options.CallbackPath;
     openIdOptions.SaveTokens = true;
