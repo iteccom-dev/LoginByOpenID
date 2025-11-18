@@ -81,7 +81,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 return View(authenticateRequest);
             }
 
-            // Tạo code
+            // Tạo code để user đổi token
             string code = GenerateAuthenticationCode();
             if (!codeStorage.TryAddCode(code, new CodeStorageValue()
             {
@@ -100,7 +100,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
 
             logger.LogInformation("New authentication code issued: {c}", code);
-
+            //trả về cho user code để đi đổi token
             return View("SubmitForm", new CodeFlowResponseViewModel()
             {
                 Code = codeFlowModel.Code,
@@ -153,7 +153,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 {
                     refreshToken = GenerateRefreshToken();
                 }
-
+                // Trả về Token cho user
                 var result = new AuthenticationResponseModel()
                 {
                     AccessToken = GenerateAccessToken(codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
@@ -248,7 +248,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, userId),
+                new(JwtRegisteredClaimNames.Sub, userId), // Trả về claim cho user
                 new("scope", scope) // Jeg vet ikke hvorfor JwtRegisteredClaimNames inneholder ikke "scope"??? Det har kun OIDC ting?  https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim
             };
             var idToken = JwtGenerator.GenerateJWTToken(

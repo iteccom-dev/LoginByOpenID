@@ -8,5 +8,6 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return View();
         }
+
     }
 }

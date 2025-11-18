@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
+<head>
+    <!-- ucMeta-->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <!-- ucMeta./.-->
+    <!-- ucCSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/icons.min.css" rel="stylesheet" />
+    <link href="/assets/css/app.min.css" rel="stylesheet" />
+    <link href="/assets/css/custom.min.css" rel="stylesheet" />
+    <link href="/assets/css/dropzone.css" rel="stylesheet" />
+    <link href="/assets/css/glightbox.min.css" rel="stylesheet" />
+    <!-- ucCSS./. -->
+    <title>Product List</title>
+</head>
+<body>
+    <div id="layout-wrapper">
+        <!-- ucTopBar -->
+        <header id="page-topbar">
+            <div class="layout-width">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box horizontal-logo">
+                            <a href="#" class="logo logo-dark">
+                                <span class="logo-sm">
+                                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/images/logo-dark.png" alt="" height="17">
+                                </span>
+                            </a>
+
+                            <a href="#" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="/assets/images/logo-sm.png" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/images/logo-light.png" alt="" height="17">
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"
+                                id="topnav-hamburger-icon">
+                            <span class="hamburger-icon">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <div class="ms-1 header-item d-none d-sm-flex">
+                            <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                                    data-toggle="fullscreen">
+                                <i class='bx bx-fullscreen fs-22'></i>
+                            </button>
+                        </div>
+
+                        <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
+                            <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+                                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                <i class='bx bx-bell fs-22'></i>
+                                <span class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">
+                                    3<span class="visually-hidden">unread messages</span>
+                                </span>
+                            </button>
+
+
+                        </div>
+
+                        <div class="dropdown ms-sm-3 header-item topbar-user">
+                            <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                <span class="d-flex align-items-center">
+                                    <img class="rounded-circle header-profile-user" src="/assets/images/users/avatar-1.jpg"
+                                         alt="Header Avatar">
+                                    <span class="text-start ms-xl-2">
+                                        <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">Anna Adame</span>
+                                        <span class="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">Founder</span>
+                                    </span>
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <h6 class="dropdown-header">Welcome Anna!</h6>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Profile</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Messages</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Lock screen</span>
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- ucTopBar./. -->
+        <!-- ucMenu-->
+        <div class="app-menu navbar-menu">
+            <!-- MENU LOGO -->
+            <div class="navbar-brand-box">
+                <!-- Dark Logo-->
+                <a href="index.html" class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/images/logo-dark.png" alt="" height="35">
+                    </span>
+                </a>
+                <!-- Light Logo-->
+                <a href="index.html" class="logo logo-light">
+                    <span class="logo-sm">
+                        <img src="/assets/images/logo-sm.png" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/images/logo-light.png" alt="" height="35">
+                    </span>
+                </a>
+
+                <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+                    <i class="ri-record-circle-line"></i>
+                </button>
+            </div>
+
+            <!-- MENU LIST -->
+            <div id="scrollbar">
+                <div class="container-fluid">
+
+                    <div id="two-column-menu">
+                    </div>
+                    <ul class="navbar-nav" id="navbar-nav">
+                        <li class="menu-title"><span>DASHBOARDS</span></li>
+
+                        <!-- Index -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="index.html">
+                                <i class="ri-home-4-line"></i>
+                                <span>Dashboards</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title"><span>AUTHENCATION</span></li>
+
+                        <!-- Account -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#group2" data-bs-toggle="collapse">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Tài khoản</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="group2">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item">
+                                        <a href="AccountCategory.html" class="nav-link">Danh sách User</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="AccountList.html" class="nav-link">Danh sách tài khoản</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Sidebar -->
+            </div>
+            <div class="sidebar-background"></div>
+        </div>
+        <div class="vertical-overlay"></div><!-- Vertical Overlay-->
+        <!-- ucMenu./.-->
+
+        <div class="main-content">
+            <!-- PAGE-WRAPPER -->
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+                                <!-- HeadingMain -->
+                                <h4 class="mb-sm-0">
+
+                                    Danh sách User
+
+                                </h4>
+                                <!-- HeadingMain./. -->
+                                <!-- ucBreadcrumb -->
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="#">Dasboard</a></li>
+                                        <li class="breadcrumb-item active">Title</li>
+                                    </ol>
+                                </div>
+                                <!-- ucBreadcrumb./. -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ContentMain -->
+
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+
+
+                                <!-- ucSearchBar -->
+                                <div class="card-header align-items-center d-flex gap-2">
+                                    <div class="flex-shrink-0 d-flex gap-2">
+                                        <a href="#" class="btn btn-danger waves-effect waves-light d-none">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                            Xóa
+                                        </a>
+                                        <a href="#" class="btn btn-success add-btn waves-effect waves-light">
+                                            <i class="ri-add-line align-bottom me-1"></i>
+                                            Thêm
+                                        </a>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-grow-1">
+                                        <div class="search-box">
+                                            <i class="ri-stackshare-line search-icon"></i>
+                                            <select class="form-control form-select bg-light border-light">
+                                                <option value="" selected>Category</option>
+                                            </select>
+                                        </div>
+                                        <div class="search-box flex-grow-1">
+                                            <i class="ri-search-line search-icon"></i>
+                                            <input type="search" class="form-control search bg-light border-light" placeholder="Search...">
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0 d-flex gap-2">
+                                        <a href="#" class="btn btn-primary waves-effect waves-light">
+                                            <i class="ri-equalizer-fill me-1 align-bottom"></i>
+                                            Filters
+                                        </a>
+                                        <a href="#" class="btn btn-outline-primary waves-effect waves-light">
+                                            <i class="ri-close-circle-fill me-1 align-bottom"></i>
+                                            Clear
+                                        </a>
+                                    </div>
+                                </div>
+                                <!-- ucSearchBar./. -->
+                                <div class="card-body">
+                                    <div class="live-preview">
+                                        <div class="table-responsive">
+                                            <table class="table align-middle table-nowrap mb-0">
+                                            <thead class="table-light">
+                                                    <tr>
+                                                        <th class="text-center">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox">
+                                                            </div>
+                                                        </th>
+                                                        <th class="text-center">STT</th>
+                                                         <th class="text-left">Thông tin người dùng</th>
+                                                        <th class="text-center">Email</th>
+                                                        <th class="text-center">Vai trò</th>
+                                                        <th class="text-center">Hình thức</th>
+                                                        <th class="text-center">Client</th>
+                                                        <th class="text-center">Hành động</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    <tr>
+                                                        <!-- Checkbox cho chọn user -->
+                                                        <th class="text-center">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox">
+                                                            </div>
+                                                        </th>
+
+                                                        <!-- STT (số thứ tự trong bảng) -->
+                                                        <td class="text-center">01</td>
+
+                                                       
+                                                        <!-- Thông tin chi tiết user -->
+                                                        <td class="text-left">
+                                                            <div class="d-flex flex-column gap-2">
+
+                                                                <!-- UserName hiển thị chính -->
+                                                                <strong class="text-primary text-wrap text-truncate-two-lines">
+                                                                    Nguyễn Văn A
+                                                                </strong>
+
+                                                                <!-- Phone hoặc thông tin phụ khác -->
+                                                                <div class="text-muted">
+                                                                    <span class="text-primary">0909123456</span>
+                                                                </div>
+
+                                                                <!-- 2FA và trạng thái Active -->
+                                                                <div class="text-body-tertiary">
+                                                                    <span>Status: </span>
+                                                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                                                </div>
+
+                                                            </div>
+                                                        </td>
+
+                                                        <!-- Email người dùng -->
+                                                        <td class="text-center">
+                                                            <div class="text-primary">john@gmail.com</div>
+                                                        </td>
+
+                                                        <!-- Vai trò (Role) của user -->
+                                                        <td class="text-center">
+                                                            <span class="badge text-primary bg-primary-subtle">User</span>
+                                                            <!-- Nếu có thêm role khác có thể bỏ comment phía dưới -->
+                                                            <!-- <span class="badge text-warning bg-warning-subtle">Admin</span> -->
+                                                        </td>
+
+                                                        <!-- Hình thức đăng nhập / Provider -->
+                                                        <td class="text-center">
+                                                            </i>Email/Google
+                                                        </td>
+
+                                                        <!-- Client gắn với user -->
+                                                        <td class="text-center">
+                                                            <i class="ri-building-line me-1"></i>Client ABC
+                                                        </td>
+
+                                                        <!-- Actions: Xem chi tiết, Chỉnh sửa, Xóa -->
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="ri-more-2-fill"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <li>
+                                                                        <a href="#" class="dropdown-item view-item-btn text-primary">
+                                                                            <i class="ri-eye-fill fs-16"></i>Xem chi tiết
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="#" class="dropdown-item edit-item-btn text-warning">
+                                                                            <i class="ri-edit-fill fs-16"></i>Chỉnh sửa
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="#" class="dropdown-item remove-item-btn text-danger">
+                                                                            <i class="ri-delete-bin-5-fill fs-16"></i>Xóa bỏ
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                   
+                                                    
+                                                </tbody>
+
+                                                <tfoot class="table-light">
+                                                    <tr>
+                                                        <td colspan="12">
+
+                                                            <!-- ucPagination -->
+                                                            <ul class="pagination pagination-separated justify-content-center mb-0">
+                                                                <li class="page-item disabled">
+                                                                    <a href="javascript:void(0);" class="page-link">←</a>
+                                                                </li>
+                                                                <li class="page-item active">
+                                                                    <a href="javascript:void(0);" class="page-link">1</a>
+                                                                </li>
+                                                                <li class="page-item">
+                                                                    <a href="javascript:void(0);" class="page-link">2</a>
+                                                                </li>
+                                                                <li class="page-item">
+                                                                    <a href="javascript:void(0);" class="page-link">3</a>
+                                                                </li>
+                                                                <li class="page-item">
+                                                                    <a href="javascript:void(0);" class="page-link">→</a>
+                                                                </li>
+                                                            </ul>
+                                                            <!-- ucPagination./. -->
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ucFooter -->
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="text-center">
+                                <p class="mb-0">
+                                    &copy;
+                                    <script>document.write(new Date().getFullYear())</script> Computing Academy
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- ucFooter./. -->
+        </div>
+    </div>
+
+    <!-- ucScript -->
+    <script src="/assets/js/layout.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/simplebar.min.js"></script>
+    <script src="/assets/js/waves.min.js"></script>
+    <script src="/assets/js/ckeditor.js"></script>
+    <script src="/assets/js/dropzone-min.js"></script>
+    <script src="/assets/js/glightbox.min.js"></script>
+    <script src="/assets/js/lord-icon-2.1.0.js"></script>
+    <script src="/assets/js/particles.js"></script>
+    <script src="/assets/js/particles.app.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <!-- ucScript./. -->
+</body>
+</html>

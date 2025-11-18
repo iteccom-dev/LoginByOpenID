@@ -1,6 +1,7 @@
-
+﻿
 using DBContexts.OIDC_Management.Entities;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,14 +47,14 @@ app.MapGet("/.well-known/jwks.json", () =>
 
 app.UseRouting();
 app.UseStaticFiles();
+// Đặt route mặc định là vào thẳng Area Admin luôn
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-      name: "areas",
-      pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-    );
-});
+    pattern: "{controller=Home}/{action=Index}/{id?}",
+    defaults: new { area = "Admin", controller = "Home", action = "Index" });
+
+// Route dành cho tất cả các Area (bắt buộc phải để sau route default)
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 app.Run();
