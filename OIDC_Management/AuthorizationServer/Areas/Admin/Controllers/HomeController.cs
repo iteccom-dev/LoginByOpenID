@@ -9,5 +9,21 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return View(/*"~/Areas/Admin/Views/Home/Index.cshtml"*/);
         }
+        public async Task<IActionResult> ClientList()
+        {
+            return PartialView("Pages/Client/List");
+        }
+        public async Task<IActionResult> UserList()
+        {
+            return PartialView("Pages/User/List");
+        }
+
+
+
+
+
+
+
+
     }
 }

@@ -23,6 +23,7 @@
     @RenderBody()
     </div>
     <!-- ucScript -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="/assets/js/layout.js"></script>
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/simplebar.min.js"></script>
@@ -34,6 +35,41 @@
     <script src="/assets/js/particles.js"></script>
     <script src="/assets/js/particles.app.js"></script>
     <script src="/assets/js/app.js"></script>
+    <script src="~/js/navigation.js"></script>
+
+    <script>
+        let currentComponentScript = null;
+
+        function loadScript(src) {
+            // Xóa script cũ nếu có
+            if (currentComponentScript) {
+                document.body.removeChild(currentComponentScript);
+                currentComponentScript = null;
+            }
+
+            // Tạo script mới
+            const s = document.createElement("script");
+            s.src = src;
+            s.defer = true;
+
+            // Khi nạp xong thì gắn biến toàn cục
+            s.onload = () => {
+                currentComponentScript = s;
+                console.log(`Loaded: ${src}`);
+            };
+
+            document.body.appendChild(s);
+        }
+
+        // Lắng nghe sự kiện componentLoaded
+        document.addEventListener("componentLoaded", function (e) {
+            const scriptPath = e.detail.script;
+            if (scriptPath) {
+                loadScript(scriptPath);
+            }
+        });
+    </script>
+
     <!-- ucScript./. -->
 </body>
 </html>
