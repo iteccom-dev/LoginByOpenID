@@ -2,6 +2,6 @@
     Layout = "~/Areas/Admin/Views/Shared/Layouts/_LayoutMain.cshtml";
 }
 
-<h1>Chào mừng bạn đến với hệ thống!</h1>
-<p>Đây là trang chủ ngoài Area.</p>
-<p>toi co nao 200gam</p>
+@await Html.PartialAsync("Components/Header")
+@await Html.PartialAsync("Components/Navbar")
+
