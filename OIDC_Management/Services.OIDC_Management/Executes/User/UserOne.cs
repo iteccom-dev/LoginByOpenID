@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.OIDC_Management.Executes.User
+namespace Services.OIDC_Management.Executes
 {
-    internal class UserCommand
+    public class UserOne
     {
     }
 }
