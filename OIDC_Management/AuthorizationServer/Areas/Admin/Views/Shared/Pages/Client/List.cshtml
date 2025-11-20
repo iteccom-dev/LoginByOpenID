@@ -1,4 +1,6 @@
-﻿<div class="main-content">
+﻿
+
+<div class="main-content">
     <!-- PAGE-WRAPPER -->
     <div class="page-content">
         <div class="container-fluid">
@@ -28,32 +30,52 @@
             <!-- ContentMain -->
 
             <div class="row">
+
                 <div class="col-xl-12">
                     <div class="card">
                         <!-- ucSearchBar -->
                         <div class="card-header align-items-center d-flex gap-2">
+
+                            <!-- Left group -->
                             <div class="flex-shrink-0 d-flex gap-2">
+
                                 <a href="#" class="btn btn-danger waves-effect waves-light d-none">
                                     <i class="ri-delete-bin-2-line"></i>
                                     Xóa
                                 </a>
-                                <a href="#" class="btn btn-success add-btn waves-effect waves-light">
+
+                                <a href="#" class="btn btn-success add-btn waves-effect waves-light" id="btnAddClient">
                                     <i class="ri-add-line align-bottom me-1"></i>
                                     Thêm Client
                                 </a>
+
+                                <!-- Beautiful Select Filter -->
+                                <div>
+                                    <select id="clientStatusFilter" class="form-select form-select-sm"
+                                            style="min-width:150px; height:36px; padding-left:10px;">
+                                        <option value="">-- Tất cả --</option>
+                                        <option value="1">Kích hoạt</option>
+                                        <option value="0">Tạm khóa</option>
+                                    </select>
+                                </div>
+
                             </div>
+
+                            <!-- Search -->
                             <div class="d-flex gap-2 flex-grow-1">
                                 <div class="search-box flex-grow-1">
                                     <i class="ri-search-line search-icon"></i>
-                                    <input type="search" class="form-control search bg-light border-light" placeholder="Search Client...">
+                                    <input type="search" class="form-control search bg-light border-light"
+                                           placeholder="Search Client...">
                                 </div>
                             </div>
+
+                            <!-- Right group -->
                             <div class="flex-shrink-0 d-flex gap-2">
-                                <a href="#" class="btn btn-primary waves-effect waves-light">
-                                    <i class="ri-equalizer-fill me-1 align-bottom"></i>
-                                    Filters
-                                </a>
-                                <a href="#" class="btn btn-outline-primary waves-effect waves-light">
+
+                                <!-- Removed Filters button -->
+
+                                <a href="#" class="btn btn-outline-primary waves-effect waves-light" id="btnClearFilter">
                                     <i class="ri-close-circle-fill me-1 align-bottom"></i>
                                     Clear
                                 </a>
@@ -64,7 +86,7 @@
                         <div class="card-body">
                             <div class="live-preview">
                                 <div class="table-responsive">
-                                    <table class="table align-middle table-nowrap mb-0">
+                                    <table id="clientTable" class="table align-middle table-nowrap mb-0">
                                         <thead class="table-light">
                                             <tr>
                                                 <th class="text-center">
@@ -83,59 +105,132 @@
                                             </tr>
                                         </thead>
 
-                                        <tbody>
-                                            <tr>
-                                                <th class="text-center">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox">
-                                                    </div>
-                                                </th>
-                                                <td class="text-center">01</td>
-                                                <td class="text-left">client_001</td>
-                                                <td class="text-left">secret_123456</td>
-                                                <td class="text-left">Client ABC</td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-success-subtle text-success">Active</span>
-                                                </td>
+                                        <tbody id="content">
+                                     </tbody>
 
-                                                <td class="text-center">
-                                                    <div class="dropdown dropdown-action">
-                                                        <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-2-fill"></i>
-                                                        </a>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <a href="#" class="dropdown-item view-item-btn text-primary">
-                                                                    <i class="ri-eye-fill fs-16"></i>Xem chi tiết
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" class="dropdown-item edit-item-btn text-warning">
-                                                                    <i class="ri-edit-fill fs-16"></i>Chỉnh sửa
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" class="dropdown-item remove-item-btn text-danger">
-                                                                    <i class="ri-delete-bin-5-fill fs-16"></i>Xóa bỏ
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <!-- Thêm các row Client khác tương tự -->
-                                        </tbody>
 
-                                        
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="col-xl-12" id="addClientFormCard" style="display:none;">
+                    <div class="card">
+                        <div class="modal-header p-2 bg-primary text-center text-white">
+                            <h5 class="modal-title text-white">Thêm / Sửa Client</h5>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <form id="clientForm">
+
+                                <!-- 📌 NHÓM 1 – THÔNG TIN BẮT BUỘC -->
+                                <div class="row p-3 bg-light rounded mb-3 border">
+                                    <h5 class="fw-bold mb-3">Thông tin bắt buộc</h5>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tên hiển thị *</label>
+                                        <input type="text" class="form-control" id="displayName" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Redirect URIs *</label>
+                                        <input type="text" class="form-control" id="redirectUris" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Scope *</label>
+                                        <input type="text" class="form-control"
+                                               id="scope"
+                                               placeholder="openid profile email"
+                                               required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Grant Type *</label>
+                                        <input type="text" class="form-control"
+                                               id="grantType"
+                                               placeholder="authorization_code"
+                                               required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Authority (Issuer) *</label>
+                                        <input type="text" class="form-control"
+                                               id="authority"
+                                               placeholder="https://your-oidc-server.com"
+                                               required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Trạng thái *</label>
+                                        <select id="clientStatus" class="form-select">
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+
+
+                                    </div>
+                                </div>
+
+                                <!-- 📌 NHÓM 2 – TÙY CHỌN -->
+                                <div class="row p-3 bg-light rounded mb-3 border">
+                                    <h5 class="fw-bold mb-3">Thông tin tùy chọn</h5>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Callback Path</label>
+                                        <input type="text" class="form-control" id="callbackPath">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Access Denied Path</label>
+                                        <input type="text" class="form-control" id="accessDeniedPath">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Key Word</label>
+                                        <input type="text" class="form-control" id="keyWord">
+                                    </div>
+                                </div>
+
+                                <!-- HỆ THỐNG -->
+                                <div class="row p-3 bg-light rounded border">
+                                    <h5 class="fw-bold mb-3">Hệ thống</h5>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Client ID</label>
+                                        <input type="text" class="form-control" id="clientId" readonly>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Client Secret</label>
+                                        <input type="text" class="form-control" id="clientSecret" readonly>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-secondary" id="btnCancelClient">Hủy</button>
+                            <button type="submit" form="clientForm" class="btn btn-primary">Lưu</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
             </div>
 
         </div>
     </div>
-   
+
 </div>
+
+<script>
+    document.dispatchEvent(new CustomEvent("componentLoaded", {
+        detail: { script: "/js/client.js" }
+    }));
+</script>
+
