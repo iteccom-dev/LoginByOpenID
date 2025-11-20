@@ -9,11 +9,7 @@ namespace Services.OIDC_Management.Executes
 {
     public class ClientMany
     {
-        private readonly oidcIdentityContext _context;
-        public ClientMany(oidcIdentityContext context)
-        {
-            _context = context;
-        }
+      
 
     }
 }
