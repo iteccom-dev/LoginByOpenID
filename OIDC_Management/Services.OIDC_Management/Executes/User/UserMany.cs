@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Services.OIDC_Management.Executes.UserModel;
-using static Services.OIDC_Management.Executes.UserModel.ClientResponse;
 
 namespace Services.OIDC_Management.Executes
 {

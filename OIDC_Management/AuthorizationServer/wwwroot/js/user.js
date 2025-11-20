@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(function () {
     loadIndex();
 
 //Event Handle
@@ -35,7 +35,8 @@ let pageSize = 10;
 
 // Hàm load dữ liệu user
 function loadUsers(filter) {
-  
+
+ 
 
     $.ajax({
         url: '/api/user/gets',
@@ -81,9 +82,9 @@ function loadUsers(filter) {
                                         <i class="ri-more-2-fill"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a href="#" id="btn-user-view" class="dropdown-item view-item-btn text-primary" data-id="${user.id}">Xem chi tiết</a></li>
-                                        <li><a href="#" id="btn-user-edit" class="dropdown-item edit-item-btn text-warning" data-id="${user.id}">Chỉnh sửa</a></li>
-                                        <li><a href="#" id="btn-user-delete" class="dropdown-item remove-item-btn text-danger" data-id="${user.id}">Xóa bỏ</a></li>
+                                        <li><a href="#" class="dropdown-item view-item-btn text-primary">Xem chi tiết</a></li>
+                                        <li><a href="#" class="dropdown-item edit-item-btn text-warning">Chỉnh sửa</a></li>
+                                        <li><a href="#" class="dropdown-item remove-item-btn text-danger">Xóa bỏ</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -188,20 +189,20 @@ function renderPagination(
 }
 
 //Hàm render ClientId option 
-//function getClientOption() {
-//    $.ajax({
-//        url: '/api/user/gets',
-//        method: 'GET',
-//        data: filter,
-//        success: function (response) {
-//            if (response.success) {
-//                $.each(users, function (index, user)) {
-//            }
-//        },
-//        error: function (xhr) {
-//            alert('Lỗi server: ' + xhr.status);
-//        }
-//}
+function getClientOption() {
+    $.ajax({
+        url: '/api/user/gets',
+        method: 'GET',
+        data: filter,
+        success: function (response) {
+            if (response.success) {
+                $.each(users, function (index, user) {
+            }
+        },
+        error: function (xhr) {
+            alert('Lỗi server: ' + xhr.status);
+        }
+}
 
 
 

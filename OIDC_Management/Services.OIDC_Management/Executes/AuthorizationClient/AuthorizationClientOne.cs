@@ -26,16 +26,16 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
         }
         public async Task<string?> CheckAccount(string email, string password)
         {
-            var isValid = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email && x.Status == 1);
+            var isValid = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
             if (isValid == null)
             {
                 return null;
             }
-            bool result = PasswordHelper.VerifyPassword(password, isValid.SecurityStamp, isValid.PasswordHash);
-            if (result == false)
-            {
-                return null;
-            }
+            //bool result = PasswordHelper.VerifyPassword(password, isValid.SecurityStamp, isValid.PasswordHash);
+            //if (result == false)
+            //{
+            //    return null;
+            //}
             return isValid.Id;
 
         }

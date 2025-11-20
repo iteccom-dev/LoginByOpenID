@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using static Services.OIDC_Management.Executes.UserModel;
 
 namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
 {
@@ -18,11 +17,7 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return PartialView("Pages/User/List");
         }
-        public async Task<IActionResult> UserCreate()
-        {
-            var model = new UserResponse();
-            return PartialView("Pages/User/Create", model);
-        }
+
 
 
 

@@ -12,11 +12,13 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
     {
         public static bool IsValid(object? value)
         {
-            bool isNullOrEmpty = IsNullOrEmpty(value);
-            bool isSuspicious = IsSuspicious(value);
 
-            // Hợp lệ khi dữ liệu không null/rỗng và không đáng nghi
-            return !isNullOrEmpty && !isSuspicious;
+            bool isDataNullOrEmpty = IsNullOrEmpty(value);
+            bool isDataValid = IsSuspicious(value);
+
+            if (isDataNullOrEmpty ==true && isDataValid == true)
+                return true;
+                return false;
         }
 
 
@@ -39,7 +41,7 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             // Nếu là collection
             if (value is IEnumerable enumerable)
                 return !enumerable.Cast<object>().Any();
-            
+
             // Nếu là nullable type (int?, DateTime?, ...)
             var type = value.GetType();
             if (Nullable.GetUnderlyingType(type) != null)

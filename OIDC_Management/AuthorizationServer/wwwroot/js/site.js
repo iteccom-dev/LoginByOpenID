@@ -1,10 +1,4 @@
-﻿
-    toastr.options = {
-    closeButton: true,
-    progressBar: true,
-    positionClass: "toast-top-right",
-    timeOut: "3000",
-    extendedTimeOut: "2000",
-    preventDuplicates: true,
-    newestOnTop: true
-    };
+﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// for details on configuring this project to bundle and minify static web assets.
+
+// Write your JavaScript code.
