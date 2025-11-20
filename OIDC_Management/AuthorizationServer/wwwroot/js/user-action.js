@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
-    $(document).on("click", "#btn-create-user", function (e) {
+
+    $(document).off("click", "#btn-create-user").on("click", "#btn-create-user", function (e) {
         e.preventDefault(); // không reload trang
 
         const formData = getUserFormData();
@@ -21,7 +22,7 @@
         });
     });
     // Xóa
-    $(document).on("click", "#btn-user-delete", function (e) {
+    $(document).off("click", "#btn-user-delete").on("click", "#btn-user-delete", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         showConfirmDialog({
@@ -38,27 +39,8 @@
 
     });
 
-    $(document).on("click", "#btn-create-user", function (e) {
-        e.preventDefault(); // không reload trang
+  
 
-        const formData = getUserFormData();
-
-        console.log(formData); // kiểm tra
-
-        // Gửi lên server
-        $.ajax({
-            url: "/api/user/create",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(formData),
-            success: function (res) {
-                toastr.success(`${res.message}`)
-            },
-            error: function (err) {
-                toastr.error(`${err.message}`)
-            }
-        });
-    });
     $(document).on("click", "#btn-user-edit", function (e) {
         e.preventDefault();
 
