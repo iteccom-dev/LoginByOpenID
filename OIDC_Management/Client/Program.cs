@@ -30,6 +30,7 @@ builder.Services.AddAuthentication(options =>
 })
     .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, openIdOptions =>
 {
+
     openIdOptions.ClientId = options.ClientId;
     openIdOptions.Authority = options.Issuer;
     openIdOptions.ClientSecret = options.ClientSecret;
@@ -37,7 +38,7 @@ builder.Services.AddAuthentication(options =>
     openIdOptions.CallbackPath = options.CallbackPath;
     openIdOptions.SaveTokens = true;
     openIdOptions.AccessDeniedPath = options.AccessDeniedPath;
-
+    openIdOptions.RequireHttpsMetadata = false;
     openIdOptions.GetClaimsFromUserInfoEndpoint = false; // we will change this to true when we implement user-info endpoint
 
     foreach (var scope in options.Scope.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))

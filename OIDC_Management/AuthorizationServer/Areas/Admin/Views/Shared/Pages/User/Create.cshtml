@@ -1,4 +1,6 @@
-﻿<div class="main-content">
+﻿@model Services.OIDC_Management.Executes.UserModel.UserResponse
+
+<div class="main-content">
     <!-- PAGE-WRAPPER -->
     <div class="page-content">
         <div class="container-fluid">
@@ -9,7 +11,7 @@
                         <!-- HeadingMain -->
                         <h4 class="mb-sm-0">
 
-                            Danh sách Client
+                            Danh sách User
 
                         </h4>
                         <!-- HeadingMain./. -->
@@ -33,42 +35,98 @@
 
                         <!-- Header Modal -->
                         <div class="modal-header p-2 bg-primary text-center text-white">
-                            <h5 class="modal-title p-2 bg-primary text-center text-white" id="clientModalLabel">Thêm / Sửa Client</h5>
+                            <h5 class="modal-title p-2 bg-primary text-center text-white" id="userModalLabel">Thêm / Sửa Người dùng</h5>
                         </div>
 
                         <!-- Body Modal -->
-                        <div class="modal-body p-4">
-                            <form id="clientForm">
+                        <div class="modal-body p-4 ">
+                            <form id="userForm">
 
-                                <!-- Thông tin Client -->
+                                <!-- Thông tin tài khoản -->
                                 <div class="row p-3 bg-light rounded mb-3 border">
-                                    <h5 class="fw-bold mb-3">Thông tin Client</h5>
-
-                                    <!-- Client ID -->
+                                    <h5 class="fw-bold mb-3">Thông tin tài khoản</h5>
+                                    <input type="hidden" class="userid" value="@Model.Id" />
+                                    <!-- Username -->
                                     <div class="col-md-6 mb-3">
-                                        <label for="clientId" class="form-label">Client ID</label>
-                                        <input type="text" class="form-control" id="clientId" placeholder="Nhập Client ID" required>
+                                        <label for="userName" class="form-label">Họ và tên</label>
+                                        <input type="text" class="form-control" id="userName" placeholder="Nhập họ và tên" value="@Model.UserName" required>
                                     </div>
 
-                                    <!-- Client Secret -->
+                                    <!-- Password -->
                                     <div class="col-md-6 mb-3">
-                                        <label for="clientSecret" class="form-label">Client Secret</label>
-                                        <input type="text" class="form-control" id="clientSecret" placeholder="Nhập Client Secret" required>
+                                        <label for="userPassword" class="form-label">Mật khẩu</label>
+                                        <input type="password" class="form-control" id="userPassword" placeholder="Nhập mật khẩu" required>
                                     </div>
 
-                                    <!-- Display Name -->
+                                    <!-- Email -->
                                     <div class="col-md-6 mb-3">
-                                        <label for="displayName" class="form-label">Tên hiển thị</label>
-                                        <input type="text" class="form-control" id="displayName" placeholder="Nhập tên hiển thị" required>
+                                        <label for="userEmail" class="form-label">Email đăng nhập</label>
+                                        <input type="email" class="form-control" id="userEmail" placeholder="Nhập email đăng nhập" value="@Model.Email" required>
                                     </div>
+
+                                    <!-- Phone -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="userPhone" class="form-label">Số điện thoại</label>
+                                        <input type="text" class="form-control" id="userPhone" placeholder="Nhập số điện thoại" value="@Model.PhoneNumber">
+                                    </div>
+                                </div>
+
+                                <!-- Cấu hình tài khoản -->
+                                <div class="row p-3 bg-light rounded mb-3 border">
+                                    <h5 class="fw-bold mb-3">Cấu hình tài khoản</h5>
+
+                                    <!-- Roles -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="userRoles" class="form-label">Vai trò</label>
+                                        <select class="form-select" id="userRoles" name="role">
+                                            <option value="user">User</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="manager">Manager</option>
+                                        </select>
+                                    </div>
+
 
                                     <!-- Status -->
                                     <div class="col-md-6 mb-3">
-                                        <label for="clientStatus" class="form-label">Trạng thái</label>
-                                        <select class="form-select" id="clientStatus">
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                        <label for="userStatus" class="form-label">Trạng thái</label>
+                                        <select class="form-select" id="userStatus">
+                                            <option value="1" selected="@(Model.Status == 1)">Hoạt động</option>
+                                            <option value="0" selected="@(Model.Status == 0)">Tạm khóa</option>
+
                                         </select>
+                                    </div>
+
+                                    <!-- Provider -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="userProvider" class="form-label">Hình thức đăng nhập</label>
+                                        <select class="form-select" id="userProvider">
+                                            <option value="email">Email</option>
+                                            <option value="google">Google</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Client Dropdown -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="userClient" class="form-label">Client</label>
+                                        <select class="form-select" id="userClient">
+                                            <option value="">-- Chọn client --</option>
+                                            <option value="oidc-demo-client">oidc-demo-client</option>
+                                            <option value="mobile">Mobile</option>
+                                            <option value="desktop">Desktop</option>
+                                            <option value="">Tất cả Client</option>
+                                         @*    @foreach (var d in Model.Client)
+                                            {
+                                                <option value="@d.Id" selected="@(d.ClientId == Model.ClientId)" )>
+                                                    @d.Name
+                                                </option>
+                                            } *@
+                                        </select>
+                                    </div>
+
+                                    <!-- 2FA -->
+                                    <div class="col-md-12 mb-3 form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" id="user2FA">
+                                        <label class="form-check-label" for="user2FA">Bật xác thực 2 lớp (2FA)</label>
                                     </div>
                                 </div>
 
@@ -79,41 +137,52 @@
                                     <!-- Created By -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-semibold">Người tạo</label>
-                                        <input type="text" class="form-control" id="createdBy" value="—" readonly>
+                                        <input type="text" class="form-control" id="createdBy" value="" readonly>
                                     </div>
 
                                     <!-- Updated By -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-semibold">Người sửa</label>
-                                        <input type="text" class="form-control" id="updatedBy" value="—" readonly>
+                                        <input type="text" class="form-control" id="updatedBy" value="" readonly>
                                     </div>
 
                                     <!-- Created At -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-semibold">Ngày tạo</label>
-                                        <input type="text" class="form-control" id="createdAt" value="—" readonly>
+                                        <input type="text" class="form-control" id="createdAt" value="" readonly>
                                     </div>
 
                                     <!-- Updated At -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label fw-semibold">Ngày sửa</label>
-                                        <input type="text" class="form-control" id="updatedAt" value="—" readonly>
+                                        <input type="text" class="form-control" id="updatedAt" value="" readonly>
                                     </div>
                                 </div>
 
                             </form>
                         </div>
 
+
                         <!-- Footer Modal -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" form="clientForm" class="btn btn-primary">Lưu</button>
+                            <button type="button" id="btn-create-user" class="btn btn-primary">Lưu</button>
                         </div>
 
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
-    
+    <!-- ucFooter -->
+   
+    <!-- ucFooter./. -->
 </div>
+
+<script>
+    document.dispatchEvent(new CustomEvent("componentLoaded", {
+        detail: { script: "/js/user-action.js" }
+    }));
+</script>

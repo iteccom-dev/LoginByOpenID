@@ -58,14 +58,15 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 ModelState.AddModelError("", "Email và mật khẩu không được bỏ trống");
-                return View(authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             // Lấy client từ DB
             var client = await authorizationClientOne.FindByClientId(authenticateRequest.ClientId);
             if (client == null)
             {
-                return BadRequest("Invalid client_id");
+                ModelState.AddModelError("", "Lỗi kết nối server");
+                return View("Index", authenticateRequest);
             }
 
             if (!client.RedirectUris.Split(';').Contains(authenticateRequest.RedirectUri))
@@ -78,7 +79,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             if (user == null)
             {
                 ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
-                return View(authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             // Tạo code để user đổi token
