@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.OIDC_Management.Executes
 {
-    public class UserCommand
+    public class UserOne
     {
     }
 }

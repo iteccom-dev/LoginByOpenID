@@ -39,6 +39,8 @@ public partial class AspNetUser
 
     public string ClientId { get; set; }
 
+    public int? Status { get; set; }
+
     public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; } = new List<AspNetUserClaim>();
 
     public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();

@@ -11,6 +11,7 @@ using OIDCDemo.AuthorizationServer.Models;
 using Services.OIDC_Management.Executes;
 using Services.OIDC_Management.Executes.AuthorizationClient;
 
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<oidcIdentityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -30,6 +31,11 @@ builder.Services.AddScoped<ClientCommand>();
 builder.Services.AddScoped<ClientMany>();
 builder.Services.AddScoped<ClientOne>();
 builder.Services.AddScoped<ClientModel>();
+builder.Services.AddScoped<UserCommand>();
+builder.Services.AddScoped<UserMany>();
+builder.Services.AddScoped<UserOne>();
+builder.Services.AddScoped<UserModel>();
+
 builder.Services.AddScoped<PasswordHasher>();
 var app = builder.Build();
 
@@ -47,9 +53,10 @@ app.MapGet("/.well-known/jwks.json", () =>
 
 app.UseRouting();
 app.UseStaticFiles();
-// Đặt route mặc định là vào thẳng Area Admin luôn
+
+//// Đặt route mặc định là vào thẳng Area Admin luôn
 app.MapControllerRoute(
-    name: "default",
+    name: "areas",
     pattern: "{controller=Home}/{action=Index}/{id?}",
     defaults: new { area = "Admin", controller = "Home", action = "Index" });
 
@@ -57,4 +64,8 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=index}/{id?}");
 app.Run();
