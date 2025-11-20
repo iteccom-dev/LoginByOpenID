@@ -1,10 +1,11 @@
-﻿<div class="app-menu navbar-menu">
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<div class="app-menu navbar-menu">
     <!-- MENU LOGO -->
     <div class="navbar-brand-box">
         <!-- Dark Logo-->
        
         <!-- Light Logo-->
-        <a href="index.html" class="logo logo-light">
+        <a asp-controller="Home" asp-action="Index" class="logo logo-light">
             <span class="logo-sm">
                 <img src="/assets/images/login/logo.png" class="logo-part" height="22">
                 <img src="/assets/images/login/textLogo.png" class="logo-part" height="1">
@@ -31,7 +32,7 @@
 
                 <!-- Index -->
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="index.html">
+                    <a class="nav-link menu-link"  asp-controller="Home" asp-action="Index">
                         <i class="ri-home-4-line"></i>
                         <span>Dashboards</span>
                     </a>

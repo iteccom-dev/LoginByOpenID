@@ -31,11 +31,11 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             {
                 return null;
             }
-            //bool result = PasswordHelper.VerifyPassword(password, isValid.SecurityStamp, isValid.PasswordHash);
-            //if (result == false)
-            //{
-            //    return null;
-            //}
+            bool result = PasswordHelper.VerifyPassword(password, isValid.SecurityStamp, isValid.PasswordHash);
+            if (result == false)
+            {
+                return null;
+            }
             return isValid.Id;
 
         }

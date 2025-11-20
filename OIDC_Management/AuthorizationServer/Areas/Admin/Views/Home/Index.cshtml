@@ -1,9 +1,19 @@
 ﻿@{
     Layout = "~/Areas/Admin/Views/Shared/Layouts/_LayoutMain.cshtml";
 }
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @await Html.PartialAsync("Components/Header")
 @await Html.PartialAsync("Components/Navbar")
 <div id="content-main">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h1 class="text-primary mb-3">Chào mừng @ViewBag.Username đến với trang quản lý!</h1>
+            <p class="text-muted fs-5 mb-4">Quản lý tất cả các tính năng và dữ liệu tại đây.</p>
 
+            <form asp-action="Logout" asp-controller="Account" method="post">
+                <button type="submit" class="btn btn-danger btn-lg">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
 </div>

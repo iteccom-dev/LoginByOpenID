@@ -1,9 +1,9 @@
 {
-  "issuer": "https://localhost:7101/",
-  "authorization_endpoint": "https://localhost:7101/authorize",
-  "token_endpoint": "https://localhost:7101/token",
-  "userinfo_endpoint": "https://localhost:7101/userinfo",
-  "jwks_uri": "https://localhost:7101/.well-known/jwks.json",
+  "issuer": "https://sso-uat.iteccom.vn/",
+  "authorization_endpoint": "https://sso-uat.iteccom.vn/authorize",
+  "token_endpoint": "https://sso-uat.iteccom.vn/token",
+  "userinfo_endpoint": "https://sso-uat.iteccom.vn/userinfo",
+  "jwks_uri": "https://sso-uat.iteccom.vn/.well-known/jwks.json",
   "scopes_supported": [
     "pets_read",
     "pets_write",

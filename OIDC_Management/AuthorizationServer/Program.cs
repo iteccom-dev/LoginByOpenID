@@ -15,7 +15,14 @@ using Services.OIDC_Management.Executes.AuthorizationClient;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<oidcIdentityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Account/SignIn";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    });
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICodeStorage>(services => new MemoryCodeStorage());
@@ -35,9 +42,16 @@ builder.Services.AddScoped<UserCommand>();
 builder.Services.AddScoped<UserMany>();
 builder.Services.AddScoped<UserOne>();
 builder.Services.AddScoped<UserModel>();
+builder.Services.AddScoped<AccountModel>();
+builder.Services.AddScoped<AccountCommand>();
 
 builder.Services.AddScoped<PasswordHasher>();
+// ------------------ Authentication ------------------
+builder.Services.AddHttpContextAccessor();
+
+
 var app = builder.Build();
+
 
 
 
@@ -53,7 +67,7 @@ app.MapGet("/.well-known/jwks.json", () =>
 
 app.UseRouting();
 app.UseStaticFiles();
-
+app.UseAuthorization();
 //// Đặt route mặc định là vào thẳng Area Admin luôn
 app.MapControllerRoute(
     name: "areas",

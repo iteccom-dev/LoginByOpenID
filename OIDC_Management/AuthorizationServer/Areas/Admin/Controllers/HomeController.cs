@@ -1,14 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using static Services.OIDC_Management.Executes.UserModel;
 
 namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return View(/*"~/Areas/Admin/Views/Home/Index.cshtml"*/);
+            if (User.Identity.IsAuthenticated)
+            {
+                var claims = User.Identity as ClaimsIdentity;
+                ViewBag.Username = claims?.FindFirst(ClaimTypes.Name)?.Value;
+                ViewBag.AccountId = claims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ViewBag.Email = claims?.FindFirst(ClaimTypes.Email)?.Value;
+                ViewBag.Name = claims?.FindFirst(ClaimTypes.Name)?.Value;
+            }
+            else
+            {
+                ViewBag.Username = "";
+                ViewBag.AccountId = "";
+                ViewBag.Email = "";
+                ViewBag.Name = "";
+            }
+
+            return View();
         }
         public async Task<IActionResult> ClientList()
         {
