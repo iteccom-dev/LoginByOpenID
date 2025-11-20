@@ -1,111 +1,110 @@
-﻿<div class="main-content">
-    <!-- PAGE-WRAPPER -->
-    <div class="page-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+﻿<!-- Modal Xem chi tiết Client -->
+<div class="modal fade" id="popupView" tabindex="-1" aria-labelledby="viewClientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
 
-                        <!-- HeadingMain -->
-                        <h4 class="mb-sm-0">
-
-                            Danh sách User
-
-                        </h4>
-                        <!-- HeadingMain./. -->
-                        <!-- ucBreadcrumb -->
-                        <div class="page-title-right">
-                            <ol class="breadcrumb m-0">
-                                <li class="breadcrumb-item"><a href="#">Dasboard</a></li>
-                                <li class="breadcrumb-item active">Title</li>
-                            </ol>
-                        </div>
-                        <!-- ucBreadcrumb./. -->
-                    </div>
-                </div>
+            <!-- Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="viewClientModalLabel">Chi tiết Client</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- ContentMain -->
+            <!-- Body -->
+            <div class="modal-body">
+                <form id="viewClientForm">
+                    <!-- Thông tin Client -->
+                    <div class="row p-3 bg-light rounded mb-3 border">
+                        <h5 class="fw-bold mb-3">Thông tin Client</h5>
 
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card">
-
-                        <!-- Header -->
-                        <div class="modal-header p-2 bg-primary text-center text-white">
-                            <h5 class="modal-title p-2 bg-primary text-center text-white" id="clientDetailLabel">Chi tiết Client</h5>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="viewClientId" readonly>
                         </div>
 
-                        <!-- Body -->
-                        <div class="modal-body p-4">
-
-                            <!-- Thông tin Client -->
-                            <div class="row p-3 bg-light rounded mb-3 border">
-                                <h5 class="fw-bold mb-3">Thông tin Client</h5>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Client ID</label>
-                                    <input type="text" class="form-control" id="detailClientId" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tên hiển thị</label>
-                                    <input type="text" class="form-control" id="detailDisplayName" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Status</label>
-                                    <input type="text" class="form-control" id="detailStatus" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Client Secret</label>
-                                    <input type="text" class="form-control" id="detailClientSecret" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tổng số người dùng</label>
-                                    <input type="text" class="form-control" id="detailUserCount" readonly>
-                                </div>
-                            </div>
-
-                            <!-- Thông tin hệ thống -->
-                            <div class="row p-3 bg-light rounded border">
-                                <h5 class="fw-bold mb-3">Thông tin hệ thống</h5>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Ngày tạo</label>
-                                    <input type="text" class="form-control" id="detailCreatedAt" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Người tạo</label>
-                                    <input type="text" class="form-control" id="detailCreatedBy" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Ngày sửa</label>
-                                    <input type="text" class="form-control" id="detailUpdatedAt" readonly>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-semibold">Người sửa</label>
-                                    <input type="text" class="form-control" id="detailUpdatedBy" readonly>
-                                </div>
-                            </div>
-
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Client Secret</label>
+                            <input type="text" class="form-control" id="viewClientSecret" readonly>
                         </div>
 
-                        <!-- Footer -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" onclick="closeDetail()">Đóng</button>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên hiển thị</label>
+                            <input type="text" class="form-control" id="viewDisplayName" readonly>
                         </div>
 
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Redirect URIs</label>
+                            <input type="text" class="form-control" id="viewRedirectUris" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Callback Path</label>
+                            <input type="text" class="form-control" id="viewCallbackPath" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Access Denied Path</label>
+                            <input type="text" class="form-control" id="viewAccessDeniedPath" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Scope</label>
+                            <input type="text" class="form-control" id="viewScope" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Grant Type</label>
+                            <input type="text" class="form-control" id="viewGrantType" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Authority</label>
+                            <input type="text" class="form-control" id="viewAuthority" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Keyword</label>
+                            <input type="text" class="form-control" id="viewKeyword" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <input type="text" class="form-control" id="viewStatus" readonly>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Thông tin hệ thống -->
+                    <div class="row p-3 bg-light rounded border">
+                        <h5 class="fw-bold mb-3">Thông tin hệ thống</h5>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Người tạo</label>
+                            <input type="text" class="form-control" id="viewCreatedBy" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Người sửa</label>
+                            <input type="text" class="form-control" id="viewUpdatedBy" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Ngày tạo</label>
+                            <input type="text" class="form-control" id="viewCreatedDate" readonly>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Ngày sửa</label>
+                            <input type="text" class="form-control" id="viewUpdatedDate" readonly>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
 
         </div>
     </div>
-    
- </div>
+</div>
