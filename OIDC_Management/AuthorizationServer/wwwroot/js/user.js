@@ -1,4 +1,4 @@
-﻿$(function () {
+﻿$(document).ready(function () {
     loadIndex();
 
 //Event Handle
@@ -16,7 +16,7 @@
     });
     // Filter category select
     $('.form-select').on('change', function () {
-        currentPage = 1;
+        
         applyFilters(getCurrentPage(), filter.clientId);
     });
 
@@ -29,14 +29,9 @@ function loadIndex() {
 
 //FEARTURE
 
-
-let currentPage = 1;
-let pageSize = 10;
-
 // Hàm load dữ liệu user
 function loadUsers(filter) {
-
- 
+  
 
     $.ajax({
         url: '/api/user/gets',
@@ -48,7 +43,7 @@ function loadUsers(filter) {
 
             if (response.success) {
                 const users = response.data.result.items;
-                const totalPages = Math.ceil(response.data.result.totalRecords / response.data.result.pageSize);
+             
 
                 $.each(users, function (index, user) {
                    
@@ -59,7 +54,7 @@ function loadUsers(filter) {
                                     <input class="form-check-input" type="checkbox" data-id="${user.id}">
                                 </div>
                             </th>
-                            <td class="text-center">${index + 1 + (currentPage - 1) * pageSize}</td>
+                            <td class="text-center">${index + 1 + (response.data.result.currentPage - 1) * response.data.result.pageSize}</td>
                             <td class="text-left">
                                 <div class="d-flex flex-column gap-2">
                                     <strong class="text-primary text-wrap text-truncate-two-lines">${user.userName}</strong>
@@ -82,9 +77,9 @@ function loadUsers(filter) {
                                         <i class="ri-more-2-fill"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a href="#" class="dropdown-item view-item-btn text-primary">Xem chi tiết</a></li>
-                                        <li><a href="#" class="dropdown-item edit-item-btn text-warning">Chỉnh sửa</a></li>
-                                        <li><a href="#" class="dropdown-item remove-item-btn text-danger">Xóa bỏ</a></li>
+                                        <li><a href="#" id="btn-user-view" class="dropdown-item view-item-btn text-primary" data-id="${user.id}">Xem chi tiết</a></li>
+                                        <li><a href="#" id="btn-user-edit" class="dropdown-item edit-item-btn text-warning" data-id="${user.id}">Chỉnh sửa</a></li>
+                                        <li><a href="#" id="btn-user-delete" class="dropdown-item remove-item-btn text-danger" data-id="${user.id}">Xóa bỏ</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -189,20 +184,20 @@ function renderPagination(
 }
 
 //Hàm render ClientId option 
-function getClientOption() {
-    $.ajax({
-        url: '/api/user/gets',
-        method: 'GET',
-        data: filter,
-        success: function (response) {
-            if (response.success) {
-                $.each(users, function (index, user) {
-            }
-        },
-        error: function (xhr) {
-            alert('Lỗi server: ' + xhr.status);
-        }
-}
+//function getClientOption() {
+//    $.ajax({
+//        url: '/api/user/gets',
+//        method: 'GET',
+//        data: filter,
+//        success: function (response) {
+//            if (response.success) {
+//                $.each(users, function (index, user)) {
+//            }
+//        },
+//        error: function (xhr) {
+//            alert('Lỗi server: ' + xhr.status);
+//        }
+//}
 
 
 
@@ -244,7 +239,7 @@ function applyFilters(page = 1) {
 function getFilterData() {
     return {
         page: getCurrentPage(),
-        pageSize: pageSize,
+        pageSize: 2,
         KeySearch: $('.search').val() || '',
         ClientId: $('.form-select').val() || ''
     };

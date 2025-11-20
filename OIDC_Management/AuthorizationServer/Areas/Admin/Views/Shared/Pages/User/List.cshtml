@@ -35,14 +35,14 @@
                         <!-- ucSearchBar -->
                         <div class="card-header align-items-center d-flex gap-2">
                             <div class="flex-shrink-0 d-flex gap-2">
-                                <a href="#" class="btn btn-danger waves-effect waves-light d-none">
+                                <a btn-user-delete class="btn btn-danger waves-effect waves-light d-none">
                                     <i class="ri-delete-bin-2-line"></i>
                                     Xóa
                                 </a>
-                                <a href="#" class="btn btn-success add-btn waves-effect waves-light">
+                                <button id="user-create-link" class="btn btn-success add-btn waves-effect waves-light">
                                     <i class="ri-add-line align-bottom me-1"></i>
                                     Thêm
-                                </a>
+                                </button>
                             </div>
                             <div class="d-flex gap-2 flex-grow-1">
                                 <div class="search-box">
@@ -89,93 +89,16 @@
                                         </thead>
 
                                         <tbody id="content-user">
-                                            <tr>
-                                                <!-- Checkbox cho chọn user -->
-                                                <th class="text-center">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox">
-                                                    </div>
-                                                </th>
-
-                                                <!-- STT (số thứ tự trong bảng) -->
-                                                <td class="text-center">01</td>
-
-
-                                                <!-- Thông tin chi tiết user -->
-                                                <td class="text-left">
-                                                    <div class="d-flex flex-column gap-2">
-
-                                                        <!-- UserName hiển thị chính -->
-                                                        <strong class="text-primary text-wrap text-truncate-two-lines">
-                                                            Nguyễn Văn A
-                                                        </strong>
-
-                                                        <!-- Phone hoặc thông tin phụ khác -->
-                                                        <div class="text-muted">
-                                                            <span class="text-primary">0909123456</span>
-                                                        </div>
-
-                                                        <!-- 2FA và trạng thái Active -->
-                                                        <div class="text-body-tertiary">
-                                                            <span>Status: </span>
-                                                            <span class="badge bg-success-subtle text-success">Active</span>
-                                                        </div>
-
-                                                    </div>
-                                                </td>
-
-                                                <!-- Email người dùng -->
-                                                <td class="text-center">
-                                                    <div class="text-primary">john@gmail.com</div>
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <div class="text-primary">john@gmail.com</div>
-                                                </td>
-
-
-                                              
-
-                                                <!-- Client gắn với user -->
-                                                <td class="text-center">
-                                                    <i class="ri-building-line me-1"></i>Client ABC
-                                                </td>
-
-                                                <!-- Actions: Xem chi tiết, Chỉnh sửa, Xóa -->
-                                                <td class="text-center">
-                                                    <div class="dropdown dropdown-action">
-                                                        <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-2-fill"></i>
-                                                        </a>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <a href="#" class="dropdown-item view-item-btn text-primary">
-                                                                    <i class="ri-eye-fill fs-16"></i>Xem chi tiết
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" class="dropdown-item edit-item-btn text-warning">
-                                                                    <i class="ri-edit-fill fs-16"></i>Chỉnh sửa
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" class="dropdown-item remove-item-btn text-danger">
-                                                                    <i class="ri-delete-bin-5-fill fs-16"></i>Xóa bỏ
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
 
 
 
+                                         
                                         </tbody>
-                                      @*  phan trang *@
-                                       
+                                     
                                       
                                     </table>
-                                   
+
+                                
 
                                 </div>
                             </div>
@@ -193,5 +116,10 @@
 <script>
     document.dispatchEvent(new CustomEvent("componentLoaded", {
         detail: { script: "/js/user.js" }
+    }));
+</script>
+<script>
+    document.dispatchEvent(new CustomEvent("componentLoaded", {
+        detail: { script: "/js/user-action.js" }
     }));
 </script>
