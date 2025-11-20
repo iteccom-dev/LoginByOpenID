@@ -1,0 +1,79 @@
+﻿
+<div class="col-xl-12" id="addClientFormCard" style="display:none;">
+    <div class="card">
+        <div class="modal-header p-2 bg-primary text-center text-white">
+            <h5 class="modal-title" id="clientModalLabel">Thêm / Sửa Client</h5>
+        </div>
+        <div class="card-body p-4">
+            <form id="clientForm">
+
+                <!-- Thông tin Client -->
+                <div class="row p-3 bg-light rounded mb-3 border">
+                    <h5 class="fw-bold mb-3">Thông tin Client</h5>
+
+                    <!-- Client ID -->
+                    <div class="col-md-6 mb-3">
+                        <label for="clientId" class="form-label">Client ID</label>
+                        <input type="text" class="form-control" id="clientId" placeholder="Nhập Client ID" required>
+                    </div>
+
+                    <!-- Client Secret -->
+                    <div class="col-md-6 mb-3">
+                        <label for="clientSecret" class="form-label">Client Secret</label>
+                        <input type="text" class="form-control" id="clientSecret" placeholder="Nhập Client Secret" required>
+                    </div>
+
+                    <!-- Display Name -->
+                    <div class="col-md-6 mb-3">
+                        <label for="displayName" class="form-label">Tên hiển thị</label>
+                        <input type="text" class="form-control" id="displayName" placeholder="Nhập tên hiển thị" required>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <label for="clientStatus" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="clientStatus">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Thông tin hệ thống -->
+                <div class="row p-3 bg-light rounded border">
+                    <h5 class="fw-bold mb-3">Thông tin hệ thống</h5>
+
+                    <!-- Created By -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Người tạo</label>
+                        <input type="text" class="form-control" id="createdBy" value="—" readonly>
+                    </div>
+
+                    <!-- Updated By -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Người sửa</label>
+                        <input type="text" class="form-control" id="updatedBy" value="—" readonly>
+                    </div>
+
+                    <!-- Created At -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Ngày tạo</label>
+                        <input type="text" class="form-control" id="createdAt" value="—" readonly>
+                    </div>
+
+                    <!-- Updated At -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Ngày sửa</label>
+                        <input type="text" class="form-control" id="updatedAt" value="—" readonly>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelClient">Hủy</button>
+            <button type="submit" form="clientForm" class="btn btn-primary">Lưu</button>
+        </div>
+    </div>
+</div>
