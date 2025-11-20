@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.OIDC_Management.Executes;
 using System.Security.Claims;
 using static Services.OIDC_Management.Executes.UserModel;
 
@@ -9,6 +10,11 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
     [Authorize]
     public class HomeController : Controller
     {
+        private readonly ClientMany _clientMany;
+        public HomeController(ClientMany clientMany)
+        {
+            _clientMany = clientMany;
+        }
         public IActionResult Index()
         {
             if (User.Identity.IsAuthenticated)
@@ -37,9 +43,20 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return PartialView("Pages/User/List");
         }
+
         public async Task<IActionResult> UserCreate()
         {
-            var model = new UserResponse();
+            var clientsFromDb = await _clientMany.GetMany();
+
+            var model = new UserResponse
+            {
+                Clients = clientsFromDb.Select(c => new ClientResponse
+                {
+                    Id = c.Id,
+                     Name = c.Name,
+                }).ToList()
+            };
+
             return PartialView("Pages/User/Create", model);
         }
 

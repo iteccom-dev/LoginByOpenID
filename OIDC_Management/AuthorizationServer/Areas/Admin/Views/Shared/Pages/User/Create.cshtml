@@ -105,24 +105,16 @@
                                         </select>
                                     </div>
 
-                                    <!-- Client Dropdown -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="userClient" class="form-label">Client</label>
-                                        <select class="form-select" id="userClient">
-                                            <option value="">-- Chọn client --</option>
-                                            <option value="oidc-demo-client">oidc-demo-client</option>
-                                            <option value="mobile">Mobile</option>
-                                            <option value="desktop">Desktop</option>
-                                            <option value="">Tất cả Client</option>
-                                         @*    @foreach (var d in Model.Client)
-                                            {
-                                                <option value="@d.Id" selected="@(d.ClientId == Model.ClientId)" )>
-                                                    @d.Name
-                                                </option>
-                                            } *@
-                                        </select>
-                                    </div>
-
+                                  <!-- Client Dropdown -->
+                                    <select class="form-select" asp-for="ClientId">
+                                        <option value="">-- Chọn client --</option>
+                                        @foreach (var client in Model.Clients)
+                                        {
+                                            <option value="@client.Id" @(client.Id == Model.ClientId ? "selected" : "")>
+                                                @client.Name
+                                            </option>
+                                        }
+                                    </select>
                                     <!-- 2FA -->
                                     <div class="col-md-12 mb-3 form-check mt-2">
                                         <input type="checkbox" class="form-check-input" id="user2FA">
@@ -165,7 +157,7 @@
 
                         <!-- Footer Modal -->
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" id="btnCancelUser" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                             <button type="button" id="btn-create-user" class="btn btn-primary">Lưu</button>
                         </div>
 

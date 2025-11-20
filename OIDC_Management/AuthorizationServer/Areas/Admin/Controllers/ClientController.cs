@@ -201,7 +201,14 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return PartialView("~/Areas/Admin/Views/Client/List.cshtml");
         }
+        [HttpGet("api/client/list")]
+        public async Task<IActionResult> GetList()
+        {
+            var clients = await _clientMany.GetMany();
 
+            // Trả về partial view
+            return PartialView("_ClientListPartial", clients);
+        }
         public IActionResult CreateUpdate()
     {
         return PartialView("_CreateUpdatePartial");

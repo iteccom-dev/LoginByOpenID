@@ -38,8 +38,20 @@
         });
 
     });
-
-  
+    const main_content = $("#content-main");
+    $(document).off('click', '#btnCancelUser').on('click', '#btnCancelUser', function (e) {
+        $.ajax({
+            url: '/Home/UserList',
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .done(function (html) {
+                main_content.html(html);
+            })
+            .fail(function (xhr) {
+                main_content.html('<div class="alert alert-danger">' + (xhr.responseText || 'Không tải được chi tiết') + '</div>');
+            });
+    });
 
     $(document).on("click", "#btn-user-edit", function (e) {
         e.preventDefault();
@@ -70,6 +82,8 @@
 
 
 });
+
+
 function deleteUser (id)
 {
     $.ajax({

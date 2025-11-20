@@ -16,7 +16,7 @@
    
 });
 //Thêm
-$(document).on('click', '#btnAddClient', function (e) {
+$(document).off('click', '#btnAddClient').on('click', '#btnAddClient', function (e) {
     e.preventDefault();
 
     $('.col-xl-12').has('.card-header .add-btn').hide();
@@ -150,7 +150,7 @@ function loadClients(filter) {
 
 
 
-$("#content-main").on("click", ".delete-item-btn", function (e) {
+$("#content-main").off("click", ".delete-item-btn").on("click", ".delete-item-btn", function (e) {
     e.preventDefault();
     const id = $(this).data("id");
     console.log("Click delete, id=", id);
