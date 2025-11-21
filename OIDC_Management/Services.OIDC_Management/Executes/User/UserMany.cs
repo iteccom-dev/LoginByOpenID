@@ -46,7 +46,7 @@ namespace Services.OIDC_Management.Executes
 
             // Paging
             int page = filter.Page <= 0 ? 1 : filter.Page;
-            int PAGE_SIZE = /*filter.PageSize*/2;
+            int PAGE_SIZE = /*filter.PageSize*/5;
 
             var results = await query
            

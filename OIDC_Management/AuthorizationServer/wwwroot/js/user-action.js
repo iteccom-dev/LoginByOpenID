@@ -17,7 +17,7 @@
                 toastr.success(`${res.message}`)
             },
             error: function (err) {
-                toastr.error(`${err.message}`)
+                toastr.error(`Thông tin không hợp lệ`)
             }
         });
     });
@@ -26,7 +26,7 @@
         e.preventDefault();
         var id = $(this).data("id");
         showConfirmDialog({
-            title: "Xóa nhân viên",
+            title: "Xóa tài khoản",
             message: "Bạn có chắc chắn muốn xóa tài khoản này?",
             confirmText: "Xóa",
             onConfirm: function () {

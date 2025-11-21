@@ -159,28 +159,36 @@ $("#content-main").off("click", ".delete-item-btn").on("click", ".delete-item-bt
         toastr.error("Không có ID để xóa!");
         return;
     }
-
-    if (confirm("Bạn có chắc chắn muốn xóa client này không?")) {
-        $.ajax({
-            url: "/api/client/delete",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ id: id }),
-            success: function (response) {
-                console.log("Response:", response);
-                if (response.success) {
-                    toastr.success(response.message);
-                    $(e.currentTarget).parents("tr").remove();
-                } else {
-                    toastr.warning(response.message);
+    showConfirmDialog({
+        title: "Xóa thông tin client",
+        message: "Bạn có chắc chắn muốn xóa client này?",
+        confirmText: "Xóa",
+        onConfirm: function () {
+            $.ajax({
+                url: "/api/client/delete",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ id: id }),
+                success: function (response) {
+                    console.log("Response:", response);
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $(e.currentTarget).parents("tr").remove();
+                    } else {
+                        toastr.warning(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    console.log("Error:", xhr);
+                    toastr.error("Không thể kết nối tới server!");
                 }
-            },
-            error: function (xhr) {
-                console.log("Error:", xhr);
-                toastr.error("Không thể kết nối tới server!");
-            }
-        });
-    }
+            });
+        },
+        onCancel: function () {
+            console.log("Đã hủy!");
+        }
+    });
+ 
 });
 
 
@@ -349,3 +357,60 @@ function applyFilters(page = 1) {
 }
 
 
+function showConfirmDialog({
+    title = "Xác nhận",
+    message = "Bạn có chắc chắn muốn thực hiện hành động này không?",
+    confirmText = "Đồng ý",
+    cancelText = "Hủy",
+    onConfirm = () => { },
+    onCancel = () => { }
+}) {
+    // Tạo DOM popup
+    const modal = $(`
+        <div class="custom-confirm-modal">
+            <div class="modal-content" >
+                <h5 class="modal-title">${title}</h5>
+                <p>${message}</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary cancel-btn">${cancelText}</button>
+                    <button class="btn btn-danger confirm-btn">${confirmText}</button>
+                </div>
+            </div>
+        </div>
+    `);
+
+    // Style cơ bản
+    modal.css({
+        position: "fixed",
+        top: 0, left: 0,
+        width: "100%", height: "100%",
+        background: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 9999
+    });
+
+    modal.find(".modal-content").css({
+        background: "#fff",
+        padding: "20px",
+        borderRadius: "8px",
+        minWidth: "300px",
+        textAlign: "center",
+        width: "65%"
+    });
+
+    // Gắn modal vào DOM
+    $("body").append(modal);
+
+    // Event button
+    modal.find(".confirm-btn").on("click", function () {
+        modal.remove();
+        onConfirm();
+    });
+
+    modal.find(".cancel-btn").on("click", function () {
+        modal.remove();
+        onCancel();
+    });
+}

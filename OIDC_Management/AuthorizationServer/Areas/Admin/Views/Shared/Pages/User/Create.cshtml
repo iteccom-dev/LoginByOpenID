@@ -106,8 +106,10 @@
                                     </div>
 
                                   <!-- Client Dropdown -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="userProvider" class="form-label">Ứng dụng đăng nhập</label>
                                     <select class="form-select" asp-for="ClientId">
-                                        <option value="">-- Chọn client --</option>
+                                        <option value="">-- Chọn ứng dụng đăng nhập --</option>
                                         @foreach (var client in Model.Clients)
                                         {
                                             <option value="@client.Id" @(client.Id == Model.ClientId ? "selected" : "")>
@@ -115,6 +117,8 @@
                                             </option>
                                         }
                                     </select>
+                                    </div>
+
                                     <!-- 2FA -->
                                     <div class="col-md-12 mb-3 form-check mt-2">
                                         <input type="checkbox" class="form-check-input" id="user2FA">

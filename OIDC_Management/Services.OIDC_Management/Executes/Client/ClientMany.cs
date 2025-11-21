@@ -15,6 +15,7 @@ namespace Services.OIDC_Management.Executes
         public async Task<List<ClientIdList>> GetMany()
         {
             return await _db.Clients
+                .Where(x => x.Status == 1)
                 .Select(x => new ClientIdList
                 {
                     Id = x.ClientId,

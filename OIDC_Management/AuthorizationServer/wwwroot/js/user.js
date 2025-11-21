@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿
+$(document).ready(function () {
     loadIndex();
 
 //Event Handle
@@ -16,7 +17,8 @@
     });
 
     $('.form-select').off("change").on("change", function () {
-        applyFilters(getCurrentPage(), filter.clientId);
+     let   clientId = $(this).val();
+        applyFilters(getCurrentPage(), clientId);
     });
 
 
@@ -24,6 +26,7 @@
 });
 function loadIndex() {
     applyFilters(1);
+    getClientOption()
 }
 
 //FEARTURE
@@ -183,21 +186,34 @@ function renderPagination(
 }
 
 //Hàm render ClientId option 
-//function getClientOption() {
-//    $.ajax({
-//        url: '/api/user/gets',
-//        method: 'GET',
-//        data: filter,
-//        success: function (response) {
-//            if (response.success) {
-//                $.each(users, function (index, user)) {
-//            }
-//        },
-//        error: function (xhr) {
-//            alert('Lỗi server: ' + xhr.status);
-//        }
-//}
+function getClientOption() {
+    $.ajax({
+        url: '/api/client/gets',
+        method: 'GET',
+        success: function (response) {
+            if (response.success) {
 
+                const select = $("#ClientIdOption");
+                select.empty(); // clear cũ
+
+                // option mặc định
+                select.append(`<option value="" selected>Danh sách Client</option>`);
+
+                // đổ dữ liệu vào select
+                $.each(response.data, function (index, item) {
+                    select.append(`
+                        <option value="${item.id}" class = "form-select">
+                            ${item.name}
+                        </option>
+                    `);
+                });
+            }
+        },
+        error: function (xhr) {
+            alert('Lỗi server: ' + xhr.status);
+        }
+    });
+}
 
 
 

@@ -5,6 +5,8 @@ using Services.OIDC_Management.Executes;
 using System.Data.SqlTypes;
 using System.Security.Claims;
 using static Services.OIDC_Management.Executes.ClientModel;
+using static Services.OIDC_Management.Executes.UserModel;
+using ClientResponse = Services.OIDC_Management.Executes.ClientModel.ClientResponse;
 
 namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
 {
@@ -184,7 +186,21 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             }
         }
 
+        [HttpGet("api/client/gets")]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var items = await _clientMany.GetMany();
 
+                return Ok(new { success = true, message = "Lấy danh sách client thành công", data = items});
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(500, new { success = false, message = "Không thể kết nối server" });
+            }
+        }
 
 
 
