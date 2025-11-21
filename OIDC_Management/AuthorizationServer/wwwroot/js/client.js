@@ -120,7 +120,7 @@ function loadClients(filter) {
                                         </a>
                                     </li>
                                    <li>
-                                        <a href="#" class="dropdown-item edit-item-btn text-warning" data-id="${item.clientId}">
+                                        <a href="#" id="edit-client" class="dropdown-item edit-item-btn text-warning" data-id="${item.clientId}">
                                             <i class="ri-edit-fill fs-16"></i> Chỉnh sửa
                                         </a>
                                     </li>
@@ -251,7 +251,7 @@ function renderPagination(current, total, pageSize) {
 
 
 //sửa
-$('.edit-item-btn').on('click', '.edit-item-btn', function (e) {
+$(document).on('click', '#edit-client', function (e) {
     e.preventDefault();
 
     const clientId = $(this).data('id');
