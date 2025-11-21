@@ -79,6 +79,7 @@ namespace Services.OIDC_Management.Executes
             user.Status = -1; 
             return await _context.SaveChangesAsync();
         }
+
         public async Task<int> Update(UserRequest request)
         {
             if (request.Id == null) return 0;
