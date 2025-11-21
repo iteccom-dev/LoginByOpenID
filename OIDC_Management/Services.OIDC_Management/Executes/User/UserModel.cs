@@ -29,6 +29,9 @@ namespace Services.OIDC_Management.Executes
             public int? Status { get; set; } = 1;
 
             public string? ClientId { get; set; }
+            public string? Password { get; set; }
+            public bool HasPassword { get; set; }
+
             public List<ClientResponse> Clients { get; set; } = new List<ClientResponse>();
         }
         public class ClientResponse

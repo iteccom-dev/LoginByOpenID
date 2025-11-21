@@ -1,26 +1,33 @@
-﻿$(document).ready(function () {
+﻿
 
-    $(document).off("click", "#btn-create-user").on("click", "#btn-create-user", function (e) {
-        e.preventDefault(); // không reload trang
 
-        const formData = getUserFormData();
 
-        console.log(formData); // kiểm tra
+$(document).ready(function () {
 
-        // Gửi lên server
+    $(document).on("click", "#btn-create-user", function () {
+
+        const data = collectUserForm();
+        const hasId = data.Id && data.Id.trim() !== "";
+
+        const url = hasId ? "/api/user/update" : "/api/user/create";
+
         $.ajax({
-            url: "/api/user/create",
-            method: "POST",
+            url: url,
+            type: "POST",
+            data: JSON.stringify(data),
             contentType: "application/json",
-            data: JSON.stringify(formData),
             success: function (res) {
-                toastr.success(`${res.message}`)
+                Swal.fire("Thành công", res.message, "success");
+                $("#userModal").modal("hide");
+                applyFilters(1);
             },
             error: function (err) {
-                toastr.error(`Thông tin không hợp lệ`)
+                const msg = err.responseJSON?.message || "Có lỗi xảy ra";
+                Swal.fire("Lỗi", msg, "error");
             }
         });
     });
+
     // Xóa
     $(document).off("click", "#btn-user-delete").on("click", "#btn-user-delete", function (e) {
         e.preventDefault();
@@ -59,13 +66,13 @@
         let id = $(this).data("id");
 
         $.ajax({
-            url: `/api/user/get/${id}`,         
+            url: `/api/user/get/${id}`,
             method: "GET",
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .done(function (html) {
-                $("#content-main").html(html);  
-               
+                $("#content-main").html(html);
+
             })
             .fail(function (xhr) {
                 $("#content-main").html(
@@ -84,8 +91,7 @@
 });
 
 
-function deleteUser (id)
-{
+function deleteUser(id) {
     $.ajax({
         url: `api/user/delete/${id}`,
         method: 'POST'
@@ -93,7 +99,7 @@ function deleteUser (id)
     })
         .done(function (res) {
             if (res.success) {
-               
+
                 toastr.success("Xóa thông tin thành công")
                 let page = getCurrentPage();
                 applyFilters(page);
@@ -182,3 +188,6 @@ function showConfirmDialog({
         onCancel();
     });
 }
+
+
+
