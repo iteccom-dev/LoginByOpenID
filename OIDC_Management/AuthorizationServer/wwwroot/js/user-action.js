@@ -60,7 +60,7 @@ $(document).ready(function () {
             });
     });
 
-    $(document).on("click", "#btn-user-edit", function (e) {
+    $(document).off("click", "#btn-user-edit").on("click", "#btn-user-edit", function (e) {
         e.preventDefault();
 
         let id = $(this).data("id");
