@@ -1,4 +1,4 @@
-﻿$(function () {
+﻿$(document).ready(function () {
     loadIndex();
 
     let searchTimer;
@@ -13,46 +13,46 @@
     });
 
 
-    //Thêm
-    $(document).on('click', '#btnAddClient', function (e) {
-        e.preventDefault();
+   
+});
+//Thêm
+$(document).off('click', '#btnAddClient').on('click', '#btnAddClient', function (e) {
+    e.preventDefault();
 
-        $('.col-xl-12').has('.card-header .add-btn').hide();
-        $('#addClientFormCard').slideDown();
+    $('.col-xl-12').has('.card-header .add-btn').hide();
+    $('#addClientFormCard').slideDown();
 
-        $('#clientForm')[0].reset();              
-        $('#clientId').val("");                    
-        $('#clientSecret').val("");                
-    });
-
-    //Hủy
-    $(document).on('click', '#btnCancelClient', function (e) {
-        e.preventDefault();
-
-        $('#addClientFormCard').slideUp();
-        $('.col-xl-12').has('.card-header .add-btn').show();
-    });
-
-
-
-    $(document).on('click', '.edit-item-btn', function (e) {
-        e.preventDefault();
-
-        const clientId = $(this).data('id');
-
-        if (!clientId) {
-            toastr.error("Không tìm thấy ClientId!");
-            return;
-        }
-
-        // Ẩn bảng danh sách
-        $('.col-xl-12').has('.card-header .add-btn').hide();
-
-        // Hiện form
-        $('#addClientFormCard').slideDown();
-    });
+    $('#clientForm')[0].reset();
+    $('#clientId').val("");
+    $('#clientSecret').val("");
 });
 
+//Hủy
+$(document).on('click', '#btnCancelClient', function (e) {
+    e.preventDefault();
+
+    $('#addClientFormCard').slideUp();
+    $('.col-xl-12').has('.card-header .add-btn').show();
+});
+
+
+
+$(document).on('click', '.edit-item-btn', function (e) {
+    e.preventDefault();
+
+    const clientId = $(this).data('id');
+
+    if (!clientId) {
+        toastr.error("Không tìm thấy ClientId!");
+        return;
+    }
+
+    // Ẩn bảng danh sách
+    $('.col-xl-12').has('.card-header .add-btn').hide();
+
+    // Hiện form
+    $('#addClientFormCard').slideDown();
+});
 
 function loadIndex() {
     applyFilters(1);
@@ -60,9 +60,7 @@ function loadIndex() {
 
 // ===============================
 // GLOBAL
-// ===============================
-let currentPage = 1;
-let pageSize = 10;
+
 
 // LOAD CLIENT LIST
 function loadClients(filter) {
@@ -77,9 +75,9 @@ function loadClients(filter) {
 
             const tbody = $('#content');
             tbody.empty();
-            console.log(tbody.length);  
+            console.log(tbody.length);
 
-            tbody.empty();  
+            tbody.empty();
 
             if (!res.success) {
                 tbody.append(`<tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>`);
@@ -152,7 +150,7 @@ function loadClients(filter) {
 
 
 
-$("#content-main").on("click", ".delete-item-btn", function (e) {
+$("#content-main").off("click", ".delete-item-btn").on("click", ".delete-item-btn", function (e) {
     e.preventDefault();
     const id = $(this).data("id");
     console.log("Click delete, id=", id);
@@ -342,7 +340,7 @@ $(document).on('submit', '#clientForm', function (e) {
 function applyFilters(page = 1) {
     const filters = {
         page: page,
-        pageSize: pageSize,
+        pageSize: 5,
         keySearch: $('.search').val() || '',
         status: $('#clientStatusFilter').val() === "" ? null : $('#clientStatusFilter').val()
     };
@@ -351,4 +349,3 @@ function applyFilters(page = 1) {
 }
 
 
- 

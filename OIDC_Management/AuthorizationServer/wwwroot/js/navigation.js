@@ -50,5 +50,6 @@
                 main_content.html('<div class="alert alert-danger">' + (xhr.responseText || 'Không tải được chi tiết') + '</div>');
             });
     });
+ 
 
 });

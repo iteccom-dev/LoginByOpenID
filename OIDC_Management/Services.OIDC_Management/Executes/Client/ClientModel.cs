@@ -29,6 +29,11 @@ namespace Services.OIDC_Management.Executes
             public DateTime? UpdatedDate { get; set; }
         }
 
+        public class ClientIdList
+        {
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
 
         public class ClientFilterRequest
         {

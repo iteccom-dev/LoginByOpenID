@@ -29,12 +29,14 @@ namespace Services.OIDC_Management.Executes
             public int? Status { get; set; } = 1;
 
             public string? ClientId { get; set; }
-            public List<ClientResponse> Clients { get; set; }
+            public List<ClientResponse> Clients { get; set; } = new List<ClientResponse>();
         }
         public class ClientResponse
         {
-            public string? Id { get; set; }
-            public class UserListResponse
+            public string Id { get; set; }
+            public string Name { get; set; }  // thêm property này
+        }
+        public class UserListResponse
             {
                 public List<UserResponse> Items { get; set; } = new();
                 public int TotalRecords { get; set; }
@@ -63,6 +65,6 @@ namespace Services.OIDC_Management.Executes
             }
 
 
-        }
+        
     }
 }

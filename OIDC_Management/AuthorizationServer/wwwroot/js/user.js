@@ -2,21 +2,20 @@
     loadIndex();
 
 //Event Handle
-
+    //Hủy
+   
 
     // Search theo input
   
     let searchTimer;
-    $('.search').on("keyup", function () {
+    $('.search').off("keyup").on("keyup", function () {
         clearTimeout(searchTimer);
-
         searchTimer = setTimeout(() => {
             applyFilters(1);
         }, 800);
     });
-    // Filter category select
-    $('.form-select').on('change', function () {
-        
+
+    $('.form-select').off("change").on("change", function () {
         applyFilters(getCurrentPage(), filter.clientId);
     });
 

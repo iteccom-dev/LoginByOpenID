@@ -1,5 +1,6 @@
 ﻿using DBContexts.OIDC_Management.Entities;
 using Microsoft.EntityFrameworkCore;
+using static Services.OIDC_Management.Executes.ClientModel;
 
 namespace Services.OIDC_Management.Executes
 {
@@ -11,7 +12,17 @@ namespace Services.OIDC_Management.Executes
         {
             _db = db;
         }
-
+        public async Task<List<ClientIdList>> GetMany()
+        {
+            return await _db.Clients
+                .Select(x => new ClientIdList
+                {
+                    Id = x.ClientId,
+                    Name = x.DisplayName,
+                   
+                })
+                .ToListAsync();
+        }
         public async Task<ClientModel.ClientListResponse> Gets(ClientModel.ClientFilterRequest filter)
         {
             IQueryable<Client> query = _db.Clients

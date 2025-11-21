@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
-    $(document).on("click", "#btn-create-user", function (e) {
+
+    $(document).off("click", "#btn-create-user").on("click", "#btn-create-user", function (e) {
         e.preventDefault(); // không reload trang
 
         const formData = getUserFormData();
@@ -21,7 +22,7 @@
         });
     });
     // Xóa
-    $(document).on("click", "#btn-user-delete", function (e) {
+    $(document).off("click", "#btn-user-delete").on("click", "#btn-user-delete", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
         showConfirmDialog({
@@ -37,28 +38,21 @@
         });
 
     });
-
-    $(document).on("click", "#btn-create-user", function (e) {
-        e.preventDefault(); // không reload trang
-
-        const formData = getUserFormData();
-
-        console.log(formData); // kiểm tra
-
-        // Gửi lên server
+    const main_content = $("#content-main");
+    $(document).off('click', '#btnCancelUser').on('click', '#btnCancelUser', function (e) {
         $.ajax({
-            url: "/api/user/create",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(formData),
-            success: function (res) {
-                toastr.success(`${res.message}`)
-            },
-            error: function (err) {
-                toastr.error(`${err.message}`)
-            }
-        });
+            url: '/Home/UserList',
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .done(function (html) {
+                main_content.html(html);
+            })
+            .fail(function (xhr) {
+                main_content.html('<div class="alert alert-danger">' + (xhr.responseText || 'Không tải được chi tiết') + '</div>');
+            });
     });
+
     $(document).on("click", "#btn-user-edit", function (e) {
         e.preventDefault();
 
@@ -88,6 +82,8 @@
 
 
 });
+
+
 function deleteUser (id)
 {
     $.ajax({
