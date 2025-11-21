@@ -43,7 +43,7 @@ $(document).on('click', '.edit-item-btn', function (e) {
     const clientId = $(this).data('id');
 
     if (!clientId) {
-        toastr.error("Không tìm thấy ClientId!");
+       
         return;
     }
 
@@ -251,13 +251,13 @@ function renderPagination(current, total, pageSize) {
 
 
 //sửa
-$(document).on('click', '.edit-item-btn', function (e) {
+$('.edit-item-btn').on('click', '.edit-item-btn', function (e) {
     e.preventDefault();
 
     const clientId = $(this).data('id');
 
     if (!clientId) {
-        toastr.error("Không tìm thấy ClientId!");
+       
         return;
     }
 
