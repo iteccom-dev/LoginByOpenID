@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(options =>
     {
         openIdOptions.Scope.Add(scope);
     }
-
+    openIdOptions.RequireHttpsMetadata = false;
     openIdOptions.TokenValidationParameters.ValidIssuer = options.Issuer;
     openIdOptions.TokenValidationParameters.ValidAudience = options.ClientId;
     openIdOptions.TokenValidationParameters.ValidAlgorithms = new[] { "RS256" };

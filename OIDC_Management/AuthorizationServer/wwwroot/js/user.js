@@ -15,7 +15,7 @@
         applyFilters(1);
     });
 
-    $(document).on("click", "#btn-user-edit", function (e) {
+    $(document).off("click", "#btn-user-edit").on("click", "#btn-user-edit", function (e) {
         e.preventDefault();
 
         const id = $(this).data("id"); // 👈 KHAI BÁO TRƯỚC
@@ -33,7 +33,7 @@
 
 
     // 🔥 NÚT LƯU TRONG FORM (Thêm + Sửa chung)
-    $(document).on("click", "#btn-create-user", function () {
+    $(document).off("click", "#btn-create-user").on("click", "#btn-create-user", function () {
         const data = collectUserForm();
 
         const hasId = data.Id && data.Id.trim() !== "";

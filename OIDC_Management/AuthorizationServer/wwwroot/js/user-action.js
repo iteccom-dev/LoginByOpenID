@@ -4,7 +4,7 @@
 
 $(document).ready(function () {
 
-    $(document).on("click", "#btn-create-user", function () {
+    $(document).off("click", "#btn-create-user").on("click", "#btn-create-user", function () {
 
         const data = collectUserForm();
         const hasId = data.Id && data.Id.trim() !== "";
