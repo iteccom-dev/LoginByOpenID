@@ -15,21 +15,21 @@
         applyFilters(1);
     });
 
-    $(document).off("click", "#btn-user-edit").on("click", "#btn-user-edit", function (e) {
-        e.preventDefault();
+    //$(document).off("click", "#btn-user-edit").on("click", "#btn-user-edit", function (e) {
+    //    e.preventDefault();
 
-        const id = $(this).data("id"); // 👈 KHAI BÁO TRƯỚC
-        console.log("👉 CLICK EDIT, ID gửi lên API:", id);
+    //    const id = $(this).data("id"); // 👈 KHAI BÁO TRƯỚC
+    //    console.log("👉 CLICK EDIT, ID gửi lên API:", id);
 
-        $.get(`/api/user/get/${id}`, function (html) {
-            $("#modal-content").html(html);
-            $("#userModal").modal("show");
+    //    $.get(`/api/user/get/${id}`, function (html) {
+    //        $("#modal-content").html(html);
+    //        $("#userModal").modal("show");
 
-            console.log("👉 ID trong form sau khi load:", $("#modal-content #userId").val());
-        }).fail(function (xhr) {
-            alert("Không load được form: " + xhr.responseText);
-        });
-    });
+    //        console.log("👉 ID trong form sau khi load:", $("#modal-content #userId").val());
+    //    }).fail(function (xhr) {
+    //        alert("Không load được form: " + xhr.responseText);
+    //    });
+    //});
 
 
     // 🔥 NÚT LƯU TRONG FORM (Thêm + Sửa chung)

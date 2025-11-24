@@ -71,7 +71,7 @@ $(document).ready(function () {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .done(function (html) {
-                main_content.html(html);
+                main_content.html(html);C
 
             })
             .fail(function (xhr) {
