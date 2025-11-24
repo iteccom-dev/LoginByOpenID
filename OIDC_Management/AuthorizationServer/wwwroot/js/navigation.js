@@ -2,7 +2,7 @@
 
     //Các nút chuyển trang
     const main_content = $("#content-main");
-    $("#client-list-link").on("click", function () {
+    $(document).on("click", "#client-list-link", function () {
     
         $.ajax({
             url: '/Home/ClientList',
@@ -20,7 +20,7 @@
 
 
     });
-    $("#user-list-link").on("click", function () {
+    $(document).on("click", "#user-list-link", function () {
       
         $.ajax({
             url: '/Home/UserList',

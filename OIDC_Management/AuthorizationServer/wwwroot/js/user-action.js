@@ -71,11 +71,11 @@ $(document).ready(function () {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .done(function (html) {
-                $("#content-main").html(html);
+                main_content.html(html);
 
             })
             .fail(function (xhr) {
-                $("#content-main").html(
+                main_content.html(
                     '<div class="alert alert-danger">' +
                     (xhr.responseText || 'Không tải được chi tiết') +
                     '</div>'
