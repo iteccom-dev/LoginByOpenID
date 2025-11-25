@@ -5,12 +5,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using OIDCDemo.AuthorizationServer;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
+using Renci.SshNet.Security;
 using Services.OIDC_Management.Executes;
 using Services.OIDC_Management.Executes.AuthorizationClient;
-
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<oidcIdentityContext>(options =>
@@ -23,6 +27,7 @@ builder.Services.AddAuthentication("Cookies")
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
     });
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICodeStorage>(services => new MemoryCodeStorage());
@@ -48,10 +53,28 @@ builder.Services.AddScoped<AccountCommand>();
 builder.Services.AddScoped<PasswordHasher>();
 // ------------------ Authentication ------------------
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient("IgnoreSSL")
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            // Bỏ qua mọi lỗi SSL (self-signed / mismatch / expired)
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+    });
+
+RSA rsa = RSA.Create(2048); // tạo RSA 2048 bit
+
+// Đóng gói thành RsaSecurityKey để dùng với JWT
+var rsaKey = new RsaSecurityKey(rsa)
+{
+    KeyId = Guid.NewGuid().ToString() // mỗi key cần có kid
+};
+builder.Services.AddSingleton<RsaSecurityKey>(rsaKey);
+
 
 
 var app = builder.Build();
-
 
 
 
@@ -64,7 +87,6 @@ app.MapGet("/.well-known/jwks.json", () =>
 {
     return Results.File(Path.Combine(builder.Environment.ContentRootPath, "oidc-assets", ".well-known/jwks.json"), contentType: "application/json");
 });
-
 app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthorization();

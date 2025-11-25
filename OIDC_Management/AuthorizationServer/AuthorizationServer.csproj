@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include=".well-known\jwks.json" />
+    <Content Include=".well-known\openid-configuration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="oidc-assets\.private\public-jwk.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -19,6 +23,11 @@
     <Content Include="oidc-assets\.well-known\openid-configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="wwwroot\oidc-assets\.well-known\jwks.json" />
+    <Content Include="wwwroot\oidc-assets\.well-known\openid-configuration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+   
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +36,7 @@
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.2.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="SSH.NET" Version="2025.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
   </ItemGroup>
 
@@ -38,6 +48,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Client\" />
     <Folder Include="Areas\Data\" />
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
 </Project>

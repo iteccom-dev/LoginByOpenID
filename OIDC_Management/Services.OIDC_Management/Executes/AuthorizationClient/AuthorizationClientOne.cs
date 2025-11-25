@@ -39,6 +39,6 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             return isValid.Id;
 
         }
-
+      
     }
 }

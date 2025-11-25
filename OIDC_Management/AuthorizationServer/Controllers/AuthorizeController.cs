@@ -53,24 +53,31 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
         // Người dùng submit email + password
         [HttpPost]
-        public async Task<IActionResult> AuthorizeAsync(AuthenticationRequestModel authenticateRequest, string email, string password)
+        public async Task<IActionResult> Authorize(AuthenticationRequestModel authenticateRequest, string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 ModelState.AddModelError("", "Email và mật khẩu không được bỏ trống");
-                return View(authenticateRequest);
+                ValidateAuthenticateRequestModel(authenticateRequest);
+                return View("Index",authenticateRequest);
             }
 
             // Lấy client từ DB
             var client = await authorizationClientOne.FindByClientId(authenticateRequest.ClientId);
             if (client == null)
             {
-                return BadRequest("Invalid client_id");
+                //return BadRequest("Invalid client_id");
+                ModelState.AddModelError("", "Tài khoản không hợp lệ");
+                ValidateAuthenticateRequestModel(authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             if (!client.RedirectUris.Split(';').Contains(authenticateRequest.RedirectUri))
             {
-                return BadRequest("Invalid redirect_uri");
+                //return BadRequest("Invalid redirect_uri");
+                ModelState.AddModelError("", "Tài khoản không hợp lệ");
+                ValidateAuthenticateRequestModel(authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             // Xác thực user bằng email/password
@@ -78,7 +85,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             if (user == null)
             {
                 ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
-                return View(authenticateRequest);
+                ValidateAuthenticateRequestModel(authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             // Tạo code để user đổi token
@@ -160,7 +168,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     IdToken = GenerateIdToken(codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken,
-                    ExpiresIn = TokenResponseValidSeconds
+                    ExpiresIn = TokenResponseValidSeconds,
+                    
                 };
 
                 logger.LogInformation("access_token: {t}", result.AccessToken);

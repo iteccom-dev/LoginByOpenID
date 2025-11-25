@@ -18,5 +18,6 @@ namespace OIDCDemo.AuthorizationServer
         public required string User { get; set; }
         public required string Nonce { get; set; }
         public required string Scope { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 }

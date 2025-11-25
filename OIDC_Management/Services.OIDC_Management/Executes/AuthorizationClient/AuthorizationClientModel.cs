@@ -25,8 +25,8 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
         {
             [BindProperty(Name = "client_id", SupportsGet = true)]
             public string ClientId { get; set; } = string.Empty;
-            [BindProperty(Name = "client_secret", SupportsGet = true)]
-            public string ClientSecret { get; set; } = string.Empty;
+            //[BindProperty(Name = "client_secret", SupportsGet = true)]
+            //public string ClientSecret { get; set; } = string.Empty;
             [BindProperty(Name = "redirect_uri", SupportsGet = true)]
             public string RedirectUri { get; set; } = string.Empty;
             [BindProperty(Name = "response_type", SupportsGet = true)]
@@ -43,6 +43,12 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             public string Nonce { get; set; } = string.Empty;
             [BindProperty(Name = "state", SupportsGet = true)]
             public string State { get; set; } = string.Empty;
+
+            [BindProperty(Name = "email", SupportsGet = false)]
+            public string? Email { get; set; }
+
+            [BindProperty(Name = "password", SupportsGet = false)]
+            public string? Password { get; set; }
         }
     }
 }

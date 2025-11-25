@@ -11,14 +11,14 @@
         <div class="login-box">
             <h5>ĐĂNG NHẬP HỆ THỐNG</h5>
 
-            <form action="authorize/authorize" method="post">
+            <form asp-controller="Authorize" asp-action="Authorize" method="post">
                 <input type="hidden" name="Scope" value="@Model.Scope" />
 
                 <input type="hidden" name="client_id" value="@Model.ClientId" />
                 <input type="hidden" name="redirect_uri" value="@Model.RedirectUri" />
                 <input type="hidden" name="response_type" value="@Model.ResponseType" />
                 <input type="hidden" name="scope" value="@Model.Scope" />
-                <input type="hidden" name="scope" value="@Model.ClientSecret" />
+               @*  <input type="hidden" name="client_Secret" value="@Model.ClientSecret" /> *@
                 <input type="hidden" name="code_challenge" value="@Model.CodeChallenge" />
                 <input type="hidden" name="code_challenge_method" value="@Model.CodeChallengeMethod" />
                 <input type="hidden" name="response_mode" value="@Model.ResponseMode" />

@@ -6,5 +6,6 @@ namespace OIDCDemo.AuthorizationServer.Models
     {
         [JsonPropertyName("redirect_uri")]
         public required string RedirectUri { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
     }
 }

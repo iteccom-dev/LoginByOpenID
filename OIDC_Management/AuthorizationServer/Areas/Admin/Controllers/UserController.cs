@@ -98,7 +98,49 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
                 return StatusCode(500, "Không thể kết nối server");
             }
         }
+        [HttpGet("api/user/guest/get/{id}")]
+        public async Task<IActionResult> GetInfo(string id)
+        {
+            var isValid = ObjectChecker.IsValid(id);
+            if (!isValid)
+            {
+                return BadRequest("Dữ liệu không hợp lệ");
+            }
 
+            try
+            {
+                var result = await _userOne.Get(id);
+                var user = result?.FirstOrDefault();
+
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy dữ liệu");
+                }
+
+                var clients = await _clientMany.GetMany();
+
+                var model = new UserResponse
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                  
+                };
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Lấy thành công",
+                    data = model
+                });
+
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Không thể kết nối server");
+            }
+        }
         [HttpPost("api/user/create")]
         public async Task<IActionResult> Create([FromBody] UserRequest request)
         {
