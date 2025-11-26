@@ -1,10 +1,9 @@
-﻿
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Mvc;
-
 using Services.OIDC_Management.Executes;
-using Services.OIDC_Management.Executes.AuthorizationClient;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EmployeeMangement.Controllers
@@ -19,27 +18,19 @@ namespace EmployeeMangement.Controllers
             _accountCommand = accountCommand;
         }
 
+        // ================================
+        // BASIC SIGN-IN
+        // ================================
         [HttpGet]
         public IActionResult SignIn()
         {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
+            if (User.Identity?.IsAuthenticated == true)
                 return RedirectToAction("Index", "Home");
-            }
-            return View();
-          
-        }
-        public IActionResult ForgotPassword()
-        {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+
             return View();
         }
 
         [HttpPost]
-
         public async Task<IActionResult> SignIn(AccountModel.AccountRequest request)
         {
             if (!ModelState.IsValid)
@@ -54,28 +45,45 @@ namespace EmployeeMangement.Controllers
                 ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng.";
                 return View(request);
             }
+
             var account = await _accountCommand.GetAccountByEmail(request.Email);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email ?? ""),
-                new Claim(ClaimTypes.Name, account.UserName ?? "")
+                new Claim(ClaimTypes.Email, account.Email ?? string.Empty),
+                new Claim(ClaimTypes.Name, account.UserName ?? string.Empty)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, "login");
+
             await HttpContext.SignInAsync(
                 new ClaimsPrincipal(claimsIdentity),
                 new AuthenticationProperties
                 {
                     IsPersistent = true,
                     ExpiresUtc = DateTime.UtcNow.AddHours(2)
-                });
+                }
+            );
 
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: view form API
+        // ================================
+        // FORGOT PASSWORD PAGE ONLY
+        // ================================
+        public IActionResult ForgotPassword()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Home");
+
+            return View();
+        }
+
+
+        // ================================
+        // LOGIN - API VERSION
+        // ================================
         [HttpGet("api/account/sign-in-view")]
         public IActionResult ApiSignInView()
         {
@@ -88,13 +96,9 @@ namespace EmployeeMangement.Controllers
             if (!ModelState.IsValid)
                 return Ok(new { success = false, message = "Thiếu thông tin đăng nhập." });
 
-            
-            var user = await _accountCommand.CheckAccount(request.Email, request.PasswordHash);
-            if (user == null)
-            {
-                return Ok(new { success = false, message = "Thông tin đăng nhập không hợp lệ." });
-            }
-            if (!user)
+            var valid = await _accountCommand.CheckAccount(request.Email, request.PasswordHash);
+
+            if (valid == null || !valid)
                 return Ok(new { success = false, message = "Sai email hoặc mật khẩu." });
 
             var account = await _accountCommand.GetAccountByEmail(request.Email);
@@ -113,70 +117,52 @@ namespace EmployeeMangement.Controllers
         }
 
 
-
-
-       
-
-
-
-
-
-
-
-
-
-        // Logout
+        // ================================
+        // LOGOUT
+        // ================================
         public async Task<IActionResult> Logout()
         {
             await _accountCommand.Logout();
             TempData["SuccessMessage"] = "Đăng xuất thành công!";
-            return RedirectToAction("SignIn", "Account");
+            return RedirectToAction("SignIn");
         }
 
 
-        //[HttpPost("api/account/reset/{email}")]
-        //public async Task<IActionResult> Reset(string email, int id = 0)
-        //{
-          
-        //    if (string.IsNullOrWhiteSpace(email))
-        //        return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ - dữ liệu rỗng" });
+        // ================================
+        // MICROSOFT ACCOUNT LOGIN
+        // ================================
+        [HttpGet]
+        public IActionResult LoginWithMicrosoft()
+        {
+            var redirectUrl = Url.Action("LoginCallback", "Account", new { area = "Admin" });
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
 
-        //    if (SqlGuard.IsSuspicious(email))
-        //        return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ - email không hợp lệ" });
+            return Challenge(properties, MicrosoftAccountDefaults.AuthenticationScheme);
+        }
 
-        //    var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        //    if (!System.Text.RegularExpressions.Regex.IsMatch(email, emailRegex))
-        //        return BadRequest(new { success = false, message = "Định dạng email không hợp lệ" });
+        [HttpGet]
+        public async Task<IActionResult> LoginCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync(MicrosoftAccountDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return RedirectToAction("SignIn");
 
-        //    try
-        //    {
-               
-        //        var newPassword = EmailHelper.SendPassword(email);
-        //        if (newPassword == null)
-        //            return BadRequest(new { success = false, message = "Gửi email không thành công" });
+            var userEmail = result.Principal.FindFirst(ClaimTypes.Email)?.Value
+                            ?? result.Principal.Identity?.Name;
 
-        //        // ✅ Update mật khẩu mới vào DB
-        //        var result = await _accountCommand.Reset(newPassword, email);
-        //        if (result == 0)
-        //            return StatusCode(500, new { success = false, message = "Không kết nối tới server" });
+            var tokenData = $"email={userEmail}&expire={DateTime.Now.AddMinutes(5).Ticks}";
+            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(tokenData));
 
-        //        return Ok(new
-        //        {
-        //            success = true,
-        //            message = "Đặt lại mật khẩu thành công"
-        //        });
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(500, new { success = false, message = "Không thể kết nối server" });
-        //    }
-        //}
+            // 2. Định nghĩa địa chỉ nhà của Nhóm 2 (App User)
+            // 2. Định nghĩa địa chỉ nhà của Nhóm 2 (App User)
+            // Localhost: https://localhost:7100/receive-user
+            // UAT: https://app-uat.iteccom.vn/receive-user
 
-     
+            // string clientUrl = $"https://localhost:7100/receive-user?token={token}";
+            string clientUrl = $"https://app-uat.iteccom.vn/receive-user?token={token}";
 
-
-
-
-
+            // 3. ĐÁ VỀ (Redirect)
+            return Redirect(clientUrl);
+        }
     }
 }
