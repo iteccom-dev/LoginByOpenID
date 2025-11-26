@@ -81,14 +81,14 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
 
             // Xác thực user bằng email/password
-            var user = await authorizationClientOne.CheckAccount(email, password);
+            var user = await authorizationClientOne.CheckAccount(email, password, authenticateRequest.ClientId);
             if (user == null)
             {
                 ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
                 ValidateAuthenticateRequestModel(authenticateRequest);
                 return View("Index", authenticateRequest);
             }
-
+            
             // Tạo code để user đổi token
             string code = GenerateAuthenticationCode();
             if (!codeStorage.TryAddCode(code, new CodeStorageValue()
@@ -98,7 +98,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 OriginalRedirectUri = authenticateRequest.RedirectUri,
                 ExpiryTime = DateTime.Now.AddSeconds(CodeResponseValidSeconds),
                 Nonce = authenticateRequest.Nonce,
-                User = user,          // lưu user id
+                User = user.UserId,   
+                Email = user.Email,// lưu user id
                 Scope = authenticateRequest.Scope
             }))
             {
@@ -164,8 +165,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Trả về Token cho user
                 var result = new AuthenticationResponseModel()
                 {
-                    AccessToken = GenerateAccessToken(codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
-                    IdToken = GenerateIdToken(codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
+                    AccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
+                    IdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken,
                     ExpiresIn = TokenResponseValidSeconds,
@@ -217,6 +218,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 logger.LogInformation("refresh_token: {t}", result.RefreshToken);
 
                 return Json(result);
+                       
+                  
             }
             else
             { 
@@ -229,13 +232,14 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             return Guid.NewGuid().ToString("N");
         }
 
-        private string GenerateIdToken(string userId, string audience, string nonce, JsonWebKey jsonWebKey)
+        private string GenerateIdToken(CodeStorageValue user,string userId, string audience, string nonce, JsonWebKey jsonWebKey)
         {
             // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
             // we can return some claims defined here: https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, userId)
+                new(JwtRegisteredClaimNames.Sub, userId),
+                  new(JwtRegisteredClaimNames.Email, user.Email)
             };
 
             var idToken = JwtGenerator.GenerateJWTToken(
@@ -251,13 +255,14 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             return idToken;
         }
 
-        private string GenerateAccessToken(string userId, string scope, string audience, string nonce, JsonWebKey jsonWebKey)
+        private string GenerateAccessToken(CodeStorageValue user, string userId, string scope, string audience, string nonce, JsonWebKey jsonWebKey)
         {
             // access_token can be the same as id_token, but here we might have different values for expirySeconds so we use 2 different functions
 
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, userId), // Trả về claim cho user
+                new(JwtRegisteredClaimNames.Sub, userId),
+                new(JwtRegisteredClaimNames.Email, user.Email),// Trả về claim cho user
                 new("scope", scope) // Jeg vet ikke hvorfor JwtRegisteredClaimNames inneholder ikke "scope"??? Det har kun OIDC ting?  https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim
             };
             var idToken = JwtGenerator.GenerateJWTToken(
@@ -307,6 +312,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
         }
 
+      
         private static CodeFlowResponseModel BuildCodeFlowResponseModel(AuthenticationRequestModel authenticateRequest, string code)
         {
             return new CodeFlowResponseModel() { 
@@ -314,5 +320,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 State = authenticateRequest.State
             };
         }
+
+
     }
 }

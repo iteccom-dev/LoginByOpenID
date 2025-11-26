@@ -50,5 +50,11 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             [BindProperty(Name = "password", SupportsGet = false)]
             public string? Password { get; set; }
         }
+        public class AuthUserInfo
+        {
+            public string UserId { get; set; }
+            public string Username { get; set; }
+            public string Email { get; set; }
+        }
     }
 }

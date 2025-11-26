@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.OIDC_Management.Executes;
+using System.Text.Json;
 using static Services.OIDC_Management.Executes.UserModel;
 using static Services.OIDC_Management.Executes.UserModel.ClientResponse;
 
@@ -221,6 +222,52 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             catch
             {
                 return StatusCode(500, new { success = false, message = "Không thể kết nối server" });
+            }
+        }
+
+
+        [HttpGet("api/sync-users")]
+        public async Task<IActionResult> GetUsersFromApi()
+        {
+            var apiUrl = "https://auth-ms.office1.vn/api/syncusers";
+            using var httpClient = new HttpClient();
+
+            try
+            {
+                // Lấy dữ liệu JSON từ API
+                var response = await httpClient.GetStringAsync(apiUrl);
+
+                // Deserialize JSON thành danh sách ExternalUser
+                var externalUsers = JsonSerializer.Deserialize<List<ExternalUser>>(response,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (externalUsers == null || !externalUsers.Any())
+                {
+                    return NotFound(new { success = false, message = "Không tìm thấy dữ liệu" });
+                }
+
+                // Map sang UserRequest
+                var users = externalUsers.Select(u => new UserRequest
+                {
+                    Id = u.microsoftId,
+                    UserName = u.fullName,
+                    UserEmail = u.email,
+                    UserPassword = u.password
+                }).ToList();
+
+                // Gọi command để lưu vào DB
+                int result = await _userCommand.AddUser(users);
+
+                if (result == 0)
+                {
+                    return BadRequest(new { success = false, message = "Thêm người dùng thất bại" });
+                }
+
+                return Ok(new { success = true, message = $"Đã thêm {result} người dùng" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
     }

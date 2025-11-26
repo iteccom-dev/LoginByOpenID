@@ -15,21 +15,23 @@
         applyFilters(1);
     });
 
-    //$(document).off("click", "#btn-user-edit").on("click", "#btn-user-edit", function (e) {
-    //    e.preventDefault();
+    $(document).off("click", "#user-add-link").on("click", "#user-add-link", function (e) {
+        e.preventDefault();
 
-    //    const id = $(this).data("id"); // 👈 KHAI BÁO TRƯỚC
-    //    console.log("👉 CLICK EDIT, ID gửi lên API:", id);
-
-    //    $.get(`/api/user/get/${id}`, function (html) {
-    //        $("#modal-content").html(html);
-    //        $("#userModal").modal("show");
-
-    //        console.log("👉 ID trong form sau khi load:", $("#modal-content #userId").val());
-    //    }).fail(function (xhr) {
-    //        alert("Không load được form: " + xhr.responseText);
-    //    });
-    //});
+        $.ajax({
+            url: '/api/sync-users',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                // res.message nếu API trả về { success: true, message: "..." }
+                Swal.fire("Thành công", res.message || "Đồng bộ thành công", "success");
+            },
+            error: function (xhr) {
+                var errMsg = xhr.responseJSON?.message || xhr.statusText || "Có lỗi xảy ra";
+                Swal.fire("Lỗi", errMsg, "error");
+            }
+        });
+    });
 
 
     // 🔥 NÚT LƯU TRONG FORM (Thêm + Sửa chung)

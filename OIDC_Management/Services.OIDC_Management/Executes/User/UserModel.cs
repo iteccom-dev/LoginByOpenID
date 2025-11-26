@@ -46,8 +46,15 @@ namespace Services.OIDC_Management.Executes
                 public int CurrentPage { get; set; }
                 public int PageSize { get; set; }
             }
-
-            public class UserRequest
+        public class ExternalUser
+        {
+            public string microsoftId { get; set; }
+            public string email { get; set; }
+            public string fullName { get; set; }
+            public string password { get; set; }
+            // Những trường khác có thể bỏ qua
+        }
+        public class UserRequest
             {
                 public string? Id { get; set; } = string.Empty;
                 public string? UserName { get; set; } = string.Empty;

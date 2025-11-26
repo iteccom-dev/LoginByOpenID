@@ -88,4 +88,40 @@ public class UserCommand
 
         return await _context.SaveChangesAsync();
     }
+
+
+    public async Task<int> AddUser(List<UserRequest> users)
+    {
+        int count = 0;
+
+        foreach (var user in users)
+        {
+            if (await IsUserExists(user.Id)) // dùng await
+            {
+                // Nếu đã tồn tại -> cập nhật
+                int updated = await Update(user);
+                if (updated > 0) count++;
+            }
+            else
+            {
+                // Nếu chưa tồn tại -> thêm mới
+                int inserted = await Create(user);
+                if (inserted > 0) count++;
+            }
+        }
+
+        return count;
+    }
+
+    // Kiểm tra user có tồn tại
+    private async Task<bool> IsUserExists(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        return await _context.AspNetUsers.AnyAsync(u => u.Id == id && u.Status != -1);
+    }
+
+
+
+
+
 }

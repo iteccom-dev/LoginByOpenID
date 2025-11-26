@@ -24,21 +24,36 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             var resutl = await _db.Clients.FirstOrDefaultAsync(c => c.ClientId == clientId);
             return resutl;
         }
-        public async Task<string?> CheckAccount(string email, string password)
+       
+        public async Task<AuthUserInfo?> CheckAccount(string email, string password, string clientId)
         {
-            var isValid = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
-            if (isValid == null)
-            {
+            // Lấy user theo email
+            var userEntity = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
+            if (userEntity == null)
                 return null;
-            }
-            bool result = PasswordHelper.VerifyPassword(password, isValid.SecurityStamp, isValid.PasswordHash);
-            if (result == false)
-            {
-                return null;
-            }
-            return isValid.Id;
 
+            // Kiểm tra user có thuộc clientId hay không
+            bool isOfClient = await _db.AspNetUsers
+                .AnyAsync(u => u.Email == email && u.ClientId == clientId);
+
+            if (!isOfClient)
+                return null;
+
+            // Kiểm tra mật khẩu
+            bool result = PasswordHelper.VerifyPassword(password, userEntity.SecurityStamp, userEntity.PasswordHash);
+            if (!result)
+                return null;
+
+            // Trả về AuthUserInfo
+            return new AuthUserInfo
+            {
+                UserId = userEntity.Id.ToString(), // nếu Id là Guid
+                Username = userEntity.UserName,    // hoặc userEntity.Username tùy DB
+                Email = userEntity.Email
+            };
         }
-      
+
+
+
     }
 }
