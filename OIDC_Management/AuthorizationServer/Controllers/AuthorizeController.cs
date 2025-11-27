@@ -100,6 +100,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 Nonce = authenticateRequest.Nonce,
                 User = user.UserId,   
                 Email = user.Email,// lưu user id
+                UserName = user.Username,// lưu user id
                 Scope = authenticateRequest.Scope
             }))
             {
@@ -239,7 +240,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, userId),
-                  new(JwtRegisteredClaimNames.Email, user.Email)
+                  new(JwtRegisteredClaimNames.Email, user.Email),
+                  new(JwtRegisteredClaimNames.PreferredUsername, user.UserName)
             };
 
             var idToken = JwtGenerator.GenerateJWTToken(
@@ -262,7 +264,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, userId),
-                new(JwtRegisteredClaimNames.Email, user.Email),// Trả về claim cho user
+                new(JwtRegisteredClaimNames.Email, user.Email),
+                  new(JwtRegisteredClaimNames.PreferredUsername, user.UserName),// Trả về claim cho user
                 new("scope", scope) // Jeg vet ikke hvorfor JwtRegisteredClaimNames inneholder ikke "scope"??? Det har kun OIDC ting?  https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim
             };
             var idToken = JwtGenerator.GenerateJWTToken(
