@@ -63,7 +63,7 @@ namespace Services.OIDC_Management.Executes
                 public string? UserPhone { get; set; } = string.Empty;
 
                 public string? UserRoles { get; set; } = string.Empty;
-                public int? UserStatus { get; set; } = 1;
+                public int UserStatus { get; set; } = 1;
                 public string? UserProvider { get; set; } = string.Empty;
                 public string? UserClient { get; set; } = string.Empty;
                 public bool? User2FA { get; set; } = false;

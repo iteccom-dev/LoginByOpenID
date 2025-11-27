@@ -281,6 +281,7 @@ $(document).on('click', '#edit-client', function (e) {
             $('#displayName').val(c.displayName);
             $('#redirectUris').val(c.redirectUris);
             $('#callbackPath').val(c.callbackPath);
+            $('#signOutCallBackPath').val(c.signOutCallbackPath);
             $('#accessDeniedPath').val(c.accessDeniedPath);
             $('#scope').val(c.scope);
             $('#grantType').val(c.grantType);
@@ -313,6 +314,7 @@ $(document).on('submit', '#clientForm', function (e) {
         status: parseInt($('#clientStatus').val()),
 
         callbackPath: $('#callbackPath').val(),
+        signOutCallbackPath: $('#signOutCallBackPath').val(),
         accessDeniedPath: $('#accessDeniedPath').val(),
         keyword: $('#keyWord').val()
     };

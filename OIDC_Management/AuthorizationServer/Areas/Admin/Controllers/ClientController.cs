@@ -69,6 +69,7 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
                     DisplayName = c.DisplayName,
                     RedirectUris = c.RedirectUris,
                     CallbackPath = c.CallbackPath,
+                    SignOutCallbackPath = c.SignOutCallbackPath,
                     AccessDeniedPath = c.AccessDeniedPath,
                     Scope = c.Scope,
                     GrantType = c.GrantType,
