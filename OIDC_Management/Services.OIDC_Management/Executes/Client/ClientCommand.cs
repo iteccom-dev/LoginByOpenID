@@ -81,6 +81,7 @@ namespace Services.OIDC_Management.Executes
                     RedirectUris = request.RedirectUris ?? "",
 
                      CallbackPath = request.CallbackPath ?? "",
+                      SignOutCallbackPath = request.SignOutCallbackPath ?? "",
                     AccessDeniedPath = request.AccessDeniedPath ?? "",
                     KeyWord = request.Keyword ?? "",
 
@@ -127,6 +128,7 @@ namespace Services.OIDC_Management.Executes
                  item.DisplayName = request.DisplayName;
                 item.RedirectUris = request.RedirectUris ?? "";
                 item.CallbackPath = request.CallbackPath ?? "";
+                item.SignOutCallbackPath = request.SignOutCallbackPath ?? "";
                 item.AccessDeniedPath = request.AccessDeniedPath ?? "";
                 item.Scope = request.Scope;
                 item.GrantType = request.GrantType;

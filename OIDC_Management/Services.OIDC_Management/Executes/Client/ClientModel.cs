@@ -16,6 +16,7 @@ namespace Services.OIDC_Management.Executes
 
             public string RedirectUris { get; set; }
             public string CallbackPath { get; set; }
+            public string SignOutCallbackPath { get; set; }
             public string AccessDeniedPath { get; set; }
             public string Scope { get; set; }
             public string GrantType { get; set; }
@@ -67,6 +68,7 @@ namespace Services.OIDC_Management.Executes
             public string DisplayName { get; set; }
             public string RedirectUris { get; set; }
             public string CallbackPath { get; set; }
+            public string SignOutCallbackPath { get; set; }
             public string AccessDeniedPath { get; set; }
             public string Scope { get; set; }
             public string GrantType { get; set; }

@@ -74,6 +74,7 @@ namespace Services.OIDC_Management.Executes
                     DisplayName = c.DisplayName,
                     RedirectUris = c.RedirectUris,
                     CallbackPath = c.CallbackPath,
+                    SignOutCallbackPath = c.SignOutCallbackPath,
                     AccessDeniedPath = c.AccessDeniedPath,
                     Scope = c.Scope,
                     GrantType = c.GrantType,

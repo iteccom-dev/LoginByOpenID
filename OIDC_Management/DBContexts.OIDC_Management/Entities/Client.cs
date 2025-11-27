@@ -15,6 +15,8 @@ public partial class Client
 
     public string RedirectUris { get; set; }
 
+    public string SignOutCallbackPath { get; set; }
+
     public string CallbackPath { get; set; }
 
     public string AccessDeniedPath { get; set; }
