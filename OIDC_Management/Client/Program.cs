@@ -25,60 +25,60 @@ builder.Services.AddDefaultIdentity<IdentityUser>(
     )
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthentication(options =>
-{
-})
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(cookieOptions =>
+    {
+        // If not logged in, redirect to this local action which will redirect to Server
+        cookieOptions.LoginPath = "/Auth/Login"; 
+        cookieOptions.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    })
     .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, openIdOptions =>
-{
-    openIdOptions.ClientId = options.ClientId;
-    openIdOptions.Authority = options.Issuer;
-    openIdOptions.ClientSecret = options.ClientSecret;
-    openIdOptions.ResponseType = OpenIdConnectResponseType.Code;
-    openIdOptions.CallbackPath = options.CallbackPath;
-    openIdOptions.SaveTokens = true;
-    openIdOptions.AccessDeniedPath = options.AccessDeniedPath;
-
-    openIdOptions.GetClaimsFromUserInfoEndpoint = false; // we will change this to true when we implement user-info endpoint
-
-    foreach (var scope in options.Scope.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
     {
-        openIdOptions.Scope.Add(scope);
-    }
-    openIdOptions.RequireHttpsMetadata = false;
-    openIdOptions.TokenValidationParameters.ValidIssuer = options.Issuer;
-    openIdOptions.TokenValidationParameters.ValidAudience = options.ClientId;
-    openIdOptions.TokenValidationParameters.ValidAlgorithms = new[] { "RS256" };
-    openIdOptions.TokenValidationParameters.IssuerSigningKey = JwkLoader.LoadFromPublic();
+        openIdOptions.ClientId = options.ClientId;
+        openIdOptions.Authority = options.Issuer;
+        openIdOptions.ClientSecret = options.ClientSecret;
+        openIdOptions.ResponseType = OpenIdConnectResponseType.Code;
+        openIdOptions.CallbackPath = options.CallbackPath;
+        openIdOptions.SaveTokens = true;
+        openIdOptions.AccessDeniedPath = options.AccessDeniedPath;
 
-    openIdOptions.Events.OnAuthorizationCodeReceived = (context) =>
-    {
-        Console.WriteLine($"authorization_code: {context.ProtocolMessage.Code}");
+        openIdOptions.GetClaimsFromUserInfoEndpoint = false;
 
-        return Task.CompletedTask;
-    };
+        foreach (var scope in options.Scope.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            openIdOptions.Scope.Add(scope);
+        }
+        openIdOptions.RequireHttpsMetadata = false;
+        openIdOptions.TokenValidationParameters.ValidIssuer = options.Issuer;
+        openIdOptions.TokenValidationParameters.ValidAudience = options.ClientId;
+        openIdOptions.TokenValidationParameters.ValidAlgorithms = new[] { "RS256" };
+        openIdOptions.TokenValidationParameters.IssuerSigningKey = JwkLoader.LoadFromPublic();
 
-    openIdOptions.Events.OnTokenResponseReceived = (context) =>
-    {
-        Console.WriteLine($"OnTokenResponseReceived.access_token: {context.TokenEndpointResponse.AccessToken}");
-        Console.WriteLine($"OnTokenResponseReceived.refresh_token: {context.TokenEndpointResponse.RefreshToken}");
+        openIdOptions.Events.OnAuthorizationCodeReceived = (context) =>
+        {
+            Console.WriteLine($"authorization_code: {context.ProtocolMessage.Code}");
+            return Task.CompletedTask;
+        };
 
-        return Task.CompletedTask;
-    };
+        openIdOptions.Events.OnTokenResponseReceived = (context) =>
+        {
+            Console.WriteLine($"OnTokenResponseReceived.access_token: {context.TokenEndpointResponse.AccessToken}");
+            Console.WriteLine($"OnTokenResponseReceived.refresh_token: {context.TokenEndpointResponse.RefreshToken}");
+            return Task.CompletedTask;
+        };
 
-    openIdOptions.Events.OnTokenValidated = (context) =>
-    {
-        Console.WriteLine($"OnTokenValidated.access_token: {context.TokenEndpointResponse?.AccessToken}");
-        Console.WriteLine($"OnTokenValidated.refresh_token: {context.TokenEndpointResponse?.RefreshToken}");
+        openIdOptions.Events.OnTokenValidated = (context) =>
+        {
+            Console.WriteLine($"OnTokenValidated.access_token: {context.TokenEndpointResponse?.AccessToken}");
+            Console.WriteLine($"OnTokenValidated.refresh_token: {context.TokenEndpointResponse?.RefreshToken}");
+            return Task.CompletedTask;
+        };
 
-        return Task.CompletedTask;
-    };
-
-    openIdOptions.Events.OnTicketReceived = (context) =>
-    {
-        return Task.CompletedTask;
-    };
-
-});
+        openIdOptions.Events.OnTicketReceived = (context) =>
+        {
+            return Task.CompletedTask;
+        };
+    });
 
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();

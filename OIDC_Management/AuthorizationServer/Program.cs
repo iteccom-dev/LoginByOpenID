@@ -29,6 +29,18 @@ builder.Services.AddAuthentication("Cookies")
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "YOUR_CLIENT_ID";
+        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "YOUR_CLIENT_SECRET";
+        
+        var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"];
+        if (!string.IsNullOrEmpty(tenantId) && tenantId != "YOUR_TENANT_ID")
+        {
+            options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+            options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+        }
     });
 
 builder.Services.AddControllersWithViews();

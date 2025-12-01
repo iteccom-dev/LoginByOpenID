@@ -43,13 +43,12 @@
                         }
                     </div>
                 }
-
                 <button type="submit" class="btn-login">Đăng nhập</button>
             </form>
 
             <div class="divider">hoặc</div>
 
-            <button class="btn-microsoft" onclick="window.location.href='/auth/microsoft'">
+            <button class="btn-microsoft" onclick="window.location.href='@Url.Action("LoginWithMicrosoft", "Account", new { area = "Admin" })'">
                 <img src="/assets/images/login/mcrf.png" alt="Microsoft logo">
                 Đăng nhập với Microsoft
             </button>
