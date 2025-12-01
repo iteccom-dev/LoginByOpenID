@@ -102,10 +102,16 @@
 
             <div class="divider">hoặc</div>
 
-            <button class="btn-microsoft" onclick="window.location.href='@Url.Action("LoginWithMicrosoft", "Account", new { area = "Admin" })'">
-                <img src="/assets/images/login/mcrf.png" alt="Microsoft logo">
+            <a class="btn-microsoft"
+               asp-controller="ExternalAuth"
+               asp-action="Challenge"
+               asp-route-provider="Microsoft"
+               asp-route-returnUrl="@Context.Request.Query["ReturnUrl"]"
+               style="text-decoration: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+
+                <img src="/assets/images/login/mcrf.png" alt="Microsoft logo" style="margin-right: 10px;">
                 Đăng nhập với Microsoft
-            </button>
+            </a>
         </div>
     </div>
 </section>

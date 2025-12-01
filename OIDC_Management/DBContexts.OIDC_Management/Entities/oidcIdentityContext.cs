@@ -3,10 +3,21 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity; // Cần thiết
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DBContexts.OIDC_Management.Entities;
 
-public partial class oidcIdentityContext : DbContext
+// 🔴 1. SỬA DÒNG NÀY: Khai báo đầy đủ 8 tham số Generic để Identity nhận diện hết các bảng con
+public partial class oidcIdentityContext : IdentityDbContext<
+    AspNetUser,
+    AspNetRole,
+    string,
+    AspNetUserClaim,
+    IdentityUserRole<string>, // Bảng trung gian User-Role (dùng mặc định)
+    AspNetUserLogin,
+    AspNetRoleClaim,
+    AspNetUserToken>
 {
     public oidcIdentityContext(DbContextOptions<oidcIdentityContext> options)
         : base(options)
@@ -14,136 +25,98 @@ public partial class oidcIdentityContext : DbContext
     }
 
     public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
-
     public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
-
     public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
-
     public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
-
     public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
-
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
-
     public virtual DbSet<Client> Clients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 1. Gọi cấu hình chuẩn của Identity trước
+        base.OnModelCreating(modelBuilder);
+
+        // 2. Cấu hình bảng Role
         modelBuilder.Entity<AspNetRole>(entity =>
         {
             entity.Property(e => e.Name).HasMaxLength(256);
             entity.Property(e => e.NormalizedName).HasMaxLength(256);
         });
 
+        // 3. FIX LỖI "RoleId1": Chỉ định rõ quan hệ cho RoleClaim
         modelBuilder.Entity<AspNetRoleClaim>(entity =>
         {
-            entity.Property(e => e.RoleId)
-                .IsRequired()
-                .HasMaxLength(450);
-
-            entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
+            entity.HasOne(d => d.Role)
+                  .WithMany(p => p.AspNetRoleClaims)
+                  .HasForeignKey(d => d.RoleId) // Dùng lại cột RoleId
+                  .IsRequired();
         });
 
+        // 4. Cấu hình bảng User
         modelBuilder.Entity<AspNetUser>(entity =>
         {
-            entity.Property(e => e.ClientId)
-                .IsRequired()
-                .HasMaxLength(100);
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(256);
+            entity.Property(e => e.ClientId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
             entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-            entity.Property(e => e.UserName)
-                .IsRequired()
-                .HasMaxLength(256);
+            entity.Property(e => e.UserName).IsRequired().HasMaxLength(256);
 
             entity.HasOne(d => d.Client).WithMany(p => p.AspNetUsers)
                 .HasForeignKey(d => d.ClientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AspNetUsers_Clients");
-
-            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "AspNetUserRole",
-                    r => r.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId"),
-                    l => l.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "RoleId");
-                        j.ToTable("AspNetUserRoles");
-                    });
         });
 
+        // 5. FIX LỖI "UserId1": Chỉ định rõ quan hệ cho UserClaim
         modelBuilder.Entity<AspNetUserClaim>(entity =>
         {
-            entity.Property(e => e.UserId)
-                .IsRequired()
-                .HasMaxLength(450);
-
-            entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
+            entity.HasOne(d => d.User)
+                  .WithMany(p => p.AspNetUserClaims)
+                  .HasForeignKey(d => d.UserId) // Dùng lại cột UserId
+                  .IsRequired();
         });
 
+        // 6. FIX LỖI "UserId1": Chỉ định rõ quan hệ cho UserLogin
         modelBuilder.Entity<AspNetUserLogin>(entity =>
         {
+            // Khóa chính kép
             entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
 
-            entity.Property(e => e.LoginProvider).HasMaxLength(128);
-            entity.Property(e => e.ProviderKey).HasMaxLength(128);
-            entity.Property(e => e.UserId)
-                .IsRequired()
-                .HasMaxLength(450);
-
-            entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
+            entity.HasOne(d => d.User)
+                  .WithMany(p => p.AspNetUserLogins)
+                  .HasForeignKey(d => d.UserId) // Dùng lại cột UserId
+                  .IsRequired();
         });
 
+        // 7. FIX LỖI "UserId1": Chỉ định rõ quan hệ cho UserToken
         modelBuilder.Entity<AspNetUserToken>(entity =>
         {
+            // Khóa chính ba
             entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
 
-            entity.Property(e => e.LoginProvider).HasMaxLength(128);
-            entity.Property(e => e.Name).HasMaxLength(128);
-
-            entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
+            entity.HasOne(d => d.User)
+                  .WithMany(p => p.AspNetUserTokens)
+                  .HasForeignKey(d => d.UserId) // Dùng lại cột UserId
+                  .IsRequired();
         });
 
+        // 8. Cấu hình bảng Client (Giữ nguyên)
         modelBuilder.Entity<Client>(entity =>
         {
             entity.HasKey(e => e.ClientId).HasName("PK__Clients__E67E1A24A1A38075");
-
             entity.Property(e => e.ClientId).HasMaxLength(100);
-            entity.Property(e => e.AccessDeniedPath)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Authority)
-                .IsRequired()
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.CallbackPath)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.ClientSecret)
-                .IsRequired()
-                .HasMaxLength(500);
+            entity.Property(e => e.AccessDeniedPath).HasMaxLength(255).IsUnicode(false);
+            entity.Property(e => e.Authority).IsRequired().HasMaxLength(255).IsUnicode(false);
+            entity.Property(e => e.CallbackPath).IsRequired().HasMaxLength(50).IsUnicode(false);
+            entity.Property(e => e.ClientSecret).IsRequired().HasMaxLength(500);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.DisplayName)
-                .IsRequired()
-                .HasMaxLength(255);
-            entity.Property(e => e.GrantType)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.GrantType).HasMaxLength(255).IsUnicode(false);
             entity.Property(e => e.KeyWord).HasMaxLength(255);
-            entity.Property(e => e.RedirectUris)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Scope)
-                .IsRequired()
-                .HasMaxLength(255);
-            entity.Property(e => e.SignOutCallbackPath)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.RedirectUris).IsRequired().HasMaxLength(50).IsUnicode(false);
+            entity.Property(e => e.Scope).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.SignOutCallbackPath).HasMaxLength(50).IsUnicode(false);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 

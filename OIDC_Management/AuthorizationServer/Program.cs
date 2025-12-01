@@ -19,9 +19,14 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// 1. Database Context
 builder.Services.AddDbContext<oidcIdentityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 2. Cấu hình Authentication
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
@@ -32,9 +37,19 @@ builder.Services.AddAuthentication("Cookies")
     })
     .AddMicrosoftAccount(options =>
     {
+        // --- Cấu hình Client ID/Secret ---
         options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "YOUR_CLIENT_ID";
         options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "YOUR_CLIENT_SECRET";
-        
+
+        // --- Code Nhóm 3: Lưu token & Xử lý lỗi ---
+        options.SaveTokens = true;
+        options.Events.OnRemoteFailure = context => {
+            context.Response.Redirect("/Account/Login?error=" + context.Failure.Message);
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
+
+        // --- Logic Tenant (Giữ nguyên của code cũ) ---
         var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"];
         if (!string.IsNullOrEmpty(tenantId) && tenantId != "YOUR_TENANT_ID")
         {
@@ -43,6 +58,7 @@ builder.Services.AddAuthentication("Cookies")
         }
     });
 
+// 3. Services & DI
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICodeStorage>(services => new MemoryCodeStorage());
@@ -64,34 +80,39 @@ builder.Services.AddScoped<UserOne>();
 builder.Services.AddScoped<UserModel>();
 builder.Services.AddScoped<AccountModel>();
 builder.Services.AddScoped<AccountCommand>();
-
 builder.Services.AddScoped<PasswordHasher>();
-// ------------------ Authentication ------------------
+
+// 4. HttpContext & SSL Handler
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient("IgnoreSSL")
     .ConfigurePrimaryHttpMessageHandler(() =>
     {
         return new HttpClientHandler
         {
-            // Bỏ qua mọi lỗi SSL (self-signed / mismatch / expired)
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
     });
 
-RSA rsa = RSA.Create(2048); // tạo RSA 2048 bit
+// Đăng ký dịch vụ Identity để hệ thống tạo ra SignInManager và UserManager
+// Lưu ý: Dùng đúng tên class AspNetUser và AspNetRole như trong hình
+builder.Services.AddIdentity<AspNetUser, AspNetRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<oidcIdentityContext>()
+.AddDefaultTokenProviders();
 
-// Đóng gói thành RsaSecurityKey để dùng với JWT
+// 5. RSA Key Generation
+RSA rsa = RSA.Create(2048);
 var rsaKey = new RsaSecurityKey(rsa)
 {
-    KeyId = Guid.NewGuid().ToString() // mỗi key cần có kid
+    KeyId = Guid.NewGuid().ToString()
 };
 builder.Services.AddSingleton<RsaSecurityKey>(rsaKey);
 
-
-
+// ================== APP BUILD ==================
 var app = builder.Build();
-
-
 
 app.MapGet("/.well-known/openid-configuration", () =>
 {
@@ -103,14 +124,13 @@ app.MapGet("/.well-known/jwks.json", () =>
     return Results.File(Path.Combine(builder.Environment.ContentRootPath, "oidc-assets", ".well-known/jwks.json"), contentType: "application/json");
 });
 
-// ================== 1. REVOCATION ENDPOINT (RFC 7009) ==================
+// ================== REVOCATION ENDPOINT ==================
 app.MapPost("/connect/revocation", async (
     HttpContext context,
     ClientOne clientRepository,
     IRefreshTokenStorageFactory refreshTokenFactory) =>
 {
     var form = await context.Request.ReadFormAsync();
-
     var token = form["token"].ToString();
     var tokenTypeHint = form["token_type_hint"].ToString();
     var clientId = form["client_id"].ToString();
@@ -119,7 +139,6 @@ app.MapPost("/connect/revocation", async (
     if (string.IsNullOrEmpty(token))
         return Results.BadRequest(Error("invalid_request", "token is required"));
 
-    // Authenticate client (supports both client_secret_post and client_secret_basic)
     var authResult = await AuthenticateClientAsync(context, clientRepository);
     if (!authResult.IsAuthenticated)
         return Results.Unauthorized();
@@ -128,22 +147,15 @@ app.MapPost("/connect/revocation", async (
     if (!string.IsNullOrEmpty(clientId) && clientId != client.ClientId)
         return Results.Unauthorized();
 
-    // Revoke refresh token if applicable
     if (string.IsNullOrEmpty(tokenTypeHint) || tokenTypeHint == "refresh_token")
     {
-        // Sử dụng API hiện tại trong workspace:
-        // IRefreshTokenStorageFactory cung cấp GetInvalidatedTokenStorage()
-        // và IRefreshTokenStorage có TryAddToken/Contains.
-        // Ở đây đánh dấu token là "invalidated" bằng cách thêm vào bộ lưu invalidated.
         var storage = refreshTokenFactory.GetInvalidatedTokenStorage();
         storage.TryAddToken(token);
     }
-    // For access_token, do nothing (short-lived), still return 200 OK
-
-    return Results.Ok(); // RFC 7009: always return 200 OK
+    return Results.Ok();
 });
 
-// ================== 2. END SESSION ENDPOINT (OIDC Logout) ==================
+// ================== END SESSION ENDPOINT ==================
 app.MapGet("/connect/endsession", async (
     HttpContext context,
     ClientOne clientRepository,
@@ -153,10 +165,8 @@ app.MapGet("/connect/endsession", async (
     var postLogoutRedirectUri = context.Request.Query["post_logout_redirect_uri"].ToString();
     var state = context.Request.Query["state"].ToString();
 
-    // 1. Sign out server-side properly
     try { await context.SignOutAsync("Cookies"); } catch { /* ignore */ }
 
-    // 2. Try extract client_id from id_token_hint (nếu có)
     string? clientIdFromToken = null;
     if (!string.IsNullOrEmpty(idTokenHint))
     {
@@ -164,30 +174,23 @@ app.MapGet("/connect/endsession", async (
         if (validationResult.IsValid)
         {
             var claims = validationResult.ClaimsPrincipal;
-            clientIdFromToken = claims?.FindFirst("client_id")?.Value
-                                ?? claims?.FindFirst("aud")?.Value;
+            clientIdFromToken = claims?.FindFirst("client_id")?.Value ?? claims?.FindFirst("aud")?.Value;
         }
     }
 
-    // 3. Determine clientId (token -> query fallback)
     var clientId = clientIdFromToken ?? context.Request.Query["client_id"].ToString();
-
-    // 4. Load client metadata
     Client? client = null;
     if (!string.IsNullOrEmpty(clientId))
     {
         client = await clientRepository.GetByClientIdAsync(clientId);
     }
 
-    // 5. Build redirect to /authorize with parameters for client to login again
-    // Use issuer from configuration if set, otherwise derive from current request.
     var issuer = builder.Configuration["TokenIssuing:Issuer"];
     var baseIssuer = !string.IsNullOrEmpty(issuer) ? issuer.TrimEnd('/') : $"{context.Request.Scheme}://{context.Request.Host}";
     var authorizeEndpoint = $"{baseIssuer}/authorize";
 
     if (client != null)
     {
-        // Decide redirect_uri: prefer query redirect_uri if client sent it, else use client's CallbackPath or first registered redirect uri
         string? redirectUri = context.Request.Query["redirect_uri"].ToString();
         if (string.IsNullOrWhiteSpace(redirectUri))
         {
@@ -197,13 +200,12 @@ app.MapGet("/connect/endsession", async (
                 redirectUri = client.RedirectUris.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
         }
 
-        // Build standard authorize params
         var queryParams = new Dictionary<string, string?>();
         queryParams["client_id"] = client.ClientId;
         if (!string.IsNullOrWhiteSpace(redirectUri)) queryParams["redirect_uri"] = redirectUri;
         queryParams["response_type"] = "code";
         queryParams["scope"] = string.IsNullOrWhiteSpace(client.Scope) ? "openid profile email" : client.Scope;
-        // pass-through optional PKCE / nonce / state / client info if present in original request
+
         var codeChallenge = context.Request.Query["code_challenge"].ToString();
         if (!string.IsNullOrEmpty(codeChallenge)) queryParams["code_challenge"] = codeChallenge;
         var codeChallengeMethod = context.Request.Query["code_challenge_method"].ToString();
@@ -211,23 +213,13 @@ app.MapGet("/connect/endsession", async (
         var nonce = context.Request.Query["nonce"].ToString();
         if (!string.IsNullOrEmpty(nonce)) queryParams["nonce"] = nonce;
         if (!string.IsNullOrEmpty(state)) queryParams["state"] = state;
-        // preserve client SDK headers if client passed them as query (optional)
-        var xClientSKU = context.Request.Query["x-client-SKU"].ToString();
-        if (!string.IsNullOrEmpty(xClientSKU)) queryParams["x-client-SKU"] = xClientSKU;
-        var xClientVer = context.Request.Query["x-client-ver"].ToString();
-        if (!string.IsNullOrEmpty(xClientVer)) queryParams["x-client-ver"] = xClientVer;
 
-        // Remove nulls and build final url
-        var finalParams = queryParams
-            .Where(kvp => !string.IsNullOrEmpty(kvp.Value))
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
-
+        var finalParams = queryParams.Where(kvp => !string.IsNullOrEmpty(kvp.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
         var finalUrl = QueryHelpers.AddQueryString(authorizeEndpoint, finalParams);
 
         return Results.Redirect(finalUrl);
     }
 
-    // 6. Fallback: if no client found or missing data -> try use post_logout_redirect_uri if present
     if (!string.IsNullOrEmpty(postLogoutRedirectUri))
     {
         var sep = postLogoutRedirectUri.Contains('?') ? "&" : "?";
@@ -237,7 +229,6 @@ app.MapGet("/connect/endsession", async (
         return Results.Redirect(redirect);
     }
 
-    // 7. Final fallback: OP root
     var fallback = "/";
     if (!string.IsNullOrEmpty(state))
         fallback = $"{fallback}{(fallback.Contains('?') ? "&" : "?")}state={Uri.EscapeDataString(state)}";
@@ -245,28 +236,28 @@ app.MapGet("/connect/endsession", async (
     return Results.Redirect(fallback);
 });
 
-// ================== HELPER FUNCTIONS (động 100%) ==================
+// ================== HELPER FUNCTIONS ==================
 
-// Xác thực client (hỗ trợ cả basic và post)
-async Task<(bool IsAuthenticated, Client? Client)> AuthenticateClientAsync(
-    HttpContext context, ClientOne clientRepo)
+async Task<(bool IsAuthenticated, Client? Client)> AuthenticateClientAsync(HttpContext context, ClientOne clientRepo)
 {
     string? clientId = null;
     string? clientSecret = null;
 
-    // 1. Basic Auth
     if (context.Request.Headers.Authorization.Count > 0 &&
         context.Request.Headers.Authorization[0].StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
     {
         var header = context.Request.Headers.Authorization[0].Substring("Basic ".Length).Trim();
-        var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(header));
-        var parts = decoded.Split(':');
-        clientId = parts[0];
-        clientSecret = parts.Length > 1 ? parts[1] : null;
+        try
+        {
+            var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(header));
+            var parts = decoded.Split(':');
+            clientId = parts[0];
+            clientSecret = parts.Length > 1 ? parts[1] : null;
+        }
+        catch { return (false, null); }
     }
     else
     {
-        // 2. client_secret_post
         var form = await context.Request.ReadFormAsync();
         clientId = form["client_id"].ToString();
         clientSecret = form["client_secret"].ToString();
@@ -281,8 +272,6 @@ async Task<(bool IsAuthenticated, Client? Client)> AuthenticateClientAsync(
     return (true, client);
 }
 
-// Validate id_token (dùng key từ JWKS của bạn)
-// Sửa lại để trả về tuple có IsValid và ClaimsPrincipal — phù hợp với phần kiểm tra validationResult.IsValid trong mã gọi.
 (bool IsValid, ClaimsPrincipal ClaimsPrincipal) ValidateIdToken(string idToken, IServiceProvider services)
 {
     try
@@ -313,31 +302,27 @@ async Task<(bool IsAuthenticated, Client? Client)> AuthenticateClientAsync(
     }
 }
 
-// Helper trả lỗi chuẩn
 IResult Error(string error, string description) =>
     Results.Json(new { error, error_description = description }, statusCode: 400);
 
-
-
-
-
+// ================== MIDDLEWARE PIPELINE ==================
 app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//// Đặt route mặc định là vào thẳng Area Admin luôn
+// Routes
 app.MapControllerRoute(
     name: "areas",
     pattern: "{controller=Home}/{action=Index}/{id?}",
     defaults: new { area = "Admin", controller = "Home", action = "Index" });
 
-// Route dành cho tất cả các Area (bắt buộc phải để sau route default)
 app.MapControllerRoute(
-    name: "areas",
+    name: "areas_generic",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=index}/{id?}");
+
 app.Run();

@@ -29,6 +29,10 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             //public string ClientSecret { get; set; } = string.Empty;
             [BindProperty(Name = "redirect_uri", SupportsGet = true)]
             public string RedirectUri { get; set; } = string.Empty;
+
+            [BindProperty(Name = "returnUrl", SupportsGet = true)]
+            public string? ReturnUrl { get; set; }
+
             [BindProperty(Name = "response_type", SupportsGet = true)]
             public string ResponseType { get; set; } = string.Empty;
             [BindProperty(Name = "scope", SupportsGet = true)]

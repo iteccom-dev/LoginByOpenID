@@ -19,7 +19,7 @@ namespace EmployeeMangement.Controllers
         }
 
         // ================================
-        // BASIC SIGN-IN
+        // BASIC SIGN-IN (Giữ nguyên)
         // ================================
         [HttpGet]
         public IActionResult SignIn()
@@ -69,21 +69,13 @@ namespace EmployeeMangement.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ================================
-        // FORGOT PASSWORD PAGE ONLY
-        // ================================
         public IActionResult ForgotPassword()
         {
             if (User.Identity?.IsAuthenticated == true)
                 return RedirectToAction("Index", "Home");
-
             return View();
         }
 
-
-        // ================================
-        // LOGIN - API VERSION
-        // ================================
         [HttpGet("api/account/sign-in-view")]
         public IActionResult ApiSignInView()
         {
@@ -116,10 +108,6 @@ namespace EmployeeMangement.Controllers
             });
         }
 
-
-        // ================================
-        // LOGOUT
-        // ================================
         public async Task<IActionResult> Logout()
         {
             await _accountCommand.Logout();
@@ -128,14 +116,23 @@ namespace EmployeeMangement.Controllers
         }
 
 
-        // ================================
-        // MICROSOFT ACCOUNT LOGIN
-        // ================================
+        // ========================================================
+        // MICROSOFT ACCOUNT LOGIN (ĐÃ NÂNG CẤP DYNAMIC URL)
+        // ========================================================
+
         [HttpGet]
-        public IActionResult LoginWithMicrosoft()
+        public IActionResult LoginWithMicrosoft(string returnUrl = null)
         {
+            // 1. Cấu hình Callback về hàm bên dưới
             var redirectUrl = Url.Action("LoginCallback", "Account", new { area = "Admin" });
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+
+            // 2. QUAN TRỌNG: Lưu cái returnUrl (địa chỉ App Khách) vào trong Properties
+            // Để sau khi đi qua Microsoft về, ta vẫn nhớ phải trả user về đâu.
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                properties.Items["returnUrl"] = returnUrl;
+            }
 
             return Challenge(properties, MicrosoftAccountDefaults.AuthenticationScheme);
         }
@@ -143,26 +140,38 @@ namespace EmployeeMangement.Controllers
         [HttpGet]
         public async Task<IActionResult> LoginCallback()
         {
+            // 1. Xác thực với Microsoft xong
             var result = await HttpContext.AuthenticateAsync(MicrosoftAccountDefaults.AuthenticationScheme);
             if (!result.Succeeded)
                 return RedirectToAction("SignIn");
 
+            // 2. Tạo Token
             var userEmail = result.Principal.FindFirst(ClaimTypes.Email)?.Value
                             ?? result.Principal.Identity?.Name;
 
             var tokenData = $"email={userEmail}&expire={DateTime.Now.AddMinutes(5).Ticks}";
             var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(tokenData));
 
-            // 2. Định nghĩa địa chỉ nhà của Nhóm 2 (App User)
-            // 2. Định nghĩa địa chỉ nhà của Nhóm 2 (App User)
-            // Localhost: https://localhost:7100/receive-user
-            // UAT: https://app-uat.iteccom.vn/receive-user
+            // 3. LẤY LẠI ĐỊA CHỈ NHÀ (Dynamic ReturnUrl)
+            string returnUrl = null;
+            if (result.Properties != null && result.Properties.Items.ContainsKey("returnUrl"))
+            {
+                returnUrl = result.Properties.Items["returnUrl"];
+            }
 
-            // string clientUrl = $"https://localhost:7100/receive-user?token={token}";
-            string clientUrl = $"https://app-uat.iteccom.vn/receive-user?token={token}";
+            // 4. KIỂM TRA VÀ CHUYỂN HƯỚNG
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                // Xử lý nối chuỗi: Nếu url có dấu '?' rồi thì dùng '&', chưa có thì dùng '?'
+                // Ví dụ: returnUrl = "localhost:44339/receive-user" -> thêm "?token=..."
+                string separator = returnUrl.Contains("?") ? "&" : "?";
+                string clientUrl = $"{returnUrl}{separator}token={token}";
 
-            // 3. ĐÁ VỀ (Redirect)
-            return Redirect(clientUrl);
+                return Redirect(clientUrl);
+            }
+
+            // Fallback: Nếu không có returnUrl (ví dụ chạy test trực tiếp), hiện token ra màn hình
+            return Content($"Đăng nhập Microsoft thành công! Email: {userEmail}. Token: {token}");
         }
     }
 }
