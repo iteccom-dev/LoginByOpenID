@@ -66,7 +66,15 @@ namespace Services.OIDC_Management.Executes
             return result;
         }
 
-
+        public async Task<Client> GetByClientIdAsync(string id)
+        {
+            var client = await _db.Clients.Where(p => p.ClientId == id).FirstOrDefaultAsync();
+            if (client == null)
+            {
+                return null;
+            }
+            return client;
+        }
 
     }
 }
