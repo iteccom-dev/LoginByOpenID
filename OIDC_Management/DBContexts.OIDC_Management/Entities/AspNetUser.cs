@@ -41,7 +41,6 @@ public partial class AspNetUser
 
     public int Status { get; set; }
 
-    //them cai nay
     public int? Role { get; set; }    
 
 
