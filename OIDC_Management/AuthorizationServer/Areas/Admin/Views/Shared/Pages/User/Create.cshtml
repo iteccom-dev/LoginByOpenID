@@ -92,22 +92,7 @@
                                         </select>
                                     </div>
 
-                                    <!-- 🔥 CLIENT DROPDOWN -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="ClientId" class="form-label">Ứng dụng đăng nhập</label>
-                                        <select id="ClientId" class="form-select">
-                                            <option value="">-- Chọn ứng dụng đăng nhập --</option>
-                                            @if (Model.Clients != null)
-                                            {
-                                                foreach (var client in Model.Clients)
-                                                {
-                                                    <option value="@client.Id" @(client.Id == Model.ClientId ? "selected" : "")>
-                                                        @client.Name
-                                                    </option>
-                                                }
-                                            }
-                                        </select>
-                                    </div>
+                                 
 
                                     <div class="col-md-12 mb-3 form-check mt-2">
                                         <input type="checkbox" class="form-check-input" id="user2FA" />

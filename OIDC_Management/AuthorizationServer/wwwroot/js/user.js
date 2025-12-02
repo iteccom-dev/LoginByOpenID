@@ -106,7 +106,6 @@ function loadUsers(filter) {
                             </td>
                             <td class="text-center">${user.email || ''}</td>
                             <td class="text-center">${user.phoneNumber || ''}</td>
-                            <td class="text-center">${user.clientId || ''}</td>
                             <td class="text-center">
                                 <div class="dropdown dropdown-action">
                                     <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown">

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+﻿using Azure.Core;
+using DBContexts.OIDC_Management.Entities;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +12,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using static Services.OIDC_Management.Executes.AuthorizationClient.AuthorizationClientModel;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace OIDCDemo.AuthorizationServer.Controllers
 {
@@ -81,7 +84,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
 
             // Xác thực user bằng email/password
-            var user = await authorizationClientOne.CheckAccount(email, password, authenticateRequest.ClientId);
+            var user = await authorizationClientOne.CheckAccount(email, password);
             if (user == null)
             {
                 ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
@@ -158,18 +161,23 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 codeStorage.TryRemove(code); // code không được dùng lại
 
                 // Tạo refresh token
-                var refreshToken = GenerateRefreshToken();
-                while (!refreshTokenStorageFactory.GetTokenStorage().TryAddToken(refreshToken))
+                var userId = codeStorageValue.User;
+                    string scope = codeStorageValue.Scope;
+
+                var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
+                userId, client_id, scope);
+               if (refreshToken == null)
                 {
-                    refreshToken = GenerateRefreshToken();
+                    return BadRequest("Không thể cấp refreshToken");
                 }
+
                 // Trả về Token cho user
                 var result = new AuthenticationResponseModel()
                 {
                     AccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
                     IdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
                     TokenType = "Bearer",
-                    RefreshToken = refreshToken,
+                    RefreshToken = refreshToken.Token,
                     ExpiresIn = TokenResponseValidSeconds,
                     
                 };
@@ -179,59 +187,73 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
                 return Json(result);
             }
-            else if (grant_type == "refresh_token") 
+            // 2. Refresh Token Flow
+            if (grant_type == "refresh_token")
             {
-                if (string.IsNullOrEmpty(refresh_token))
+                if (string.IsNullOrEmpty(refresh_token) ||
+                    string.IsNullOrEmpty(client_id) ||
+                    string.IsNullOrEmpty(client_secret))
+                    return BadRequest("invalid_request");
+
+                if (!codeStorage.TryGetToken(code, out var codeStorageValue) || codeStorageValue == null)
                 {
-                    return BadRequest();
+                    return BadRequest("Invalid code");
+                }
+                // Kiểm tra client trước (rất quan trọng!)
+                var client = await authorizationClientOne.FindByClientId(client_id);
+                if (client == null || client.ClientSecret != client_secret)
+                    return BadRequest("invalid_client");
+
+                if (!codeStorage.TryGetToken(refresh_token, out var rtInfo) || rtInfo == null)
+                    return BadRequest("invalid_grant");
+
+                if (rtInfo.ExpiryTime < DateTime.UtcNow)
+                {
+                   await authorizationClientOne.RevokeTokenAsync(refresh_token);
+                    return BadRequest("invalid_grant");
                 }
 
-                if (refreshTokenStorageFactory.GetInvalidatedTokenStorage().Contains(refresh_token)) // you are requesting with an invalidated refresh_token
-                {
-                    // perhaps your refresh token is leaked out, you should notify and invalidate your access token
+                // Kiểm tra client_id có đúng là client đã cấp token này không
+                if (rtInfo.ClientId != client_id)
+                    return BadRequest("invalid_client");
 
-                    return BadRequest();
+                // Lấy user từ DB
+                var user = await authorizationClientOne.FindByUserId(rtInfo.User);
+                if (user == null)
+                    return BadRequest("invalid_grant");
+
+                // Tạo token mới
+
+              
+
+              
+
+                // Lưu refresh token mới (refresh token rotation – best practice)
+                var newRefreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
+              user.Id, client_id, rtInfo.Scope, refresh_token);
+
+                if(newRefreshToken == null)
+                {
+                    return BadRequest("invalid_refreshToken");
                 }
 
-                if (!refreshTokenStorageFactory.GetTokenStorage().Contains(refresh_token)) // you are requesting with a non-existing refresh_token
+
+                var newAccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
+                var newIdToken  = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
+                return Ok(new
                 {
-                    return BadRequest();
-                }
-
-                // everything seems ok, now we create new tokens
-                var refreshToken = GenerateRefreshToken();
-                while (!refreshTokenStorageFactory.GetTokenStorage().TryAddToken(refreshToken))
-                { // a bit ugly here :|, this can run FOREVER
-                    refreshToken = GenerateRefreshToken();
-                }
-
-                refreshTokenStorageFactory.GetInvalidatedTokenStorage().TryAddToken(refresh_token);
-
-                var result = new RefreshResponseModel()
-                {
-                    AccessToken = string.Empty, // TODO: not finished yet! GenerateAccessToken(codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
-                    TokenType = "Bearer",
-                    RefreshToken = refreshToken,
-                    ExpiresIn = TokenResponseValidSeconds // valid in 20 minutes
-                };
-
-                logger.LogInformation("access_token: {t}", result.AccessToken);
-                logger.LogInformation("refresh_token: {t}", result.RefreshToken);
-
-                return Json(result);
-                       
-                  
+                    access_token = newAccessToken,
+                    id_token = newIdToken,
+                    token_type = "Bearer",
+                    expires_in = 1200,
+                    refresh_token = newRefreshToken.Token
+                });
             }
-            else
-            { 
-                return BadRequest(); 
-            }
+
+            return BadRequest("unsupported_grant_type");
         }
 
-        private static string GenerateRefreshToken()
-        {
-            return Guid.NewGuid().ToString("N");
-        }
+      
 
         private string GenerateIdToken(CodeStorageValue user,string userId, string audience, string nonce, JsonWebKey jsonWebKey)
         {

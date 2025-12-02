@@ -3,11 +3,12 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.WebUtilities;
+using NuGet.Common;
 using OIDCDemo.AuthorizationServer;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
@@ -107,6 +108,7 @@ app.MapGet("/.well-known/jwks.json", () =>
 app.MapPost("/connect/revocation", async (
     HttpContext context,
     ClientOne clientRepository,
+    AuthorizationClientOne authOne,
     IRefreshTokenStorageFactory refreshTokenFactory) =>
 {
     var form = await context.Request.ReadFormAsync();
@@ -139,7 +141,7 @@ app.MapPost("/connect/revocation", async (
         storage.TryAddToken(token);
     }
     // For access_token, do nothing (short-lived), still return 200 OK
-
+   await authOne.RevokeTokenAsync(token);
     return Results.Ok(); // RFC 7009: always return 200 OK
 });
 
@@ -147,12 +149,15 @@ app.MapPost("/connect/revocation", async (
 app.MapGet("/connect/endsession", async (
     HttpContext context,
     ClientOne clientRepository,
-    IHttpContextAccessor httpContextAccessor) =>
+    IHttpContextAccessor httpContextAccessor
+   
+    ) =>
 {
+
     var idTokenHint = context.Request.Query["id_token_hint"].ToString();
     var postLogoutRedirectUri = context.Request.Query["post_logout_redirect_uri"].ToString();
     var state = context.Request.Query["state"].ToString();
-
+   
     // 1. Sign out server-side properly
     try { await context.SignOutAsync("Cookies"); } catch { /* ignore */ }
 
@@ -178,7 +183,7 @@ app.MapGet("/connect/endsession", async (
     {
         client = await clientRepository.GetByClientIdAsync(clientId);
     }
-
+    
     // 5. Build redirect to /authorize with parameters for client to login again
     // Use issuer from configuration if set, otherwise derive from current request.
     var issuer = builder.Configuration["TokenIssuing:Issuer"];
@@ -234,7 +239,9 @@ app.MapGet("/connect/endsession", async (
         var redirect = string.IsNullOrEmpty(state)
             ? postLogoutRedirectUri
             : $"{postLogoutRedirectUri}{sep}state={Uri.EscapeDataString(state)}";
+
         return Results.Redirect(redirect);
+  
     }
 
     // 7. Final fallback: OP root
@@ -243,6 +250,7 @@ app.MapGet("/connect/endsession", async (
         fallback = $"{fallback}{(fallback.Contains('?') ? "&" : "?")}state={Uri.EscapeDataString(state)}";
 
     return Results.Redirect(fallback);
+   
 });
 
 // ================== HELPER FUNCTIONS (động 100%) ==================
