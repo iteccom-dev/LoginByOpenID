@@ -21,7 +21,7 @@ namespace Services.OIDC_Management.Executes
         public async Task<List<UserResponse>> Get(string id)
         {
         var query = _context.AspNetUsers
-               .Include(e => e.Client)
+              
                .Where(e => e.Status >= 0 && e.Id == id);
 
             var result = await query
@@ -32,7 +32,7 @@ namespace Services.OIDC_Management.Executes
                     PhoneNumber = e.PhoneNumber,
                     Email = e.Email,
                     Status = e.Status,
-                    ClientId = e.ClientId
+                  
                 })
                 .ToListAsync();
 
