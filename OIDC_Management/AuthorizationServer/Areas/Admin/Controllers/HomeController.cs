@@ -15,43 +15,30 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             _clientMany = clientMany;
         }
-
         public IActionResult Index()
         {
-            // Lấy claim Identity
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
-            ViewBag.Username = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
-            ViewBag.AccountId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ViewBag.Email = claimsIdentity?.FindFirst(ClaimTypes.Email)?.Value;
-
-            // Lấy role claim
-            var roleClaim = claimsIdentity?.FindFirst("Role")?.Value;
-
-            // Gán role vào view
-            ViewBag.Role = roleClaim;
-
-            // Debug
-            ViewBag.Test = roleClaim == null
-                ? "NO ROLE CLAIM FOUND"
-                : $"ROLE CLAIM = {roleClaim}";
-
-            // Nếu không phải admin → trả về trang AccessDenied
-            if (roleClaim != "1")
+            if (User.Identity.IsAuthenticated)
             {
-                return View("AccessDenied");
+                var claims = User.Identity as ClaimsIdentity;
+                ViewBag.Username = claims?.FindFirst(ClaimTypes.Name)?.Value;
+                ViewBag.AccountId = claims?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ViewBag.Email = claims?.FindFirst(ClaimTypes.Email)?.Value;
+                ViewBag.Name = claims?.FindFirst(ClaimTypes.Name)?.Value;
+            }
+            else
+            {
+                ViewBag.Username = "";
+                ViewBag.AccountId = "";
+                ViewBag.Email = "";
+                ViewBag.Name = "";
             }
 
-            // Nếu là admin → load dashboard
             return View();
         }
-
-
         public async Task<IActionResult> ClientList()
         {
             return PartialView("Pages/Client/List");
         }
-
         public async Task<IActionResult> UserList()
         {
             return PartialView("Pages/User/List");
@@ -66,16 +53,18 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
                 Clients = clientsFromDb.Select(c => new ClientResponse
                 {
                     Id = c.Id,
-                    Name = c.Name,
+                     Name = c.Name,
                 }).ToList()
             };
 
             return PartialView("Pages/User/Create", model);
         }
 
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+
+
+
+
+
+
     }
 }
