@@ -41,6 +41,9 @@ public partial class AspNetUser
 
     public int Status { get; set; }
 
+    public int? Role { get; set; }    
+
+
     public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; } = new List<AspNetUserClaim>();
 
     public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();
