@@ -56,5 +56,18 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             public string Username { get; set; }
             public string Email { get; set; }
         }
+
+
+        public class RefreshToken
+        {
+            public string Token { get; set; }
+            public string UserId { get; set; }
+            public string ClientId { get; set; }
+            public string Scope { get; set; }
+            public string Nonce { get; set; }
+            public DateTime CreateTime { get; set; } = DateTime.Now;
+            public DateTime ExpiresTime { get; set; }
+
+        }
     }
 }

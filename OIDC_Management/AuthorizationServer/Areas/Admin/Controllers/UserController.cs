@@ -83,13 +83,9 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     Status = user.Status,
-                    ClientId = user.ClientId,
+                    ClientId = user.ClientId
 
-                     Clients = clients.Select(c => new ClientResponse
-                    {
-                        Id = c.Id,
-                        Name = c.Name
-                    }).ToList()
+                     
                 };
 
                 return PartialView("Pages/User/Create", model);
