@@ -25,18 +25,11 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             return resutl;
         }
        
-        public async Task<AuthUserInfo?> CheckAccount(string email, string password, string clientId)
+        public async Task<AuthUserInfo?> CheckAccount(string email, string password)
         {
             // Lấy user theo email
             var userEntity = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
             if (userEntity == null)
-                return null;
-
-            // Kiểm tra user có thuộc clientId hay không
-            bool isOfClient = await _db.AspNetUsers
-                .AnyAsync(u => u.Email == email && u.ClientId == clientId);
-
-            if (!isOfClient)
                 return null;
 
             // Kiểm tra mật khẩu

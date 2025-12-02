@@ -38,6 +38,4 @@ public partial class Client
     public DateTime? UpdatedDate { get; set; }
 
     public int? Status { get; set; }
-
-    public virtual ICollection<AspNetUser> AspNetUsers { get; set; } = new List<AspNetUser>();
 }

@@ -58,11 +58,6 @@ public partial class oidcIdentityContext : DbContext
                 .IsRequired()
                 .HasMaxLength(256);
 
-            entity.HasOne(d => d.Client).WithMany(p => p.AspNetUsers)
-                .HasForeignKey(d => d.ClientId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AspNetUsers_Clients");
-
             entity.HasMany(d => d.Roles).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
                     "AspNetUserRole",
