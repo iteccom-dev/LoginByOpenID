@@ -7,8 +7,6 @@ namespace DBContexts.OIDC_Management.Entities;
 
 public partial class RefreshToken
 {
-    public readonly RefreshToken[] Items;
-
     public long Id { get; set; }
 
     public string Token { get; set; }
