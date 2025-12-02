@@ -46,26 +46,7 @@ namespace EmployeeMangement.Controllers
                 return View(request);
             }
 
-            var account = await _accountCommand.GetAccountByEmail(request.Email);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email ?? string.Empty),
-                new Claim(ClaimTypes.Name, account.UserName ?? string.Empty)
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, "login");
-
-            await HttpContext.SignInAsync(
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddHours(2)
-                }
-            );
-
+            // KHÔNG SIGN IN LẠI, VÌ CLAIM ROLE ĐÃ GHI TRONG CHECKACCOUNT
             return RedirectToAction("Index", "Home");
         }
 

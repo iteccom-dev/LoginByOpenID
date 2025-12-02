@@ -2,7 +2,6 @@
 using DBContexts.OIDC_Management.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Services.OIDC_Management.Helpers;
 using System;
@@ -20,7 +19,7 @@ namespace Services.OIDC_Management.Executes
     {
         private readonly oidcIdentityContext _context;
 
-      
+
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AccountCommand(oidcIdentityContext context, IHttpContextAccessor httpContextAccessor)
@@ -33,44 +32,66 @@ namespace Services.OIDC_Management.Executes
 
         public async Task<bool> CheckAccount(string email, string password)
         {
-
             if (email == null)
-            {
                 return false;
-            }
 
             var account = await _context.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
             if (account == null)
-            {
                 return false;
-            }
-            bool result = PasswordHelper.VerifyPassword(password, account.SecurityStamp, account.PasswordHash);
-            if (result == false)
-            {
-                return false;
-            }
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-                new Claim(ClaimTypes.Email, account.Email),
-                new Claim("FullName", account.UserName ?? ""),
-            };
 
-            var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            bool result = PasswordHelper.VerifyPassword(password, account.SecurityStamp, account.PasswordHash);
+            if (!result)
+                return false;
+
+            if (account.Role != 1)
+            {
+                var context = _httpContextAccessor.HttpContext;
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
+            new Claim(ClaimTypes.Email, account.Email),
+            new Claim(ClaimTypes.Name, account.UserName ?? ""),
+            new Claim("FullName", account.UserName ?? ""),
+            new Claim("Role", account.Role.ToString())
+        };
+
+                var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                await context.SignInAsync("Cookies", new ClaimsPrincipal(claimsIdentity));
+
+                // redirect
+                context.Response.Redirect("/Home/AccessDenied");
+                return false;
+            }
+
+            // 👉 Role = 1 → Cho đăng nhập vào admin
+            var adminClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
+        new Claim(ClaimTypes.Email, account.Email),
+        new Claim(ClaimTypes.Name, account.UserName ?? ""),
+        new Claim("FullName", account.UserName ?? ""),
+        new Claim("Role", account.Role.ToString())
+    };
+
+            var identity = new ClaimsIdentity(adminClaims, "Cookies");
+            var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTime.UtcNow.AddDays(7) // Hạn Claim
+                ExpiresUtc = DateTime.UtcNow.AddDays(7)
             };
 
-            var context = _httpContextAccessor.HttpContext;
-            await context.SignInAsync(
+            var http = _httpContextAccessor.HttpContext;
+
+            await http.SignInAsync(
                 "Cookies",
-                new ClaimsPrincipal(claimsIdentity),
+                new ClaimsPrincipal(identity),
                 authProperties
             );
+
             return true;
         }
+
 
         public async Task<AspNetUser> GetAccountByEmail(string email)
         {
@@ -78,7 +99,7 @@ namespace Services.OIDC_Management.Executes
                 .FirstOrDefaultAsync(x => x.Email == email);
         }
 
-       
+
 
         public async Task Logout()
         {
