@@ -39,5 +39,5 @@ public partial class Client
 
     public int? Status { get; set; }
 
-    public virtual ICollection<AspNetUser> AspNetUsers { get; set; } = new List<AspNetUser>();
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
