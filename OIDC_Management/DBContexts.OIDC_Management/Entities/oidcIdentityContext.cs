@@ -27,6 +27,8 @@ public partial class oidcIdentityContext : DbContext
 
     public virtual DbSet<Client> Clients { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AspNetRole>(entity =>
@@ -57,11 +59,6 @@ public partial class oidcIdentityContext : DbContext
             entity.Property(e => e.UserName)
                 .IsRequired()
                 .HasMaxLength(256);
-
-            entity.HasOne(d => d.Client).WithMany(p => p.AspNetUsers)
-                .HasForeignKey(d => d.ClientId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AspNetUsers_Clients");
 
             entity.HasMany(d => d.Roles).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -145,6 +142,40 @@ public partial class oidcIdentityContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC075EFEB6FB");
+
+            entity.HasIndex(e => e.Token, "UQ__RefreshT__1EB4F81712F711F6").IsUnique();
+
+            entity.Property(e => e.ClientId)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.CreatedTime)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasAnnotation("Relational:DefaultConstraintName", "DF__RefreshTo__Creat__60A75C0F");
+            entity.Property(e => e.Nonce).HasMaxLength(200);
+            entity.Property(e => e.Scope)
+                .IsRequired()
+                .HasMaxLength(1000);
+            entity.Property(e => e.Token)
+                .IsRequired()
+                .HasMaxLength(512);
+            entity.Property(e => e.UserId)
+                .IsRequired()
+                .HasMaxLength(450);
+
+            entity.HasOne(d => d.Client).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.ClientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshTokens_Clients");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshTokens_AspNetUsers");
         });
 
         OnModelCreatingPartial(modelBuilder);
