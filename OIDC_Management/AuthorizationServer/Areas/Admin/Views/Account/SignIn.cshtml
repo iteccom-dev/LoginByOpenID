@@ -1,4 +1,4 @@
-﻿@model  Services.OIDC_Management.Executes.AccountModel.AccountRequest
+﻿@model Services.OIDC_Management.Executes.AccountModel.AccountRequest
 @{
     ViewBag.Title = "Đăng nhập hệ thống";
 }
@@ -75,11 +75,11 @@
         <div class="login-box">
             <h5>ĐĂNG NHẬP HỆ THỐNG</h5>
 
-            <form  method="post">
-               
+            <form method="post">
+
                 <div class="mb-3 text-start input-box">
                     <i class="fa-solid fa-envelope icon-left"></i>
-                    
+
                     <input asp-for="Email" class="form-control form_email" placeholder="Nhập tên đăng nhập" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
@@ -87,7 +87,7 @@
                 <div class="mb-3 text-start input-box">
                     <i class="fa-solid fa-lock icon-left"></i>
                     <input asp-for="PasswordHash" type="password" class="form-control " placeholder="Nhập mật khẩu" required />
-                    
+
                     <i class="fa-solid fa-eye-slash icon-right" id="togglePassword"></i>
                 </div>
                 @if (ViewBag.Error != null)
