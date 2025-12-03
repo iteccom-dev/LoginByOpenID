@@ -23,12 +23,26 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<oidcIdentityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddAuthentication("Cookies")
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "SsoAuth";
+})
     .AddCookie("Cookies", options =>
     {
         options.LoginPath = "/Account/SignIn";
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    })
+    .AddCookie("SsoAuth", options =>
+    {
+        options.Cookie.Name = ".iteccom.Auth";
+        options.Cookie.Domain = ".iteccom.vn";                  // dev – có dấu chấm đầu
+                                                                // options.Cookie.Domain = ".yourcompany.com";              // prod
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
     })
     .AddMicrosoftAccount(options =>

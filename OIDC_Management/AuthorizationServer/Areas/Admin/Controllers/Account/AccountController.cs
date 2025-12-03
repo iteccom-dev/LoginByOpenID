@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Mvc;
 using Services.OIDC_Management.Executes;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace EmployeeMangement.Controllers
 
             var claimsIdentity = new ClaimsIdentity(claims, "login");
 
-            await HttpContext.SignInAsync(
+            await HttpContext.SignInAsync("Cookies",
                 new ClaimsPrincipal(claimsIdentity),
                 new AuthenticationProperties
                 {

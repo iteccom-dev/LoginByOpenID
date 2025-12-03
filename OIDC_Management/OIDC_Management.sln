@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.OIDC_Management", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clienttest3", "..\..\..\Backup\clienttest3\clienttest3\clienttest3.csproj", "{A07065BE-4049-553C-1792-0B8100BAF25A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clienttest4", "..\..\..\Backup\clienttest4\clienttest4\clienttest4.csproj", "{EE029DE7-3FEF-5892-75DC-90615F46B6BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{A07065BE-4049-553C-1792-0B8100BAF25A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A07065BE-4049-553C-1792-0B8100BAF25A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A07065BE-4049-553C-1792-0B8100BAF25A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE029DE7-3FEF-5892-75DC-90615F46B6BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE029DE7-3FEF-5892-75DC-90615F46B6BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE029DE7-3FEF-5892-75DC-90615F46B6BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE029DE7-3FEF-5892-75DC-90615F46B6BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

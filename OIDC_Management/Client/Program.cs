@@ -31,6 +31,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         // If not logged in, redirect to this local action which will redirect to Server
         cookieOptions.LoginPath = "/Auth/Login"; 
         cookieOptions.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        cookieOptions.Cookie.Name = ".iteccom.Auth";
+        cookieOptions.Cookie.Domain = ".iteccom.vn";
     })
     .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, openIdOptions =>
     {
