@@ -37,13 +37,14 @@ builder.Services.AddAuthentication(options =>
     .AddCookie("SsoAuth", options =>
     {
         options.Cookie.Name = ".iteccom.Auth";
-        options.Cookie.Domain = ".iteccom.vn";                  // dev – có dấu chấm đầu
-                                                                // options.Cookie.Domain = ".yourcompany.com";              // prod
+        options.Cookie.Domain = GetCookieDomain();                  // dev – có dấu chấm đầu
+                                                                    // options.Cookie.Domain = ".yourcompany.com";              // prod
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SameSite = SameSiteMode.None;    // bắt buộc cho cross-subdomain
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
+        options.LoginPath = "/Authorize/Index";
     })
     .AddMicrosoftAccount(options =>
     {
@@ -363,3 +364,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=index}/{id?}");
 app.Run();
+
+string GetCookieDomain()
+{
+    // ⚡ Dev vs Prod
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        return "localhost"; // dev: localhost
+    return ".iteccom.vn";   // prod: main domain
+}

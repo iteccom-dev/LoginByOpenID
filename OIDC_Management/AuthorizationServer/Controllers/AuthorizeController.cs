@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using DBContexts.OIDC_Management.Entities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -34,9 +35,9 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
             IRefreshTokenStorageFactory refreshTokenStorageFactory,
-            AuthorizationClientOne authorizationClientOne, 
+            AuthorizationClientOne authorizationClientOne,
             ILogger<AuthorizeController> logger,
-        AuthorizationClientModel  authorizationClientModel)
+        AuthorizationClientModel authorizationClientModel)
         {
             this.tokenIssuingOptions = tokenIssuingOptions;
             this.jsonWebKey = jsonWebKey;
@@ -62,7 +63,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             {
                 ModelState.AddModelError("", "Email và mật khẩu không được bỏ trống");
                 ValidateAuthenticateRequestModel(authenticateRequest);
-                return View("Index",authenticateRequest);
+                return View("Index", authenticateRequest);
             }
 
             // Lấy client từ DB
@@ -91,7 +92,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 ValidateAuthenticateRequestModel(authenticateRequest);
                 return View("Index", authenticateRequest);
             }
-            
+
             // Tạo code để user đổi token
             string code = GenerateAuthenticationCode();
             if (!codeStorage.TryAddCode(code, new CodeStorageValue()
@@ -101,7 +102,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 OriginalRedirectUri = authenticateRequest.RedirectUri,
                 ExpiryTime = DateTime.Now.AddSeconds(CodeResponseValidSeconds),
                 Nonce = authenticateRequest.Nonce,
-                User = user.UserId,   
+                User = user.UserId,
                 Email = user.Email,// lưu user id
                 UserName = user.Username,// lưu user id
                 Scope = authenticateRequest.Scope
@@ -111,7 +112,18 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
 
             var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
-
+            await HttpContext.SignInAsync("SsoAuth", new ClaimsPrincipal(
+                new ClaimsIdentity(new[]
+                {
+                 new Claim(ClaimTypes.NameIdentifier, user.UserId),
+                 new Claim(ClaimTypes.Name, user.Username),
+                 new Claim(ClaimTypes.Email, user.Email)
+                 }, "SsoAuth")),
+     new AuthenticationProperties
+     {
+         IsPersistent = true,
+         ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+     });
             logger.LogInformation("New authentication code issued: {c}", code);
             //trả về cho user code để đi đổi token
             return View("SubmitForm", new CodeFlowResponseViewModel()
@@ -162,11 +174,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
-                    string scope = codeStorageValue.Scope;
+                string scope = codeStorageValue.Scope;
 
                 var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
                 userId, client_id, scope);
-               if (refreshToken == null)
+                if (refreshToken == null)
                 {
                     return BadRequest("Không thể cấp refreshToken");
                 }
@@ -179,7 +191,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     TokenType = "Bearer",
                     RefreshToken = refreshToken.Token,
                     ExpiresIn = TokenResponseValidSeconds,
-                    
+
                 };
 
                 logger.LogInformation("access_token: {t}", result.AccessToken);
@@ -209,7 +221,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
                 if (rtInfo.ExpiryTime < DateTime.UtcNow)
                 {
-                   await authorizationClientOne.RevokeTokenAsync(refresh_token);
+                    await authorizationClientOne.RevokeTokenAsync(refresh_token);
                     return BadRequest("invalid_grant");
                 }
 
@@ -224,22 +236,22 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
                 // Tạo token mới
 
-              
 
-              
+
+
 
                 // Lưu refresh token mới (refresh token rotation – best practice)
                 var newRefreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
               user.Id, client_id, rtInfo.Scope, refresh_token);
 
-                if(newRefreshToken == null)
+                if (newRefreshToken == null)
                 {
                     return BadRequest("invalid_refreshToken");
                 }
 
 
                 var newAccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
-                var newIdToken  = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
+                var newIdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
                 return Ok(new
                 {
                     access_token = newAccessToken,
@@ -253,9 +265,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             return BadRequest("unsupported_grant_type");
         }
 
-      
 
-        private string GenerateIdToken(CodeStorageValue user,string userId, string audience, string nonce, JsonWebKey jsonWebKey)
+
+
+        private string GenerateIdToken(CodeStorageValue user, string userId, string audience, string nonce, JsonWebKey jsonWebKey)
         {
             // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
             // we can return some claims defined here: https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
@@ -337,10 +350,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
         }
 
-      
+
         private static CodeFlowResponseModel BuildCodeFlowResponseModel(AuthenticationRequestModel authenticateRequest, string code)
         {
-            return new CodeFlowResponseModel() { 
+            return new CodeFlowResponseModel()
+            {
                 Code = code,
                 State = authenticateRequest.State
             };

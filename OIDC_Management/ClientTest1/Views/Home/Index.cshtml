@@ -1,0 +1,20 @@
+﻿<h2>ClientTest1 Home</h2>
+<p>User: @ViewBag.UserName</p>
+
+
+<p>Xin chào @User.Identity.Name</p>
+<p>User: @ViewBag.UserName</p>
+<ul>
+    @foreach (var claim in User.Claims)
+    {
+        <li>@claim.Type : @claim.Value</li>
+    }
+</ul>
+@if (User.Identity.IsAuthenticated)
+{
+    <a href="/Account/Logout">Logout</a>
+}
+else
+{
+    <a href="/Account/Login">Login</a>
+}
