@@ -29,6 +29,8 @@ public partial class oidcIdentityContext : DbContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<UserSession> UserSessions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AspNetRole>(entity =>
@@ -146,8 +148,6 @@ public partial class oidcIdentityContext : DbContext
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC075EFEB6FB");
-
             entity.HasIndex(e => e.Token, "UQ__RefreshT__1EB4F81712F711F6").IsUnique();
 
             entity.Property(e => e.ClientId)
@@ -172,10 +172,37 @@ public partial class oidcIdentityContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RefreshTokens_Clients");
 
+            entity.HasOne(d => d.UseSession).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UseSessionId)
+                .HasConstraintName("FK_RefreshTokens_UserSessions");
+
             entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RefreshTokens_AspNetUsers");
+        });
+
+        modelBuilder.Entity<UserSession>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_UserSessions_1");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.ClientId).HasMaxLength(100);
+            entity.Property(e => e.CreatedTime).HasColumnType("datetime");
+            entity.Property(e => e.ExpiresTime).HasColumnType("datetime");
+            entity.Property(e => e.LastAccessTime).HasColumnType("datetime");
+            entity.Property(e => e.SessionState)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.UserId).HasMaxLength(450);
+
+            entity.HasOne(d => d.Client).WithMany(p => p.UserSessions)
+                .HasForeignKey(d => d.ClientId)
+                .HasConstraintName("FK_UserSessions_Clients");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserSessions)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserSessions_AspNetUsers");
         });
 
         OnModelCreatingPartial(modelBuilder);

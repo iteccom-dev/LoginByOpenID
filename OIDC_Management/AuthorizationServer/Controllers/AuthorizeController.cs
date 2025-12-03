@@ -262,6 +262,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 });
             }
 
+            
+
             return BadRequest("unsupported_grant_type");
         }
 

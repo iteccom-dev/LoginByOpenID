@@ -5,29 +5,27 @@ using System.Collections.Generic;
 
 namespace DBContexts.OIDC_Management.Entities;
 
-public partial class RefreshToken
+public partial class UserSession
 {
     public long Id { get; set; }
-
-    public string Token { get; set; }
 
     public string UserId { get; set; }
 
     public string ClientId { get; set; }
 
-    public string Scope { get; set; }
+    public string SessionState { get; set; }
 
-    public string Nonce { get; set; }
+    public DateTime? CreatedTime { get; set; }
 
-    public DateTime CreatedTime { get; set; }
+    public DateTime? LastAccessTime { get; set; }
 
-    public DateTime ExpiresTime { get; set; }
+    public DateTime? ExpiresTime { get; set; }
 
-    public long? UseSessionId { get; set; }
+    public int? IsActive { get; set; }
 
     public virtual Client Client { get; set; }
 
-    public virtual UserSession UseSession { get; set; }
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual AspNetUser User { get; set; }
 }
