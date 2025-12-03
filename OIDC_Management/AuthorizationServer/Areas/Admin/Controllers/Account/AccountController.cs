@@ -67,6 +67,7 @@ namespace EmployeeMangement.Controllers
                 }
             );
 
+
             return RedirectToAction("Index", "Home");
         }
 

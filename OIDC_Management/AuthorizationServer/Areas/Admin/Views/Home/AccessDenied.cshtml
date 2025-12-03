@@ -1,4 +1,7 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/Layouts/_LayoutMain.cshtml";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <header id="page-topbar">
     <div class="layout-width">
@@ -34,6 +37,7 @@
                     </span>
                 </button>
             </div>
+
 
             <div class="d-flex align-items-center">
                 <div class="ms-1 header-item d-none d-sm-flex">
@@ -96,3 +100,62 @@
         </div>
     </div>
 </header>
+
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<div class="app-menu navbar-menu">
+    <!-- MENU LOGO -->
+    <div class="navbar-brand-box">
+        <!-- Dark Logo-->
+        <!-- Light Logo-->
+        <a asp-controller="Home" asp-action="Index" class="logo logo-light">
+            <span class="logo-sm">
+                <img src="/assets/images/login/logo.png" class="logo-part" height="22">
+                <img src="/assets/images/login/textLogo.png" class="logo-part" height="1">
+            </span>
+            <span class="logo-lg">
+                <img src="/assets/images/login/logo.png" class="logo-part" height="35">
+                <img src="/assets/images/login/textLogo.png" class="logo-part" height="35">
+            </span>
+        </a>
+
+        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+            <i class="ri-record-circle-line"></i>
+        </button>
+    </div>
+
+    <!-- MENU LIST -->
+    <div id="scrollbar">
+        <div class="container-fluid">
+
+            <div id="two-column-menu">
+            </div>
+            <ul class="navbar-nav" id="navbar-nav">
+                <li class="menu-title"><span>DASHBOARDS</span></li>
+
+                <!-- Index -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link" asp-controller="Home" asp-action="Index">
+                        <i class="ri-home-4-line"></i>
+                        <span>Dashboards</span>
+                    </a>
+                </li>
+
+
+                
+
+            </ul>
+        </div>
+        <!-- Sidebar -->
+    </div>
+    <div class="sidebar-background"></div>
+</div>
+
+
+ <div id="content-main">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h2 class="text-primary mb-3">Bạn không có quyền truy cập trang này</h2>
+        </div>
+    </div>
+</div>
