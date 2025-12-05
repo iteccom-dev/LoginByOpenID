@@ -177,7 +177,7 @@ app.MapGet("/connect/endsession", async (
     var state = context.Request.Query["state"].ToString();
    
     // 1. Sign out server-side properly
-    try { await context.SignOutAsync("Cookies"); } catch { /* ignore */ }
+    try { await context.SignOutAsync("SsoAuth"); } catch { /* ignore */ }
 
     // 2. Try extract client_id from id_token_hint (nếu có)
     string? clientIdFromToken = null;
