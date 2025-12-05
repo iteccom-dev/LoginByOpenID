@@ -48,7 +48,7 @@ namespace ClientTest1.Controllers
                 {
                     RedirectUri = Url.Action("Index", "Home") ?? "/"
                 },
-                 CookieAuthenticationDefaults.AuthenticationScheme,
+                "Client1Auth",
                 OpenIdConnectDefaults.AuthenticationScheme
             );
         }

@@ -27,11 +27,14 @@ namespace ClientTest1
             services.AddHttpClient();
             services.AddAuthentication(options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultScheme = "Client1Auth";   // cookie nội bộ của client
+                options.DefaultChallengeScheme = "SsoAuth"; // OIDC login
 
             })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) // cookie client
+            .AddCookie("Client1Auth", options =>
+            {
+                options.Cookie.Name = ".client1.auth";
+            }) // cookie client
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 var oidcConfig = Configuration.GetSection("Authentication:Oidc");
@@ -51,7 +54,7 @@ namespace ClientTest1
                 options.MetadataAddress = oidcConfig["MetadataAddress"];
 
                 // ⛔ KHÔNG dùng SsoAuth
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.SignInScheme = "Client1Auth";
 
                 options.Scope.Clear();
                 options.Scope.Add("openid");

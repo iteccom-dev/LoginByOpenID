@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClientTest.Controllers
 {
@@ -6,6 +8,7 @@ namespace ClientTest.Controllers
     {
         public IActionResult Index()
         {
+           
             if (User.Identity.IsAuthenticated)
                 ViewBag.UserName = User.Identity.Name;
             else

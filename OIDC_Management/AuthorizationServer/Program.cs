@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(options =>
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.None;    // bắt buộc cho cross-subdomain
-        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.LoginPath = "/Authorize/Index";
     })
