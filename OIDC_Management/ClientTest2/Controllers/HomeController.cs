@@ -8,13 +8,14 @@ namespace ClientTest.Controllers
     {
         public IActionResult Index()
         {
-           
-            if (User.Identity.IsAuthenticated)
-                ViewBag.UserName = User.Identity.Name;
-            else
-                ViewBag.UserName = "Chưa login";
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Redirect("/Account/Login");
+            }
 
+            ViewBag.UserName = User.Identity.Name;
             return View();
         }
+
     }
 }
