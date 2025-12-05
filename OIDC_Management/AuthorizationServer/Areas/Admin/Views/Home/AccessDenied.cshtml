@@ -3,6 +3,25 @@
 }
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+
+<div id="content-main">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h1 class="text-primary mb-3">Xin chào @ViewBag.Username!</h1>
+            <p class="text-muted fs-5 mb-4">Bạn đã login thành công.</p>
+
+            <form asp-action="Logout" asp-controller="Account" method="post">
+                <button type="submit" class="btn btn-danger btn-lg">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 <header id="page-topbar">
     <div class="layout-width">
         <div class="navbar-header">
@@ -155,7 +174,12 @@
 <div id="content-main">
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="text-center">
-            <h2 class="text-primary mb-3">Bạn không có quyền truy cập trang này</h2>
+            <h1 class="text-primary mb-3">Xin chào @ViewBag.Username!</h1>
+            <p class="text-muted fs-5 mb-4">Bạn đã login thành công.</p>
+
+            <form asp-action="Logout" asp-controller="Account" method="post">
+                <button type="submit" class="btn btn-danger btn-lg">Đăng xuất</button>
+            </form>
         </div>
     </div>
 </div>

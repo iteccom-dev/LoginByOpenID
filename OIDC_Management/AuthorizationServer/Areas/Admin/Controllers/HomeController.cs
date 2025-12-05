@@ -17,17 +17,22 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             _clientMany = clientMany;
         }
 
+        private void LoadUserInfo()
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+
+            ViewBag.Username = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value ?? "";
+            ViewBag.Email = claimsIdentity?.FindFirst(ClaimTypes.Email)?.Value ?? "";
+            ViewBag.Role = claimsIdentity?.FindFirst("Role")?.Value ?? "";
+        }
+
         public IActionResult Index()
         {
             // Lấy claim Identity
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
-            ViewBag.Username = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
-            ViewBag.AccountId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ViewBag.Email = claimsIdentity?.FindFirst(ClaimTypes.Email)?.Value;
+            LoadUserInfo();
 
             // Lấy role claim
-            var roleClaim = claimsIdentity?.FindFirst("Role")?.Value;
+            var roleClaim = User.FindFirst("Role")?.Value;
 
             // Gán role vào view
             ViewBag.Role = roleClaim;
@@ -40,7 +45,7 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             // Nếu không phải admin → trả về trang AccessDenied
             if (roleClaim != "1")
             {
-                return View("AccessDenied");
+                return RedirectToAction("AccessDenied", "Home", new { area = "Admin" });
             }
 
             // Nếu là admin → load dashboard
@@ -74,9 +79,13 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
             return PartialView("Pages/User/Create", model);
         }
 
+
         public IActionResult AccessDenied()
         {
+            LoadUserInfo();
+
             return View();
         }
+
     }
 }

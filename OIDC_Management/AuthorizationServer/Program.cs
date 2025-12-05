@@ -352,20 +352,18 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//// Đặt route mặc định là vào thẳng Area Admin luôn
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "Admin", controller = "Home", action = "Index" });
 
-// Route dành cho tất cả các Area (bắt buộc phải để sau route default)
+
+ // Route cho Area Admin và các Area khác
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+// Route mặc định
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.Run();
 
 string GetCookieDomain()

@@ -60,7 +60,7 @@ namespace Services.OIDC_Management.Executes
                 await context.SignInAsync("AdminCookies", new ClaimsPrincipal(claimsIdentity));
 
                 // redirect
-                context.Response.Redirect("/Home/AccessDenied");
+                context.Response.Redirect("/Admin/Home/AccessDenied");
                 return false;
             }
 
