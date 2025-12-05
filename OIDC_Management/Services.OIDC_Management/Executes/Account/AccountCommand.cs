@@ -56,8 +56,8 @@ namespace Services.OIDC_Management.Executes
             new Claim("Role", account.Role.ToString())
         };
 
-                var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-                await context.SignInAsync("Cookies", new ClaimsPrincipal(claimsIdentity));
+                var claimsIdentity = new ClaimsIdentity(claims, "AdminCookies");
+                await context.SignInAsync("AdminCookies", new ClaimsPrincipal(claimsIdentity));
 
                 // redirect
                 context.Response.Redirect("/Admin/Home/AccessDenied");
@@ -74,7 +74,7 @@ namespace Services.OIDC_Management.Executes
         new Claim("Role", account.Role.ToString())
     };
 
-            var identity = new ClaimsIdentity(adminClaims, "Cookies");
+            var identity = new ClaimsIdentity(adminClaims, "AdminCookies");
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,
@@ -84,7 +84,7 @@ namespace Services.OIDC_Management.Executes
             var http = _httpContextAccessor.HttpContext;
 
             await http.SignInAsync(
-                "Cookies",
+                "AdminCookies",
                 new ClaimsPrincipal(identity),
                 authProperties
             );
@@ -106,7 +106,7 @@ namespace Services.OIDC_Management.Executes
             var context = _httpContextAccessor.HttpContext;
 
             // Xóa cookie đăng nhập
-            await context.SignOutAsync("Cookies");
+            await context.SignOutAsync("AdminCookies");
         }
     }
 }

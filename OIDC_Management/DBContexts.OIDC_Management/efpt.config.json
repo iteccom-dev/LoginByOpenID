@@ -50,6 +50,10 @@
       {
          "Name": "[dbo].[RefreshTokens]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[UserSessions]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,
