@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.OIDC_Management.Executes;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace EmployeeMangement.Controllers
 {
+ 
     [Area("Admin")]
     public class AccountController : Controller
     {
@@ -45,7 +47,7 @@ namespace EmployeeMangement.Controllers
                 ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng.";
                 return View(request);
             }
-
+            
             // KHÔNG SIGN IN LẠI, VÌ CLAIM ROLE ĐÃ GHI TRONG CHECKACCOUNT
             return RedirectToAction("Index", "Home");
         }

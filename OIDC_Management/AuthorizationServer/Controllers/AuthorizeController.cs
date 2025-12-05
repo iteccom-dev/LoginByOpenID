@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using DBContexts.OIDC_Management.Entities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -17,6 +18,7 @@ using static System.Formats.Asn1.AsnWriter;
 
 namespace OIDCDemo.AuthorizationServer.Controllers
 {
+   
     public class AuthorizeController : Controller
     {
         public const int TokenResponseValidSeconds = 1200;
@@ -49,11 +51,74 @@ namespace OIDCDemo.AuthorizationServer.Controllers
         }
 
         // Hiển thị form login email/password
-        public IActionResult Index(AuthenticationRequestModel authenticateRequest)
+        // GET /authorize (hiển thị form login)
+        // Nếu user đã có cookie SsoAuth hợp lệ -> bỏ qua login, tạo code và trả SubmitForm (redirect về client)
+        public async Task<IActionResult> Index(AuthenticationRequestModel authenticateRequest)
         {
+            // validate các tham số của client
+            ValidateAuthenticateRequestModel(authenticateRequest);
+
+            // --------- 1. Kiểm tra cookie SSO (scheme "SsoAuth") ----------
+            // Cần đảm bảo scheme "SsoAuth" đã được đăng ký trong Startup/Program
+            var authResult = await HttpContext.AuthenticateAsync("SsoAuth");
+            if (authResult?.Succeeded == true && authResult.Principal != null)
+            {
+                // (Tùy: bạn có thể kiểm tra thêm bảng session DB ở đây, ví dụ: is session active?)
+                // var sessionId = authResult.Principal.FindFirst("session_id")?.Value;
+                // if (!IsSessionActive(sessionId)) { goto showLogin; }
+
+                // Lấy thông tin user từ claims trong cookie
+                var userId = authResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                             ?? authResult.Principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+                var email = authResult.Principal.FindFirst(ClaimTypes.Email)?.Value
+                            ?? authResult.Principal.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+                var username = authResult.Principal.FindFirst(ClaimTypes.Name)?.Value
+                               ?? authResult.Principal.FindFirst(JwtRegisteredClaimNames.PreferredUsername)?.Value;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // Tạo code để client đổi token (giống flow ở POST Authorize)
+                    string code = GenerateAuthenticationCode();
+                    var codeValue = new CodeStorageValue()
+                    {
+                        Code = code,
+                        ClientId = authenticateRequest.ClientId,
+                        OriginalRedirectUri = authenticateRequest.RedirectUri,
+                        ExpiryTime = DateTime.Now.AddSeconds(CodeResponseValidSeconds),
+                        Nonce = authenticateRequest.Nonce,
+                        User = userId,
+                        Email = email,
+                        UserName = username,
+                        Scope = authenticateRequest.Scope
+                    };
+
+                    if (!codeStorage.TryAddCode(code, codeValue))
+                    {
+                        // Không thể lưu code -> fallback về form login (hoặc trả lỗi)
+                        logger.LogError("Failed to store code for silent login (user {u})", userId);
+                        // show login
+                        ValidateAuthenticateRequestModel(authenticateRequest);
+                        return View(authenticateRequest);
+                    }
+
+                    // Log rồi trả về SubmitForm (client sẽ tự submit form để gọi /token)
+                    logger.LogInformation("Silent-login: issued code {c} for user {u}", code, userId);
+                    var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
+                    return View("SubmitForm", new CodeFlowResponseViewModel()
+                    {
+                        Code = codeFlowModel.Code,
+                        RedirectUri = authenticateRequest.RedirectUri,
+                        State = codeFlowModel.State
+                    });
+                }
+            }
+
+        // show login form nếu không có cookie / không lấy được userId
+       
             ValidateAuthenticateRequestModel(authenticateRequest);
             return View(authenticateRequest);
         }
+
 
         // Người dùng submit email + password
         [HttpPost]

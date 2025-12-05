@@ -25,10 +25,13 @@ builder.Services.AddDbContext<oidcIdentityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = "SsoAuth";
+    options.DefaultAuthenticateScheme = "AdminCookies";
+    options.DefaultSignInScheme = "AdminCookies";
+    options.DefaultChallengeScheme = "SsoAuth";
 })
-    .AddCookie("Cookies", options =>
+    .AddCookie("AdminCookies", options =>
     {
+        options.Cookie.Name = ".iteccom.Admin";
         options.LoginPath = "/Account/SignIn";
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);

@@ -6,8 +6,9 @@ using static Services.OIDC_Management.Executes.UserModel;
 
 namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AdminCookies")]
     [Area("Admin")]
-    [Authorize(AuthenticationSchemes = "Cookies")]
+    
     public class HomeController : Controller
     {
         private readonly ClientMany _clientMany;

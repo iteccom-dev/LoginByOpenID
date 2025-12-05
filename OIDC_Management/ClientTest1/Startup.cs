@@ -29,60 +29,45 @@ namespace ClientTest1
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+
             })
-            .AddCookie("SsoAuth", options =>
-            {
-                options.Cookie.Name = ".example.ClientAuth"; // cookie nội bộ client
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
-                options.LoginPath = "/Account/Login";
-            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) // cookie client
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 var oidcConfig = Configuration.GetSection("Authentication:Oidc");
+
                 options.Authority = oidcConfig["Authority"];
                 options.ClientId = oidcConfig["ClientId"];
                 options.ClientSecret = oidcConfig["ClientSecret"];
                 options.ResponseType = "code";
-                options.SaveTokens = true;
                 options.UsePkce = true;
+                options.SaveTokens = true;
+
+                // OIDC callback
                 options.CallbackPath = oidcConfig["CallbackPath"];
                 options.SignedOutCallbackPath = oidcConfig["SignedOutCallbackPath"];
 
-                // ⚡ IMPORTANT: Cookie scheme để lưu login
-                options.SignInScheme = "SsoAuth";
+                // SSO discovery URL
+                options.MetadataAddress = oidcConfig["MetadataAddress"];
+
+                // ⛔ KHÔNG dùng SsoAuth
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
                 options.Scope.Clear();
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
-                options.Scope.Add("offline_access");
 
-                // Cookie của OIDC (correlation / nonce)
-                options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.NonceCookie.SameSite = SameSiteMode.None;
-                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
-
-                // Return URL để redirect sau login
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnRedirectToIdentityProvider = context =>
+                    OnAuthenticationFailed = ctx =>
                     {
-                        if (!string.IsNullOrEmpty(context.Properties.RedirectUri))
-                            context.ProtocolMessage.SetParameter("returnUrl", context.Properties.RedirectUri);
+                        Console.WriteLine("OIDC error: " + ctx.Exception.Message);
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = context =>
+                    OnTokenValidated = ctx =>
                     {
-                        // ✅ Optional: log để debug xem cookie đã được tạo
-                        Console.WriteLine($"User {context.Principal.Identity.Name} logged in via SSO.");
-                        return Task.CompletedTask;
-                    },
-                    OnAuthenticationFailed = context =>
-                    {
-                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                        Console.WriteLine("SSO login OK: " + ctx.Principal.Identity.Name);
                         return Task.CompletedTask;
                     }
                 };
