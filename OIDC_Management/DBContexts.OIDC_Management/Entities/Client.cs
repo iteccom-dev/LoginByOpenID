@@ -40,4 +40,6 @@ public partial class Client
     public int? Status { get; set; }
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public virtual ICollection<UserSession> UserSessions { get; set; } = new List<UserSession>();
 }

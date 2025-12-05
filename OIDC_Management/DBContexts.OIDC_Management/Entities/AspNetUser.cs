@@ -51,5 +51,7 @@ public partial class AspNetUser
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
+    public virtual ICollection<UserSession> UserSessions { get; set; } = new List<UserSession>();
+
     public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }
