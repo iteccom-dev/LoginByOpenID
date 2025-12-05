@@ -5,7 +5,7 @@
     $(document).on("click", "#client-list-link", function () {
     
         $.ajax({
-            url: '/Home/ClientList',
+            url: '/Admin/Home/ClientList',
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -23,7 +23,7 @@
     $(document).on("click", "#user-list-link", function () {
       
         $.ajax({
-            url: '/Home/UserList',
+            url: '/Admin/Home/UserList',
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -39,7 +39,7 @@
     $(document).on("click", "#user-create-link", function () {
        
         $.ajax({
-            url: '/Home/UserCreate',
+            url: '/Admin/Home/UserCreate',
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })

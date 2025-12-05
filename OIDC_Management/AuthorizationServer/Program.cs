@@ -26,14 +26,17 @@ builder.Services.AddDbContext<oidcIdentityContext>(options =>
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "SsoAuth";
+    //options.DefaultScheme = "Cookies";
+
 })
-    .AddCookie("Cookies", options =>
-    {
-        options.LoginPath = "/Account/SignIn";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(1);
-        options.SlidingExpiration = true;
-    })
+   .AddCookie("Cookies", options =>
+   {
+       options.LoginPath = "/Admin/Account/SignIn";
+       options.AccessDeniedPath = "/Admin/Home/AccessDenied";
+       options.ExpireTimeSpan = TimeSpan.FromHours(1);
+       options.SlidingExpiration = true;
+   })
+
     .AddCookie("SsoAuth", options =>
     {
         options.Cookie.Name = ".iteccom.Auth";
@@ -349,20 +352,18 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//// Đặt route mặc định là vào thẳng Area Admin luôn
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "Admin", controller = "Home", action = "Index" });
 
-// Route dành cho tất cả các Area (bắt buộc phải để sau route default)
+
+ // Route cho Area Admin và các Area khác
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+// Route mặc định
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.Run();
 
 string GetCookieDomain()
