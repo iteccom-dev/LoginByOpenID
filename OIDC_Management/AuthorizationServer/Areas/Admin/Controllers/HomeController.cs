@@ -62,6 +62,10 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
         {
             return PartialView("Pages/User/List");
         }
+        public async Task<IActionResult> Setting()
+        {
+            return PartialView("Pages/Setting/Setting");
+        }
 
         public async Task<IActionResult> UserCreate()
         {
