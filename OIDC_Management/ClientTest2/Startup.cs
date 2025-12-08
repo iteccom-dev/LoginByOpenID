@@ -36,6 +36,17 @@ namespace ClientTest2
            .AddCookie("Client2Auth", options =>
            {
                options.Cookie.Name = ".client2.auth";
+               options.ExpireTimeSpan = TimeSpan.FromHours(8);
+               options.Events.OnValidatePrincipal = context =>
+               {
+                   if (!context.Principal.Identity.IsAuthenticated)
+                   {
+                       // Cookie mất hiệu lực → logout
+                       context.RejectPrincipal();
+                   }
+
+                   return Task.CompletedTask;
+               };
            }) // cookie client
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {

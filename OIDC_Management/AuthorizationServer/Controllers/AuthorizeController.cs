@@ -188,6 +188,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
      {
          IsPersistent = true,
          ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+         
      });
             logger.LogInformation("New authentication code issued: {c}", code);
             //trả về cho user code để đi đổi token

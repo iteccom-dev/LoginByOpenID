@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ClientTest1
@@ -30,11 +31,23 @@ namespace ClientTest1
                 options.DefaultScheme = "Client1Auth";   // cookie nội bộ của client
                 options.DefaultChallengeScheme = "SsoAuth"; // OIDC login
 
+
             })
-            .AddCookie("Client1Auth", options =>
-            {
-                options.Cookie.Name = ".client1.auth";
-            }) // cookie client
+           .AddCookie("Client1Auth", options =>
+           {
+               options.Cookie.Name = ".client1.auth";
+               options.ExpireTimeSpan = TimeSpan.FromHours(8);
+               options.Events.OnValidatePrincipal = context =>
+               {
+                   if (!context.Principal.Identity.IsAuthenticated)
+                   {
+                       // Cookie mất hiệu lực → logout
+                       context.RejectPrincipal();
+                   }
+
+                   return Task.CompletedTask;
+               };
+           }) // cookie client
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 var oidcConfig = Configuration.GetSection("Authentication:Oidc");
