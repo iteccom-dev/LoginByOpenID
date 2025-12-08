@@ -20,5 +20,7 @@ namespace OIDCDemo.AuthorizationServer
         public required string Scope { get; set; }
         public string Email { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+        public string SessionState { get; set; } = string.Empty;  
+
     }
 }

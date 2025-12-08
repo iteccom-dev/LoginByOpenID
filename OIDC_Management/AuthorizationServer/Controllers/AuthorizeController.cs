@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
+using Renci.SshNet;
 using Services.OIDC_Management.Executes.AuthorizationClient;
 using System.CodeDom.Compiler;
 using System.Net.Http;
@@ -18,7 +19,7 @@ using static System.Formats.Asn1.AsnWriter;
 
 namespace OIDCDemo.AuthorizationServer.Controllers
 {
-   
+
     public class AuthorizeController : Controller
     {
         public const int TokenResponseValidSeconds = 1200;
@@ -58,16 +59,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             // validate các tham số của client
             ValidateAuthenticateRequestModel(authenticateRequest);
 
-            // --------- 1. Kiểm tra cookie SSO (scheme "SsoAuth") ----------
-            // Cần đảm bảo scheme "SsoAuth" đã được đăng ký trong Startup/Program
+            // 1. Kiểm tra cookie SSO
             var authResult = await HttpContext.AuthenticateAsync("SsoAuth");
             if (authResult?.Succeeded == true && authResult.Principal != null)
             {
-                // (Tùy: bạn có thể kiểm tra thêm bảng session DB ở đây, ví dụ: is session active?)
-                // var sessionId = authResult.Principal.FindFirst("session_id")?.Value;
-                // if (!IsSessionActive(sessionId)) { goto showLogin; }
-
-                // Lấy thông tin user từ claims trong cookie
                 var userId = authResult.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
                              ?? authResult.Principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
                 var email = authResult.Principal.FindFirst(ClaimTypes.Email)?.Value
@@ -77,7 +72,42 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
                 if (!string.IsNullOrEmpty(userId))
                 {
-                    // Tạo code để client đổi token (giống flow ở POST Authorize)
+                    var sid = authResult.Principal.FindFirst("sid")?.Value;
+                    if (string.IsNullOrEmpty(sid))
+                    {
+                        // nâng cấp cookie SSO để về sau luôn có sid
+                        sid = Guid.NewGuid().ToString("N");
+                        var claimsIdentity = new ClaimsIdentity(
+                            authResult.Principal.Identity,
+                            authResult.Principal.Claims,
+                            "SsoAuth",
+                            ClaimTypes.Name,
+                            ClaimTypes.Role);
+
+                        if (authResult.Principal.FindFirst("sid") == null)
+                        {
+                            claimsIdentity.AddClaim(new Claim("sid", sid));
+                            await HttpContext.SignInAsync("SsoAuth",
+                                new ClaimsPrincipal(claimsIdentity),
+                                new AuthenticationProperties
+                                {
+                                    IsPersistent = true,
+                                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+                                });
+                        }
+                    }
+
+                    // 🔥🔥 LƯU SESSION CHO CLIENT HIỆN TẠI (QUAN TRỌNG)
+                    await authorizationClientOne.UseSessionAsync(new AuthorizationClientModel.UserSessionRequest
+                    {
+                        UserId = userId,
+                        ClientId = authenticateRequest.ClientId,   // mỗi client app có ClientId riêng
+                        SessionState = sid,
+                        ExpiresTime = DateTime.UtcNow.AddDays(30),
+                        IsActive = 1
+                    });
+
+                    // Tạo code để client đổi token
                     string code = GenerateAuthenticationCode();
                     var codeValue = new CodeStorageValue()
                     {
@@ -89,21 +119,20 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                         User = userId,
                         Email = email,
                         UserName = username,
-                        Scope = authenticateRequest.Scope
+                        Scope = authenticateRequest.Scope,
+                        SessionState = sid
                     };
 
                     if (!codeStorage.TryAddCode(code, codeValue))
                     {
-                        // Không thể lưu code -> fallback về form login (hoặc trả lỗi)
                         logger.LogError("Failed to store code for silent login (user {u})", userId);
-                        // show login
                         ValidateAuthenticateRequestModel(authenticateRequest);
                         return View(authenticateRequest);
                     }
 
-                    // Log rồi trả về SubmitForm (client sẽ tự submit form để gọi /token)
                     logger.LogInformation("Silent-login: issued code {c} for user {u}", code, userId);
                     var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
+
                     return View("SubmitForm", new CodeFlowResponseViewModel()
                     {
                         Code = codeFlowModel.Code,
@@ -113,8 +142,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 }
             }
 
-        // show login form nếu không có cookie / không lấy được userId
-       
+            // Không có cookie SSO → show form login
             ValidateAuthenticateRequestModel(authenticateRequest);
             return View(authenticateRequest);
         }
@@ -135,7 +163,6 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             var client = await authorizationClientOne.FindByClientId(authenticateRequest.ClientId);
             if (client == null)
             {
-                //return BadRequest("Invalid client_id");
                 ModelState.AddModelError("", "Tài khoản không hợp lệ");
                 ValidateAuthenticateRequestModel(authenticateRequest);
                 return View("Index", authenticateRequest);
@@ -143,7 +170,6 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
             if (!client.RedirectUris.Split(';').Contains(authenticateRequest.RedirectUri))
             {
-                //return BadRequest("Invalid redirect_uri");
                 ModelState.AddModelError("", "Tài khoản không hợp lệ");
                 ValidateAuthenticateRequestModel(authenticateRequest);
                 return View("Index", authenticateRequest);
@@ -158,7 +184,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 return View("Index", authenticateRequest);
             }
 
-            // Tạo code để user đổi token
+            // 🔥 Tạo session_state cho lần đăng nhập này
+            string sessionState = Guid.NewGuid().ToString("N");
+
+            // 🔥 Tạo code để user đổi token (chỉ một lần)
             string code = GenerateAuthenticationCode();
             if (!codeStorage.TryAddCode(code, new CodeStorageValue()
             {
@@ -168,34 +197,48 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 ExpiryTime = DateTime.Now.AddSeconds(CodeResponseValidSeconds),
                 Nonce = authenticateRequest.Nonce,
                 User = user.UserId,
-                Email = user.Email,// lưu user id
-                UserName = user.Username,// lưu user id
-                Scope = authenticateRequest.Scope
+                Email = user.Email,
+                UserName = user.Username,
+                Scope = authenticateRequest.Scope,
+                SessionState = sessionState // <--- thêm
             }))
             {
                 throw new Exception("Error storing code");
             }
 
-            var codeFlowModel = BuildCodeFlowResponseModel(authenticateRequest, code);
+            // 🔥 Đăng nhập SSO cookie (chỉ 1 lần, có claim sid)
             await HttpContext.SignInAsync("SsoAuth", new ClaimsPrincipal(
                 new ClaimsIdentity(new[]
                 {
-                 new Claim(ClaimTypes.NameIdentifier, user.UserId),
-                 new Claim(ClaimTypes.Name, user.Username),
-                 new Claim(ClaimTypes.Email, user.Email)
-                 }, "SsoAuth")),
-     new AuthenticationProperties
-     {
-         IsPersistent = true,
-         ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
-     });
+            new Claim(ClaimTypes.NameIdentifier, user.UserId),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim("sid", sessionState)
+                }, "SsoAuth")),
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+                });
+
+            // 🔥 LƯU SESSION vào DB
+            await authorizationClientOne.UseSessionAsync(new AuthorizationClientModel.UserSessionRequest
+            {
+                UserId = user.UserId,
+                ClientId = authenticateRequest.ClientId,
+                SessionState = sessionState,
+                ExpiresTime = DateTime.UtcNow.AddDays(30),
+                IsActive = 1
+            });
+
             logger.LogInformation("New authentication code issued: {c}", code);
-            //trả về cho user code để đi đổi token
+
+            // 🔥 Trả về cho user code để đổi token
             return View("SubmitForm", new CodeFlowResponseViewModel()
             {
-                Code = codeFlowModel.Code,
+                Code = code,
                 RedirectUri = authenticateRequest.RedirectUri,
-                State = codeFlowModel.State,
+                State = authenticateRequest.State,
             });
         }
 
@@ -238,29 +281,55 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 codeStorage.TryRemove(code); // code không được dùng lại
 
                 // Tạo refresh token
+
+                //var sid = codeStorageValue.SessionState;
+                //var userId = codeStorageValue.User;
+                //string scope = codeStorageValue.Scope;
+
+                //var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
+                //userId, client_id, scope);
+                //if (refreshToken == null)
+                //{
+                //    return BadRequest("Không thể cấp refreshToken");
+                //}
+
+                //// Trả về Token cho user
+                //var result = new AuthenticationResponseModel()
+                //{
+                //    AccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
+                //    IdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
+                //    TokenType = "Bearer",
+                //    RefreshToken = refreshToken.Token,
+                //    ExpiresIn = TokenResponseValidSeconds,
+
+                //};
+
+                //logger.LogInformation("access_token: {t}", result.AccessToken);
+                //logger.LogInformation("refresh_token: {t}", result.RefreshToken);
+
+                //return Json(result);
+
+
+                //var sid = codeStorageValue.SessionState;
+                var sid = string.IsNullOrEmpty(codeStorageValue.SessionState)
+    ? Guid.NewGuid().ToString("N")
+    : codeStorageValue.SessionState;
+
+                // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
 
-                var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
-                userId, client_id, scope);
-                if (refreshToken == null)
-                {
-                    return BadRequest("Không thể cấp refreshToken");
-                }
+                var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(userId, client_id, scope);
+                if (refreshToken == null) return BadRequest("Không thể cấp refreshToken");
 
-                // Trả về Token cho user
                 var result = new AuthenticationResponseModel()
                 {
-                    AccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
-                    IdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
+                    AccessToken = GenerateAccessToken(codeStorageValue, userId, scope, client.ClientId, codeStorageValue.Nonce, sid, jsonWebKey),
+                    IdToken = GenerateIdToken(codeStorageValue, userId, client.ClientId, codeStorageValue.Nonce, sid, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken.Token,
                     ExpiresIn = TokenResponseValidSeconds,
-
                 };
-
-                logger.LogInformation("access_token: {t}", result.AccessToken);
-                logger.LogInformation("refresh_token: {t}", result.RefreshToken);
 
                 return Json(result);
             }
@@ -272,62 +341,74 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     string.IsNullOrEmpty(client_secret))
                     return BadRequest("invalid_request");
 
-                if (!codeStorage.TryGetToken(code, out var codeStorageValue) || codeStorageValue == null)
-                {
-                    return BadRequest("Invalid code");
-                }
-                // Kiểm tra client trước (rất quan trọng!)
+                // 1) Validate client
                 var client = await authorizationClientOne.FindByClientId(client_id);
                 if (client == null || client.ClientSecret != client_secret)
                     return BadRequest("invalid_client");
 
-                if (!codeStorage.TryGetToken(refresh_token, out var rtInfo) || rtInfo == null)
-                    return BadRequest("invalid_grant");
+                // 2) Tìm refresh token trong DB
+                var rt = await authorizationClientOne.FindRefreshTokenAsync(refresh_token, client_id);
 
-                if (rtInfo.ExpiryTime < DateTime.UtcNow)
+
+                if (rt == null || rt.ExpiresTime <= DateTime.UtcNow)
+                {
+                    // Thu hồi nếu đã hết hạn hoặc không hợp lệ
+                    if (rt != null) await authorizationClientOne.RevokeTokenAsync(refresh_token);
+                    return BadRequest("invalid_grant");
+                }
+
+                // 3) Kiểm tra user còn session active không (bị global logout thì chặn)
+                if (!await authorizationClientOne.IsAnySessionActiveAsync(rt.UserId))
                 {
                     await authorizationClientOne.RevokeTokenAsync(refresh_token);
-                    return BadRequest("invalid_grant");
+                    return BadRequest("session_revoked"); // hoặc invalid_grant
                 }
 
-                // Kiểm tra client_id có đúng là client đã cấp token này không
-                if (rtInfo.ClientId != client_id)
-                    return BadRequest("invalid_client");
+                // 4) Lấy sid đang active nhất cho user + client này (nếu muốn đưa vào token mới)
+                var sid = await authorizationClientOne.GetLatestActiveSidAsync(rt.UserId, client_id) ?? Guid.NewGuid().ToString("N");
 
-                // Lấy user từ DB
-                var user = await authorizationClientOne.FindByUserId(rtInfo.User);
-                if (user == null)
-                    return BadRequest("invalid_grant");
+                // 5) Lấy user
+                var userEntity = await authorizationClientOne.FindByUserId(rt.UserId);
+                if (userEntity == null) return BadRequest("invalid_grant");
 
-                // Tạo token mới
-
-
-
-
-
-                // Lưu refresh token mới (refresh token rotation – best practice)
+                // 6) Refresh token rotation
                 var newRefreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
-              user.Id, client_id, rtInfo.Scope, refresh_token);
+                    rt.UserId, client_id, rt.Scope, refresh_token);
 
-                if (newRefreshToken == null)
+                if (newRefreshToken == null) return BadRequest("invalid_refreshToken");
+
+                // 7) Tạo access_token/id_token mới
+                // Tạo CodeStorageValue ảo để tái dùng hàm generate (hoặc tạo hàm generate nhận Email/Username rời)
+                var tmp = new CodeStorageValue
                 {
-                    return BadRequest("invalid_refreshToken");
-                }
+                    Code = Guid.NewGuid().ToString("N"),
+                    ClientId = client_id,
+                    OriginalRedirectUri = redirect_uri,
+                    ExpiryTime = DateTime.UtcNow.AddMinutes(5),
+                    User = rt.UserId,
+                    Email = userEntity.Email,
+                    UserName = userEntity.UserName,
+                    Scope = rt.Scope,
+                    Nonce = "", // không cần cho refresh flow
+                    SessionState = sid
+                };
 
 
-                var newAccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
-                var newIdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey);
+                var newAccessToken = GenerateAccessToken(tmp, rt.UserId, rt.Scope, client.ClientId, tmp.Nonce, sid, jsonWebKey);
+                var newIdToken = GenerateIdToken(tmp, rt.UserId, client.ClientId, tmp.Nonce, sid, jsonWebKey);
+
                 return Ok(new
                 {
                     access_token = newAccessToken,
                     id_token = newIdToken,
                     token_type = "Bearer",
-                    expires_in = 1200,
+                    expires_in = tokenIssuingOptions.AccessTokenExpirySeconds,
                     refresh_token = newRefreshToken.Token
                 });
             }
 
-            
+
+
 
             return BadRequest("unsupported_grant_type");
         }
@@ -335,51 +416,45 @@ namespace OIDCDemo.AuthorizationServer.Controllers
 
 
 
-        private string GenerateIdToken(CodeStorageValue user, string userId, string audience, string nonce, JsonWebKey jsonWebKey)
+        private string GenerateIdToken(CodeStorageValue user, string userId, string audience, string nonce, string sid, JsonWebKey jsonWebKey)
         {
-            // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-            // we can return some claims defined here: https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
             var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, userId),
-                  new(JwtRegisteredClaimNames.Email, user.Email),
-                  new(JwtRegisteredClaimNames.PreferredUsername, user.UserName)
-            };
+    {
+        new(JwtRegisteredClaimNames.Sub, userId),
+        new(JwtRegisteredClaimNames.Email, user.Email),
+        new(JwtRegisteredClaimNames.PreferredUsername, user.UserName),
+        new("sid", sid) // <--- thêm
+    };
 
-            var idToken = JwtGenerator.GenerateJWTToken(
+            return JwtGenerator.GenerateJWTToken(
                 tokenIssuingOptions.IdTokenExpirySeconds,
                 tokenIssuingOptions.Issuer,
                 audience,
                 nonce,
                 claims,
                 jsonWebKey
-                );
-
-
-            return idToken;
+            );
         }
 
-        private string GenerateAccessToken(CodeStorageValue user, string userId, string scope, string audience, string nonce, JsonWebKey jsonWebKey)
+        private string GenerateAccessToken(CodeStorageValue user, string userId, string scope, string audience, string nonce, string sid, JsonWebKey jsonWebKey)
         {
-            // access_token can be the same as id_token, but here we might have different values for expirySeconds so we use 2 different functions
-
             var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, userId),
-                new(JwtRegisteredClaimNames.Email, user.Email),
-                  new(JwtRegisteredClaimNames.PreferredUsername, user.UserName),// Trả về claim cho user
-                new("scope", scope) // Jeg vet ikke hvorfor JwtRegisteredClaimNames inneholder ikke "scope"??? Det har kun OIDC ting?  https://datatracker.ietf.org/doc/html/rfc8693#name-scope-scopes-claim
-            };
-            var idToken = JwtGenerator.GenerateJWTToken(
+    {
+        new(JwtRegisteredClaimNames.Sub, userId),
+        new(JwtRegisteredClaimNames.Email, user.Email),
+        new(JwtRegisteredClaimNames.PreferredUsername, user.UserName),
+        new("scope", scope),
+        new("sid", sid) // <--- thêm
+    };
+
+            return JwtGenerator.GenerateJWTToken(
                 tokenIssuingOptions.AccessTokenExpirySeconds,
                 tokenIssuingOptions.Issuer,
                 audience,
                 nonce,
                 claims,
                 jsonWebKey
-                );
-
-            return idToken;
+            );
         }
 
         private static string GenerateAuthenticationCode()
@@ -426,6 +501,35 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 State = authenticateRequest.State
             };
         }
+
+
+        // (Tuỳ chọn) Xem danh sách session để debug
+        [Authorize]
+        [HttpGet("/sessions")]
+        public async Task<IActionResult> GetMySessions()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                         ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var sessions = await authorizationClientOne.GetSessionsForUserAsync(userId);
+
+            var result = sessions.Select(s => new
+            {
+                s.ClientId,
+                s.SessionState,
+                s.IsActive,
+                s.CreatedTime,
+                s.LastAccessTime,
+                s.ExpiresTime
+            });
+
+            return Json(result);
+        }
+
+
 
 
     }

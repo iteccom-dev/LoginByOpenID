@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,23 +38,37 @@ builder.Services.AddAuthentication(options =>
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
     })
+    //.AddCookie("SsoAuth", options =>
+    //{
+    //    options.Cookie.Name = ".iteccom.Auth";
+    //    options.Cookie.Domain = GetCookieDomain();                  // dev – có dấu chấm đầu
+    //                                                                // options.Cookie.Domain = ".yourcompany.com";              // prod
+    //    options.Cookie.HttpOnly = true;
+    //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    //    options.Cookie.SameSite = SameSiteMode.None;    // bắt buộc cho cross-subdomain
+    //    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    //    options.SlidingExpiration = true;
+    //    options.LoginPath = "/Authorize/Index";
+    //})
+
+
     .AddCookie("SsoAuth", options =>
     {
         options.Cookie.Name = ".iteccom.Auth";
-        options.Cookie.Domain = GetCookieDomain();                  // dev – có dấu chấm đầu
-                                                                    // options.Cookie.Domain = ".yourcompany.com";              // prod
+        options.Cookie.Domain = ".iteccom.vn";   // ← BẮT BUỘC
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.None;    // bắt buộc cho cross-subdomain
+        options.Cookie.SameSite = SameSiteMode.None;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.LoginPath = "/Authorize/Index";
     })
+
     .AddMicrosoftAccount(options =>
     {
         options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "YOUR_CLIENT_ID";
         options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "YOUR_CLIENT_SECRET";
-        
+
         var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"];
         if (!string.IsNullOrEmpty(tenantId) && tenantId != "YOUR_TENANT_ID")
         {
@@ -159,25 +174,73 @@ app.MapPost("/connect/revocation", async (
         storage.TryAddToken(token);
     }
     // For access_token, do nothing (short-lived), still return 200 OK
-   await authOne.RevokeTokenAsync(token);
+    await authOne.RevokeTokenAsync(token);
     return Results.Ok(); // RFC 7009: always return 200 OK
 });
+
+
+// ================== . CHECK SESSION ENDPOINT ==================
+ app.MapGet("/connect/check-session", async (
+    [FromQuery] string sid,
+    AuthorizationClientOne authOne) =>
+{
+    if (string.IsNullOrEmpty(sid))
+        return Results.BadRequest("sid required");
+
+    bool isValid = await authOne.CheckSessionAsync(sid);
+    return Results.Text(isValid ? "valid" : "invalid");
+});
+
+
 
 // ================== 2. END SESSION ENDPOINT (OIDC Logout) ==================
 app.MapGet("/connect/endsession", async (
     HttpContext context,
     ClientOne clientRepository,
     IHttpContextAccessor httpContextAccessor
-   
+
     ) =>
 {
 
     var idTokenHint = context.Request.Query["id_token_hint"].ToString();
     var postLogoutRedirectUri = context.Request.Query["post_logout_redirect_uri"].ToString();
     var state = context.Request.Query["state"].ToString();
-   
+
     // 1. Sign out server-side properly
-    try { await context.SignOutAsync("SsoAuth"); } catch { /* ignore */ }
+    //try { await context.SignOutAsync("SsoAuth"); } catch { /* ignore */ }
+    // NEW: Always extract userId + sid from id_token_hint (because context.User is empty here)
+    string? logoutUserId = null;
+    string? logoutSid = null;
+
+    if (!string.IsNullOrEmpty(idTokenHint))
+    {
+        var handler = new JsonWebTokenHandler();
+        var token = handler.ReadJsonWebToken(idTokenHint);
+
+        logoutUserId = token?.Claims?.FirstOrDefault(c => c.Type == "sub")?.Value;
+        logoutSid = token?.Claims?.FirstOrDefault(c => c.Type == "sid")?.Value;
+    }
+
+    // Must have logoutUserId for logout
+    if (string.IsNullOrEmpty(logoutUserId))
+        return Results.BadRequest("Logout failed: userId missing from id_token_hint");
+
+    // NOW deactivate correctly
+    // MUST GET SESSIONS FIRST before deactivating
+    List<UserSession> oldSessions;
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var authOne = scope.ServiceProvider.GetRequiredService<AuthorizationClientOne>();
+        oldSessions = await authOne.GetSessionsForUserAsync(logoutUserId);
+
+        await authOne.DeactivateAllSessionsForUserAsync(logoutUserId);
+        Console.WriteLine($"[SSO LOGOUT] All sessions deactivated for user={logoutUserId}");
+    }
+
+
+
+    await context.SignOutAsync("SsoAuth");
 
     // 2. Try extract client_id from id_token_hint (nếu có)
     string? clientIdFromToken = null;
@@ -201,7 +264,7 @@ app.MapGet("/connect/endsession", async (
     {
         client = await clientRepository.GetByClientIdAsync(clientId);
     }
-    
+
     // 5. Build redirect to /authorize with parameters for client to login again
     // Use issuer from configuration if set, otherwise derive from current request.
     var issuer = builder.Configuration["TokenIssuing:Issuer"];
@@ -214,11 +277,22 @@ app.MapGet("/connect/endsession", async (
         string? redirectUri = context.Request.Query["redirect_uri"].ToString();
         if (string.IsNullOrWhiteSpace(redirectUri))
         {
-            if (!string.IsNullOrWhiteSpace(client.CallbackPath))
-                redirectUri = client.CallbackPath;
-            else if (!string.IsNullOrWhiteSpace(client.RedirectUris))
-                redirectUri = client.RedirectUris.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            // redirectUri ưu tiên DB
+            redirectUri = client.RedirectUris?
+                .Split(new[] { ' ', '\n', '\r', ';', ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault();
+
+            // fallback 1: từ post_logout_redirect_uri
+            if (string.IsNullOrWhiteSpace(redirectUri))
+                redirectUri = postLogoutRedirectUri;
+
+            // fallback 2: bảo vệ hệ thống (tránh null)
+            if (string.IsNullOrWhiteSpace(redirectUri))
+                redirectUri = "/";
+
         }
+
+
 
         // Build standard authorize params
         var queryParams = new Dictionary<string, string?>();
@@ -245,10 +319,51 @@ app.MapGet("/connect/endsession", async (
             .Where(kvp => !string.IsNullOrEmpty(kvp.Value))
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
 
+        // Build back redirect URL
         var finalUrl = QueryHelpers.AddQueryString(authorizeEndpoint, finalParams);
 
-        return Results.Redirect(finalUrl);
+        using var scope2 = app.Services.CreateScope();
+        var logoutRepo = scope2.ServiceProvider.GetRequiredService<AuthorizationClientOne>();
+
+
+
+        // -------------------------
+        // 🔥🔥 ADD START — FRONT CHANNEL LOGOUT
+        // -------------------------
+
+        var sessions = oldSessions;   // danh sách session trước khi deactivate
+
+         var fcUrls = sessions
+            .Select(s => s.Client?.FrontChannelLogoutUri)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Distinct()
+            .ToList();
+
+         Console.WriteLine($"[SSO LOGOUT] front-channel urls = {string.Join(" | ", fcUrls)}");
+
+        string logoutHtml = "<html><body>";
+        var sidQuery = string.IsNullOrEmpty(logoutSid) ? "" : $"?sid={logoutSid}";
+
+        foreach (var url in fcUrls)
+        {
+            logoutHtml += $"<iframe src='{url}{sidQuery}' style='display:none'></iframe>";
+        }
+
+        logoutHtml += $"<script>setTimeout(()=>window.location.href='{finalUrl}',400);</script>";
+        logoutHtml += "</body></html>";
+
+        return Results.Content(logoutHtml, "text/html");
+
+
+
+
+
     }
+
+
+
+
+
 
     // 6. Fallback: if no client found or missing data -> try use post_logout_redirect_uri if present
     if (!string.IsNullOrEmpty(postLogoutRedirectUri))
@@ -259,16 +374,16 @@ app.MapGet("/connect/endsession", async (
             : $"{postLogoutRedirectUri}{sep}state={Uri.EscapeDataString(state)}";
 
         return Results.Redirect(redirect);
-  
+
     }
 
     // 7. Final fallback: OP root
     var fallback = "/";
     if (!string.IsNullOrEmpty(state))
         fallback = $"{fallback}{(fallback.Contains('?') ? "&" : "?")}state={Uri.EscapeDataString(state)}";
-
     return Results.Redirect(fallback);
-   
+
+
 });
 
 // ================== HELPER FUNCTIONS (động 100%) ==================
@@ -354,7 +469,7 @@ app.UseAuthorization();
 
 
 
- // Route cho Area Admin và các Area khác
+// Route cho Area Admin và các Area khác
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");

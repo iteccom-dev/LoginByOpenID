@@ -1,55 +1,80 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------- Services -------------------
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("SsoServer", client =>
+{
+    client.BaseAddress = new Uri("https://sso-uat.iteccom.vn/");
+});
 
-// Authentication
+
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = "Client3Auth";       // Cookie nội bộ
-    options.DefaultChallengeScheme = "SsoAuth";  // OIDC login
+    options.DefaultScheme = "Client3Auth";
+    options.DefaultChallengeScheme = "SsoAuth";
 })
 .AddCookie("Client3Auth", options =>
 {
     options.Cookie.Name = ".client3.auth";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+
+    // ⭐ MUST HAVE: lưu SID vào cookie
+    options.Events.OnSigningIn = ctx =>
+    {
+        var sid = ctx.Principal?.FindFirst("sid");
+        if (sid != null)
+        {
+            var identity = (ClaimsIdentity)ctx.Principal!.Identity!;
+            identity.AddClaim(new Claim("sid", sid.Value));
+        }
+        return Task.CompletedTask;
+    };
 })
+
 .AddOpenIdConnect("SsoAuth", options =>
 {
-    var oidcConfig = builder.Configuration.GetSection("Authentication:Oidc");
+    var oidc = builder.Configuration.GetSection("Authentication:Oidc");
 
-    options.Authority = oidcConfig["Authority"];
-    options.ClientId = oidcConfig["ClientId"];
-    options.ClientSecret = oidcConfig["ClientSecret"];
+    options.Authority = oidc["Authority"];
+    options.ClientId = oidc["ClientId"];
+    options.ClientSecret = oidc["ClientSecret"];
+
+
     options.ResponseType = OpenIdConnectResponseType.Code;
     options.UsePkce = true;
     options.SaveTokens = true;
 
-    options.CallbackPath = oidcConfig["CallbackPath"];
-    options.SignedOutCallbackPath = oidcConfig["SignedOutCallbackPath"];
-    options.MetadataAddress = oidcConfig["MetadataAddress"];
+    options.CallbackPath = oidc["CallbackPath"];
+    options.SignedOutCallbackPath = oidc["SignedOutCallbackPath"];
+    options.MetadataAddress = oidc["MetadataAddress"];
 
-    options.SignInScheme = "Client3Auth"; // cookie nội bộ
+    options.SignInScheme = "Client3Auth";
 
+    // scopes
     options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     options.Scope.Add("email");
+    options.Scope.Add("offline_access");
 
+    // ⭐ MAP CLAIM SID
+    options.ClaimActions.MapUniqueJsonKey("sid", "sid");
+
+    // ⭐ Giữ id_token để thực hiện logout chuẩn OIDC
     options.Events = new OpenIdConnectEvents
     {
-        OnAuthenticationFailed = ctx =>
+        OnRedirectToIdentityProviderForSignOut = ctx =>
         {
-            Console.WriteLine("OIDC error: " + ctx.Exception.Message);
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = ctx =>
-        {
-            Console.WriteLine("SSO login OK: " + ctx.Principal.Identity.Name);
+            var idToken = ctx.HttpContext.GetTokenAsync("id_token").Result;
+            if (!string.IsNullOrEmpty(idToken))
+                ctx.ProtocolMessage.IdTokenHint = idToken;
+
             return Task.CompletedTask;
         }
     };
@@ -57,20 +82,12 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// ------------------- Middleware -------------------
-if (app.Environment.IsDevelopment())
-    app.UseDeveloperExceptionPage();
-else
-    app.UseExceptionHandler("/Home/Error");
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
+app.UseMiddleware<SsoSessionValidatorMiddleware>();
 app.UseAuthorization();
-
-// ------------------- Routes -------------------
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

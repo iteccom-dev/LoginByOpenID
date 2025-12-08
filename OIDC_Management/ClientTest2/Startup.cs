@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -65,17 +66,17 @@ namespace ClientTest2
 
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnAuthenticationFailed = ctx =>
+                    OnRedirectToIdentityProviderForSignOut = ctx =>
                     {
-                        Console.WriteLine("OIDC error: " + ctx.Exception.Message);
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = ctx =>
-                    {
-                        Console.WriteLine("SSO login OK: " + ctx.Principal.Identity.Name);
+                        var idToken = ctx.HttpContext.GetTokenAsync("id_token").Result;
+                        if (!string.IsNullOrEmpty(idToken))
+                        {
+                            ctx.ProtocolMessage.IdTokenHint = idToken;
+                        }
                         return Task.CompletedTask;
                     }
                 };
+
             });
         }
 

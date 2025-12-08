@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,72 +17,76 @@ namespace ClientTestNet8.Controllers
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
         }
-        // login, sẽ redirect sang SSO nếu chưa có cookie
+
         public IActionResult Login(string returnUrl = "/")
         {
             if (!User.Identity.IsAuthenticated)
-            {           
                 return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, "SsoAuth");
-            }
 
             return Redirect(returnUrl);
         }
 
-
-
         public async Task<IActionResult> Logout()
         {
-            // 1. Lấy refresh token từ cookie
+            var idToken = await HttpContext.GetTokenAsync("id_token");
             var refreshToken = await HttpContext.GetTokenAsync("refresh_token");
 
-            // 2. Revoke token nếu có
-            if (!string.IsNullOrEmpty(refreshToken))
-                await RevokeTokenAsync(refreshToken, "refresh_token");
+            var oidc = _configuration.GetSection("Authentication:Oidc");
+            var authority = oidc["Authority"]!.TrimEnd('/');
 
-            // 3. SignOut cookie nội bộ + OIDC SSO
-            return SignOut(
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.Action("Index", "Home") ?? "/"
-                },
-                "Client3Auth", // cookie nội bộ
-                "SsoAuth"      // scheme OIDC đã đăng ký
-            );
+            if (!string.IsNullOrEmpty(refreshToken))
+                _ = RevokeTokenAsync(refreshToken, "refresh_token");
+
+            await HttpContext.SignOutAsync("Client3Auth");
+
+            var postLogoutRedirectUri = Url.Action("LoggedOut", "Account", null, Request.Scheme);
+
+            // 🔥 encode id_token_hint
+            var encodedIdToken = Uri.EscapeDataString(idToken);
+
+            var redirectUrl =
+                $"{authority}/connect/endsession" +
+                $"?id_token_hint={encodedIdToken}" +
+                $"&post_logout_redirect_uri={Uri.EscapeDataString(postLogoutRedirectUri)}";
+
+            return Redirect(redirectUrl);
         }
 
 
-
+        public IActionResult LoggedOut()
+        {
+            return RedirectToAction("Index", "Home");
+        }
 
         private async Task RevokeTokenAsync(string token, string tokenTypeHint)
         {
             var client = _httpClientFactory.CreateClient();
+            var oidc = _configuration.GetSection("Authentication:Oidc");
 
-            var oidcSection = _configuration.GetSection("Authentication:Oidc");
-
-            var clientId = oidcSection["ClientId"];
-            var clientSecret = oidcSection["ClientSecret"];
-            var authority = oidcSection["Authority"]?.TrimEnd('/');
-
-            var revocationEndpoint = $"{authority}/connect/revocation";
+            var endpoint = $"{oidc["Authority"]!.TrimEnd('/')}/connect/revocation";
 
             var formData = new Dictionary<string, string>
             {
                 ["token"] = token,
                 ["token_type_hint"] = tokenTypeHint,
-                ["client_id"] = clientId!,
-                ["client_secret"] = clientSecret!
+                ["client_id"] = oidc["ClientId"]!,
+                ["client_secret"] = oidc["ClientSecret"]!
             };
 
-            try
-            {
-                var response = await client.PostAsync(revocationEndpoint, new FormUrlEncodedContent(formData));
-                // Không throw nếu lỗi → không làm logout fail
-            }
-            catch { /* log nếu cần */ }
+            try { await client.PostAsync(endpoint, new FormUrlEncodedContent(formData)); }
+            catch { }
         }
-       
 
-        // logout, sẽ xóa cookie client, nhưng SSO cookie vẫn còn
-       
+        [AllowAnonymous]
+        [Route("/signout-callback")]
+        public async Task<IActionResult> SignoutCallback([FromQuery] string? sid)
+        {
+            Console.WriteLine($"[Client3] SignoutCallback called, sid = {sid}");
+
+            // Cứ bị IdP gọi là logout local cookie
+            await HttpContext.SignOutAsync("Client3Auth");
+
+            return Ok("Client3 logged out");
+        }
     }
 }

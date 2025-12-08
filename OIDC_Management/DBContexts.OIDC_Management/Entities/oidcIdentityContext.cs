@@ -186,7 +186,7 @@ public partial class oidcIdentityContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_UserSessions_1");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.ClientId).HasMaxLength(100);
             entity.Property(e => e.CreatedTime).HasColumnType("datetime");
             entity.Property(e => e.ExpiresTime).HasColumnType("datetime");

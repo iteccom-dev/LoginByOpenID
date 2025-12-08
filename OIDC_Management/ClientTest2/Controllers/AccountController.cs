@@ -44,13 +44,14 @@ namespace ClientTest2.Controllers
 
             // 3. Gọi endsession + xóa cookie local
             return SignOut(
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.Action("Index", "Home") ?? "/"
-                },
-                "Client2Auth",
-                OpenIdConnectDefaults.AuthenticationScheme
-            );
+     new AuthenticationProperties
+     {
+         RedirectUri = Url.Action("Index", "Home") ?? "/"
+     },
+     "Client2Auth",
+     OpenIdConnectDefaults.AuthenticationScheme
+ );
+
         }
 
         private async Task RevokeTokenAsync(string token, string tokenTypeHint)
@@ -82,7 +83,12 @@ namespace ClientTest2.Controllers
         }
 
 
-        // logout, sẽ xóa cookie client, nhưng SSO cookie vẫn còn
+        [Route("/signout-callback")]
+        public async Task<IActionResult> SignoutCallback()
+        {
+            await HttpContext.SignOutAsync("Client2Auth");
+            return Ok("Client2 logged out");
+        }
 
     }
 }

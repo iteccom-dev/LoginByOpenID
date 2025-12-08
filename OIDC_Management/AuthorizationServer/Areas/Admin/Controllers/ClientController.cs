@@ -1,5 +1,6 @@
 ﻿using DBContexts.OIDC_Management.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using NuGet.Protocol.Plugins;
 using Services.OIDC_Management.Executes;
 using System.Data.SqlTypes;
@@ -11,18 +12,23 @@ using ClientResponse = Services.OIDC_Management.Executes.ClientModel.ClientRespo
 namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
 {
     [Area("Admin")]
-
-     public class ClientController : Controller
+    public class ClientController : Controller
     {
         private readonly ClientMany _clientMany;
         private readonly ClientOne _clientOne;
         private readonly ClientCommand _clientCommand;
+        private readonly ILogger<ClientController> _logger;    
 
-        public ClientController(ClientMany clientMany, ClientOne clientOne, ClientCommand clientCommand)
+        public ClientController(
+            ClientMany clientMany,
+            ClientOne clientOne,
+            ClientCommand clientCommand,
+            ILogger<ClientController> logger)                  
         {
             _clientMany = clientMany;
             _clientOne = clientOne;
             _clientCommand = clientCommand;
+            _logger = logger;
         }
 
         [HttpGet("api/client")]
@@ -42,9 +48,25 @@ namespace OIDCDemo.AuthorizationServer.Areas.Admin.Controllers
                     data = result
                 });
             }
-            catch (Exception)
+            catch (SqlException ex)    
             {
-                return StatusCode(500, new { success = false, message = "Lỗi server" });
+                _logger.LogError(ex, "❌ Lỗi SQL khi gọi GET /api/client");
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi DB (SqlException): {ex.Message}"
+                });
+            }
+            catch (Exception ex)      // 👈 lỗi khác
+            {
+                _logger.LogError(ex, "❌ Lỗi server không xác định khi gọi GET /api/client");
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi server khác: {ex.Message}"
+                });
             }
         }
 

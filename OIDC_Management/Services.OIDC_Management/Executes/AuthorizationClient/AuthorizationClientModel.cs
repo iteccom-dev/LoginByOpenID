@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DBContexts.OIDC_Management.Entities;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,29 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             public DateTime CreateTime { get; set; } = DateTime.Now;
             public DateTime ExpiresTime { get; set; }
 
+
+
         }
+
+        public class UserSessionRequest
+        {
+            public long Id { get; set; }
+
+            public string UserId { get; set; }
+
+             public string ClientId { get; set; }
+
+             public string SessionState { get; set; }
+
+             public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
+
+             public DateTime LastAccessTime { get; set; } = DateTime.UtcNow;
+
+             public DateTime ExpiresTime { get; set; }
+
+            public int IsActive { get; set; } = 1; 
+             public List<RefreshToken> RefreshTokens { get; set; } = new();
+        }
+
     }
 }

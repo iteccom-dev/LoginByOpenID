@@ -38,6 +38,7 @@ public partial class Client
     public DateTime? UpdatedDate { get; set; }
 
     public int? Status { get; set; }
+    public string? FrontChannelLogoutUri { get; set; }
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
