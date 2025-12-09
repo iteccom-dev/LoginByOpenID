@@ -48,7 +48,10 @@
 
             <div class="divider">hoặc</div>
 
-            <button class="btn-microsoft" onclick="window.location.href='@Url.Action("LoginWithMicrosoft", "Account", new { area = "Admin" })'">
+            @{
+                var currentUrl = Context.Request.Path + Context.Request.QueryString;
+            }
+            <button class="btn-microsoft" onclick="window.location.href='@Url.Action("LoginWithMicrosoft", "Account", new { area = "Admin", returnUrl = currentUrl })'">
                 <img src="/assets/images/login/mcrf.png" alt="Microsoft logo">
                 Đăng nhập với Microsoft
             </button>
