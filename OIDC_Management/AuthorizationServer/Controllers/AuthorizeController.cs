@@ -25,7 +25,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
     {
         public const int TokenResponseValidSeconds = 1200;
         public const int CodeResponseValidSeconds = 60 * 5;
-        private readonly UserOne _userOne;
+      
         private readonly ILogger<AuthorizeController> logger;
         private readonly TokenIssuingOptions tokenIssuingOptions;
         private readonly JsonWebKey jsonWebKey;
@@ -36,7 +36,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
       
 
         public AuthorizeController(
-            UserOne userOne,
+           
             TokenIssuingOptions tokenIssuingOptions,
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
@@ -45,7 +45,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             ILogger<AuthorizeController> logger,
         AuthorizationClientModel authorizationClientModel)
         {
-            userOne = _userOne;
+           
             this.tokenIssuingOptions = tokenIssuingOptions;
             this.jsonWebKey = jsonWebKey;
             this.codeStorage = codeStorage;
@@ -77,7 +77,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var sid = authResult.Principal.FindFirst("sid")?.Value;
-                    var settings = await _userOne.GetSetTime();
+                    var settings = await authorizationClientOne.GetSetTime();
 
                     int sessionTime = settings
                         .FirstOrDefault(x => x.Name == "SetSessionTime")
@@ -218,7 +218,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             {
                 throw new Exception("Error storing code");
             }
-            var settings = await _userOne.GetSetTime();
+            var settings = await authorizationClientOne.GetSetTime();
 
             int sessionTime = settings
                 .FirstOrDefault(x => x.Name == "SetSessionTime")
@@ -296,7 +296,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 }
 
                 codeStorage.TryRemove(code); // code không được dùng lại
+                var settings = await authorizationClientOne.GetSetTime();
 
+                int TokenTime = settings
+                    .FirstOrDefault(x => x.Name == "SetTokenTime")
+                    ?.Value ?? 600;
                 // Tạo refresh token
 
                 //var sid = codeStorageValue.SessionState;
@@ -335,11 +339,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
-                var settings = await _userOne.GetSetTime();
-
-                int sessionTime = settings
-                    .FirstOrDefault(x => x.Name == "SetTokenTime")
-                    ?.Value ?? 600;
+               
                 var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(userId, client_id, scope);
                 if (refreshToken == null) return BadRequest("Không thể cấp refreshToken");
 
@@ -349,7 +349,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     IdToken = GenerateIdToken(codeStorageValue, userId, client.ClientId, codeStorageValue.Nonce, sid, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken.Token,
-                    ExpiresIn = TokenResponseValidSeconds,
+                    ExpiresIn = TokenTime,
                 };
 
                 return Json(result);

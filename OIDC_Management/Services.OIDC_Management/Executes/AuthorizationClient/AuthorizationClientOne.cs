@@ -17,10 +17,16 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
     public class AuthorizationClientOne
     {
         private readonly oidcIdentityContext _db;
+     
+        
 
         public AuthorizationClientOne(oidcIdentityContext db)
         {
             _db = db;
+        }
+        public async Task<List<Setting>> GetSetTime()
+        {
+            return await _db.Settings.ToListAsync();
         }
 
         public async Task<Client?> FindByClientId(string clientId)
