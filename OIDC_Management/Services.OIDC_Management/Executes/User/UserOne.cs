@@ -38,5 +38,11 @@ namespace Services.OIDC_Management.Executes
 
             return result;
         }
+        public async Task<List<Setting>> GetSetTime()
+        {
+            return await _context.Settings.ToListAsync();
+        }
+
+
     }
 }

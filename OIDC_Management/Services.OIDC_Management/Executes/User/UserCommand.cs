@@ -120,6 +120,31 @@ public class UserCommand
         return await _context.AspNetUsers.AnyAsync(u => u.Id == id && u.Status != -1);
     }
 
+    public async Task<bool> SetTime(int? sTime, int? rtTime)
+    {
+      
+
+        // Nếu có giá trị được truyền vào thì update
+        if (sTime.HasValue)
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetSessionTime");
+
+            setting.Value = sTime.Value;
+        }
+
+        if (rtTime.HasValue)
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetTokenTime");
+
+            setting.Value = rtTime.Value;
+        }
+
+        // Lưu thay đổi vào DB
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
 
 
 

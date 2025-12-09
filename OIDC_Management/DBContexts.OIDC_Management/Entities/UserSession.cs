@@ -7,8 +7,6 @@ namespace DBContexts.OIDC_Management.Entities;
 
 public partial class UserSession
 {
-    public long Id { get; set; }
-
     public string UserId { get; set; }
 
     public string ClientId { get; set; }
@@ -22,6 +20,8 @@ public partial class UserSession
     public DateTime? ExpiresTime { get; set; }
 
     public int? IsActive { get; set; }
+
+    public long Id { get; set; }
 
     public virtual Client Client { get; set; }
 

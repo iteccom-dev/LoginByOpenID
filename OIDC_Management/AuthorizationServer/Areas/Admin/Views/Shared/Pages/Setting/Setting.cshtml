@@ -1,1 +1,69 @@
-﻿
+﻿<div class="main-content">
+    <div class="page-content">
+        <div class="container-fluid">
+
+            <!-- Page Title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0">Cài đặt phiên đăng nhập</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Cài đặt</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ./Page Title -->
+            <!-- Card Setting -->
+            <div class="card shadow-sm">
+
+             
+                <div class="card-body">
+
+                    <form id="tokenSettingForm">
+
+                        <div class="row gy-4 justify-content-center mt-1">
+
+                            <!-- Refresh Token -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label for="refreshToken" class="form-label fw-semibold">Thời hạn Refresh Token (Giây)</label>
+                                    <input type="number" class="form-control" id="refreshTokenTime" placeholder="Ví dụ: 600">
+                                </div>
+                            </div>
+
+                            <!-- Session -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label for="sessionTime" class="form-label fw-semibold">Thời hạn Session (Giờ)</label>
+                                    <input type="number" class="form-control" id="sessionTime" placeholder="Ví dụ: 8">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="button" id="btnUpdateSettingTime" class="btn btn-success px-4 add-btn waves-effect waves-light">
+                                <i class="bi bi-save me-1"></i>
+                                Lưu lại
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+            <!-- ./Card Setting -->
+
+        </div>
+    </div>
+</div>
+<script>
+    document.dispatchEvent(new CustomEvent("componentLoaded", {
+        detail: { script: "/js/setting.js" }
+    }));
+</script>

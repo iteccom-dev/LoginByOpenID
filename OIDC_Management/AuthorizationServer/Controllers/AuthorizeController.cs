@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using OIDCDemo.AuthorizationServer.Helpers;
 using OIDCDemo.AuthorizationServer.Models;
 using Renci.SshNet;
+using Services.OIDC_Management.Executes;
 using Services.OIDC_Management.Executes.AuthorizationClient;
 using System.CodeDom.Compiler;
 using System.Net.Http;
@@ -24,7 +25,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
     {
         public const int TokenResponseValidSeconds = 1200;
         public const int CodeResponseValidSeconds = 60 * 5;
-
+        private readonly UserOne _userOne;
         private readonly ILogger<AuthorizeController> logger;
         private readonly TokenIssuingOptions tokenIssuingOptions;
         private readonly JsonWebKey jsonWebKey;
@@ -32,8 +33,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
         private readonly IRefreshTokenStorageFactory refreshTokenStorageFactory;
         private readonly AuthorizationClientOne authorizationClientOne;
         private readonly AuthorizationClientModel authorizationClientModel;
+      
 
         public AuthorizeController(
+            UserOne userOne,
             TokenIssuingOptions tokenIssuingOptions,
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
@@ -42,6 +45,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             ILogger<AuthorizeController> logger,
         AuthorizationClientModel authorizationClientModel)
         {
+            userOne = _userOne;
             this.tokenIssuingOptions = tokenIssuingOptions;
             this.jsonWebKey = jsonWebKey;
             this.codeStorage = codeStorage;
@@ -73,6 +77,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var sid = authResult.Principal.FindFirst("sid")?.Value;
+                    var settings = await _userOne.GetSetTime();
+
+                    int sessionTime = settings
+                        .FirstOrDefault(x => x.Name == "SetSessionTime")
+                        ?.Value ?? 8;
                     if (string.IsNullOrEmpty(sid))
                     {
                         // nâng cấp cookie SSO để về sau luôn có sid
@@ -87,12 +96,16 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                         if (authResult.Principal.FindFirst("sid") == null)
                         {
                             claimsIdentity.AddClaim(new Claim("sid", sid));
+
+                          
+
+
                             await HttpContext.SignInAsync("SsoAuth",
                                 new ClaimsPrincipal(claimsIdentity),
                                 new AuthenticationProperties
                                 {
                                     IsPersistent = true,
-                                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+                                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(sessionTime)
                                 });
                         }
                     }
@@ -103,7 +116,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                         UserId = userId,
                         ClientId = authenticateRequest.ClientId,   // mỗi client app có ClientId riêng
                         SessionState = sid,
-                        ExpiresTime = DateTime.UtcNow.AddDays(30),
+                        ExpiresTime = DateTime.UtcNow.AddHours(sessionTime),
                         IsActive = 1
                     });
 
@@ -205,7 +218,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             {
                 throw new Exception("Error storing code");
             }
+            var settings = await _userOne.GetSetTime();
 
+            int sessionTime = settings
+                .FirstOrDefault(x => x.Name == "SetSessionTime")
+                ?.Value ?? 8;
             // 🔥 Đăng nhập SSO cookie (chỉ 1 lần, có claim sid)
             await HttpContext.SignInAsync("SsoAuth", new ClaimsPrincipal(
                 new ClaimsIdentity(new[]
@@ -218,7 +235,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(sessionTime)
                 });
 
             // 🔥 LƯU SESSION vào DB
@@ -227,7 +244,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 UserId = user.UserId,
                 ClientId = authenticateRequest.ClientId,
                 SessionState = sessionState,
-                ExpiresTime = DateTime.UtcNow.AddDays(30),
+                ExpiresTime = DateTime.UtcNow.AddHours(sessionTime),
                 IsActive = 1
             });
 
@@ -318,7 +335,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
+                var settings = await _userOne.GetSetTime();
 
+                int sessionTime = settings
+                    .FirstOrDefault(x => x.Name == "SetTokenTime")
+                    ?.Value ?? 600;
                 var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(userId, client_id, scope);
                 if (refreshToken == null) return BadRequest("Không thể cấp refreshToken");
 

@@ -52,6 +52,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Settings]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[UserSessions]",
          "ObjectType": 0
       }

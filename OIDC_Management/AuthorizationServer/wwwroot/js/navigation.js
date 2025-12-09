@@ -51,7 +51,7 @@
             });
     });
  
-    $(document).on("click", "#setting-link", function () {
+    $(document).on("click", "#setting-session-link", function () {
 
         $.ajax({
             url: '/Admin/Home/Setting',

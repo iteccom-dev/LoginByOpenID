@@ -29,6 +29,8 @@ public partial class oidcIdentityContext : DbContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<Setting> Settings { get; set; }
+
     public virtual DbSet<UserSession> UserSessions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -129,6 +131,7 @@ public partial class oidcIdentityContext : DbContext
             entity.Property(e => e.DisplayName)
                 .IsRequired()
                 .HasMaxLength(255);
+            entity.Property(e => e.FrontChannelLogoutUri).HasMaxLength(500);
             entity.Property(e => e.GrantType)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -182,11 +185,17 @@ public partial class oidcIdentityContext : DbContext
                 .HasConstraintName("FK_RefreshTokens_AspNetUsers");
         });
 
+        modelBuilder.Entity<Setting>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Setting");
+
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<UserSession>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK_UserSessions_1");
+            entity.HasKey(e => e.Id).HasName("PK__UserSess__3214EC07601C8084");
 
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.ClientId).HasMaxLength(100);
             entity.Property(e => e.CreatedTime).HasColumnType("datetime");
             entity.Property(e => e.ExpiresTime).HasColumnType("datetime");

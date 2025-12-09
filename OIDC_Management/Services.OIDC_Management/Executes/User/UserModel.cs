@@ -34,6 +34,12 @@ namespace Services.OIDC_Management.Executes
 
             public List<ClientResponse> Clients { get; set; } = new List<ClientResponse>();
         }
+         
+        public class SettingTime
+        {
+            public int SessionTime { get; set; } = 8;
+            public int RefreshTokenTime { get; set; } = 600;
+        }
         public class ClientResponse
         {
             public string Id { get; set; }
