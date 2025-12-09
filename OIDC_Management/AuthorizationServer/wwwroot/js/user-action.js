@@ -48,7 +48,7 @@ $(document).ready(function () {
     const main_content = $("#content-main");
     $(document).off('click', '#btnCancelUser').on('click', '#btnCancelUser', function (e) {
         $.ajax({
-            url: '/Home/UserList',
+            url: 'Admin/Home/UserList',
             method: 'GET',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })

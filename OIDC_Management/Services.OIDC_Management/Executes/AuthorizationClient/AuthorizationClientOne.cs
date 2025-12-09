@@ -22,7 +22,10 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
         {
             _db = db;
         }
-
+        public async Task<List<Setting>> GetSetTime()
+        {
+            return await _db.Settings.ToListAsync();
+        }
         public async Task<Client?> FindByClientId(string clientId)
         {
             var resutl = await _db.Clients.FirstOrDefaultAsync(c => c.ClientId == clientId);

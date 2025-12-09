@@ -25,7 +25,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
     {
         public const int TokenResponseValidSeconds = 1200;
         public const int CodeResponseValidSeconds = 60 * 5;
-        private readonly UserOne _userOne;
+      
         private readonly ILogger<AuthorizeController> logger;
         private readonly TokenIssuingOptions tokenIssuingOptions;
         private readonly JsonWebKey jsonWebKey;
@@ -36,7 +36,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
       
 
         public AuthorizeController(
-            UserOne userOne,
+         
             TokenIssuingOptions tokenIssuingOptions,
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
@@ -45,7 +45,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             ILogger<AuthorizeController> logger,
         AuthorizationClientModel authorizationClientModel)
         {
-            userOne = _userOne;
+           
             this.tokenIssuingOptions = tokenIssuingOptions;
             this.jsonWebKey = jsonWebKey;
             this.codeStorage = codeStorage;
@@ -77,7 +77,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var sid = authResult.Principal.FindFirst("sid")?.Value;
-                    var settings = await _userOne.GetSetTime();
+                    var settings = await authorizationClientOne.GetSetTime();
 
                     int sessionTime = settings
                         .FirstOrDefault(x => x.Name == "SetSessionTime")
@@ -218,7 +218,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             {
                 throw new Exception("Error storing code");
             }
-            var settings = await _userOne.GetSetTime();
+            var settings = await authorizationClientOne.GetSetTime();
 
             int sessionTime = settings
                 .FirstOrDefault(x => x.Name == "SetSessionTime")
@@ -335,7 +335,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
-                var settings = await _userOne.GetSetTime();
+                var settings = await authorizationClientOne.GetSetTime();
 
                 int sessionTime = settings
                     .FirstOrDefault(x => x.Name == "SetTokenTime")
