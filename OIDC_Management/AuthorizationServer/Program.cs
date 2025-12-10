@@ -54,8 +54,8 @@ builder.Services.AddAuthentication(options =>
 
     .AddCookie("SsoAuth", options =>
     {
-        options.Cookie.Name = ".iteccom.Auth";
-        options.Cookie.Domain = ".iteccom.vn";   // ← BẮT BUỘC
+        options.Cookie.Name = ".bmwindows.Auth";
+        options.Cookie.Domain = ".bmwindows.vn";   // ← BẮT BUỘC
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.None;
@@ -79,6 +79,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 builder.Services.AddSingleton<ICodeStorage>(services => new MemoryCodeStorage());
 builder.Services.AddSingleton<IRefreshTokenStorageFactory>(services => new MemoryRefreshTokenStorageFactory());
 
@@ -464,6 +470,7 @@ IResult Error(string error, string description) =>
 
 app.UseRouting();
 app.UseStaticFiles();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -486,5 +493,5 @@ string GetCookieDomain()
     // ⚡ Dev vs Prod
     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         return "localhost"; // dev: localhost
-    return ".iteccom.vn";   // prod: main domain
+    return ".bmwindows.vn";   // prod: main domain
 }
