@@ -296,7 +296,11 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 }
 
                 codeStorage.TryRemove(code); // code không được dùng lại
+                var settings = await authorizationClientOne.GetSetTime();
 
+                int TokenTime = settings
+                    .FirstOrDefault(x => x.Name == "SetTokenTime")
+                    ?.Value ?? 600;
                 // Tạo refresh token
 
                 //var sid = codeStorageValue.SessionState;
@@ -349,7 +353,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     IdToken = GenerateIdToken(codeStorageValue, userId, client.ClientId, codeStorageValue.Nonce, sid, jsonWebKey),
                     TokenType = "Bearer",
                     RefreshToken = refreshToken.Token,
-                    ExpiresIn = TokenResponseValidSeconds,
+                    ExpiresIn = TokenTime,
                 };
 
                 return Json(result);

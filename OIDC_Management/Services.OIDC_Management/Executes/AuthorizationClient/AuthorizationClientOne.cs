@@ -17,6 +17,8 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
     public class AuthorizationClientOne
     {
         private readonly oidcIdentityContext _db;
+     
+        
 
         public AuthorizationClientOne(oidcIdentityContext db)
         {
