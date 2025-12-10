@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,39 +20,57 @@ namespace ClientTest2.Controllers
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
         }
+
         // login, sẽ redirect sang SSO nếu chưa có cookie
         public IActionResult Login(string returnUrl = "/")
         {
             if (!User.Identity.IsAuthenticated)
-            {
-                return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, OpenIdConnectDefaults.AuthenticationScheme);
-            }
+                return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, "SsoAuth");
 
             return Redirect(returnUrl);
         }
 
-
         public async Task<IActionResult> Logout()
         {
-            // 1. Lấy token từ cookie (SaveTokens = true phải bật trong AddOpenIdConnect)
+            // Lấy id_token và refresh_token hiện tại
+            var idToken = await HttpContext.GetTokenAsync("id_token");
             var refreshToken = await HttpContext.GetTokenAsync("refresh_token");
 
-            // 2. GỌI REVOKE TOKEN TRƯỚC (rất quan trọng!)
+            var oidc = _configuration.GetSection("Authentication:Oidc");
+            var authority = oidc["Authority"];
+            if (authority == null)
+                throw new Exception("Authentication:Oidc:Authority is missing!");
+
+            authority = authority.TrimEnd('/');
+
+            // Thu hồi refresh token nếu có
             if (!string.IsNullOrEmpty(refreshToken))
-                await RevokeTokenAsync(refreshToken, "refresh_token");
+            {
+                _ = RevokeTokenAsync(refreshToken, "refresh_token");
+            }
 
+            // Đăng xuất khỏi client (cookie)
+            await HttpContext.SignOutAsync("Client2Auth");
 
+            var postLogoutRedirectUri = Url.Action("LoggedOut", "Account", null, Request.Scheme);
 
-            // 3. Gọi endsession + xóa cookie local
-            return SignOut(
-     new AuthenticationProperties
-     {
-         RedirectUri = Url.Action("Index", "Home") ?? "/"
-     },
-     "Client2Auth",
-     OpenIdConnectDefaults.AuthenticationScheme
- );
+            // Encode id_token_hint tránh lỗi URL
+            var encodedIdToken = idToken != null
+                ? Uri.EscapeDataString(idToken)
+                : string.Empty;
 
+            // Redirect sang SSO server để logout global
+            var redirectUrl =
+                $"{authority}/connect/endsession" +
+                $"?id_token_hint={encodedIdToken}" +
+                $"&post_logout_redirect_uri={Uri.EscapeDataString(postLogoutRedirectUri)}";
+
+            return Redirect(redirectUrl);
+        }
+
+        public IActionResult LoggedOut()
+        {
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task RevokeTokenAsync(string token, string tokenTypeHint)
@@ -77,11 +96,11 @@ namespace ClientTest2.Controllers
             try
             {
                 var response = await client.PostAsync(revocationEndpoint, new FormUrlEncodedContent(formData));
-                // Không throw nếu lỗi → không làm logout fail
+             }
+            catch { 
+            
             }
-            catch { /* log nếu cần */ }
         }
-
 
         [Route("/signout-callback")]
         public async Task<IActionResult> SignoutCallback()
@@ -89,6 +108,5 @@ namespace ClientTest2.Controllers
             await HttpContext.SignOutAsync("Client2Auth");
             return Ok("Client2 logged out");
         }
-
     }
 }

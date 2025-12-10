@@ -339,11 +339,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
-                var settings = await authorizationClientOne.GetSetTime();
-
-                int sessionTime = settings
-                    .FirstOrDefault(x => x.Name == "SetTokenTime")
-                    ?.Value ?? 600;
+              
                 var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(userId, client_id, scope);
                 if (refreshToken == null) return BadRequest("Không thể cấp refreshToken");
 
