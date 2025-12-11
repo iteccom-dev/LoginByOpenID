@@ -63,10 +63,10 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("email");
     options.Scope.Add("offline_access");
 
-    // ⭐ MAP CLAIM SID vào ClaimsPrincipal
+    // MAP CLAIM SID vào ClaimsPrincipal
     options.ClaimActions.MapUniqueJsonKey("sid", "sid");
 
-    // ⭐ Giữ id_token khi logout
+    // Giữ id_token khi logout
     options.Events = new OpenIdConnectEvents
     {
         OnRedirectToIdentityProviderForSignOut = ctx =>
