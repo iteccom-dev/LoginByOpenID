@@ -1,0 +1,15 @@
+﻿<h2>Client MVC5 Home</h2>
+
+<p>User: @ViewBag.UserName</p>
+
+<ul>
+    @foreach (var claim in ((System.Security.Claims.ClaimsIdentity)User.Identity).Claims)
+    {
+        <li>@claim.Type : @claim.Value</li>
+    }
+</ul>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <a href="/Account/Logout">Logout</a>
+}
