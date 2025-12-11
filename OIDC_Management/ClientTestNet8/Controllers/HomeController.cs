@@ -18,7 +18,16 @@ namespace ClientTestNet8.Controllers
             ViewBag.UserName = User.Identity.Name;
             return View();
         }
+        [HttpGet("signin-oidc")]
+        public IActionResult CallBack()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return Redirect("/");
+            }
+            return Redirect("/Account/Login");
 
-      
+        }
+
     }
 }

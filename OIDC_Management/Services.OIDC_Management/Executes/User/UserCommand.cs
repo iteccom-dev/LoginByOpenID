@@ -131,15 +131,15 @@ public class UserCommand
         if (sTime.HasValue)
         {
             var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetSessionTime");
-
-            setting.Value = sTime.Value.ToString();
+            if (setting != null)
+                setting.Value = sTime.Value.ToString();
         }
 
         if (rtTime.HasValue)
         {
             var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetTokenTime");
-
-            setting.Value = rtTime.Value.ToString();
+            if (setting != null)
+                setting.Value = rtTime.Value.ToString();
         }
 
         // Lưu thay đổi vào DB
