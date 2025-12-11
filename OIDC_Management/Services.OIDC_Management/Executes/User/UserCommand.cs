@@ -127,16 +127,16 @@ public class UserCommand
         // Nếu có giá trị được truyền vào thì update
         if (sTime.HasValue)
         {
-            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetSessionTime");
-
-            setting.Value = sTime.Value;
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetSessionTime");
+            if (setting != null)
+                setting.Value = sTime.Value.ToString();
         }
 
         if (rtTime.HasValue)
         {
-            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetTokenTime");
-
-            setting.Value = rtTime.Value;
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetTokenTime");
+            if (setting != null)
+                setting.Value = rtTime.Value.ToString();
         }
 
         // Lưu thay đổi vào DB

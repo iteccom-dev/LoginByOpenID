@@ -28,7 +28,7 @@ namespace ClientTest1
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = "Client1Auth";   // cookie nội bộ của client
-                options.DefaultChallengeScheme = "SsoAuth"; // OIDC login
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme; // OIDC login
 
             })
             .AddCookie("Client1Auth", options =>
