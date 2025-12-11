@@ -55,6 +55,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Client\" />
     <Folder Include="Areas\Data\" />
+    <Folder Include="wwwroot\media\logo\" />
   </ItemGroup>
 
 </Project>

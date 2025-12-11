@@ -39,6 +39,7 @@ public class UserCommand
             AccessFailedCount = 0,
             Status = request.UserStatus,
             ClientId = request.UserClient,
+            Role = request.Role,
         };
 
         await _context.AspNetUsers.AddAsync(newUser);
@@ -56,16 +57,7 @@ public class UserCommand
         return saved;
     }
 
-    public async Task<int> Delete(string id)
-    {
-        var user = await _context.AspNetUsers.FirstOrDefaultAsync(u => u.Id == id);
-        if (user == null) return 0;
-
-        user.Status = -1;
-        return await _context.SaveChangesAsync();
-    }
-
-     public async Task<int> Update(UserRequest request)
+    public async Task<int> Update(UserRequest request)
     {
         if (string.IsNullOrEmpty(request.Id)) return 0;
 
@@ -74,7 +66,7 @@ public class UserCommand
 
         if (user == null) return 0;
 
-         if (!string.IsNullOrWhiteSpace(request.UserPassword))
+        if (!string.IsNullOrWhiteSpace(request.UserPassword))
         {
             user.SecurityStamp = PasswordHelper.GenerateSalt();
             user.PasswordHash = PasswordHelper.HashPassword(request.UserPassword, user.SecurityStamp);
@@ -85,9 +77,20 @@ public class UserCommand
         user.PhoneNumber = request.UserPhone;
         user.Status = request.UserStatus;
         user.ClientId = request.UserClient;
+        user.Role = request.Role;
+
 
         return await _context.SaveChangesAsync();
     }
+    public async Task<int> Delete(string id)
+    {
+        var user = await _context.AspNetUsers.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null) return 0;
+
+        user.Status = -1;
+        return await _context.SaveChangesAsync();
+    }
+
 
 
     public async Task<int> AddUser(List<UserRequest> users)
@@ -145,7 +148,32 @@ public class UserCommand
         return true;
     }
 
+    public async Task<bool> SetLogo(string? urlLogoMain, string? urlLogoSub)
+    {
 
+
+        // Nếu có giá trị được truyền vào thì update
+        if (!string.IsNullOrWhiteSpace(urlLogoMain))
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "MainLogo");
+
+            setting.Value = urlLogoMain;
+            setting.UpdateDate = DateTime.Now;
+        }
+
+        if (!string.IsNullOrWhiteSpace(urlLogoSub))
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SubLogo");
+
+            setting.Value = urlLogoSub;
+            setting.UpdateDate = DateTime.Now;
+        }
+
+        // Lưu thay đổi vào DB
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
 
 
 

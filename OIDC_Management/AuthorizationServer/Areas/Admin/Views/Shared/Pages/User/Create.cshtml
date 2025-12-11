@@ -56,12 +56,7 @@
                                                value="@Model.Email" required />
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="userPhone" class="form-label">Số điện thoại</label>
-                                        <input type="text" class="form-control" id="userPhone"
-                                               placeholder="Nhập số điện thoại"
-                                               value="@Model.PhoneNumber" />
-                                    </div>
+                                  
                                 </div>
 
                                 <div class="row p-3 bg-light rounded mb-3 border">
@@ -69,11 +64,11 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label for="userRoles" class="form-label">Vai trò</label>
-                                        <select class="form-select" id="userRoles" name="role">
-                                            <option value="user">User</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="manager">Manager</option>
-                                        </select>
+                                        <select class="form-select" id="userRoles">
+                                            <option value="0">User</option>
+                                            <option value="1">Admin</option>
+                                         </select>
+
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -84,45 +79,10 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="userProvider" class="form-label">Hình thức đăng nhập</label>
-                                        <select class="form-select" id="userProvider">
-                                            <option value="email">Email</option>
-                                            <option value="google">Google</option>
-                                        </select>
-                                    </div>
-
                                  
-
-                                    <div class="col-md-12 mb-3 form-check mt-2">
-                                        <input type="checkbox" class="form-check-input" id="user2FA" />
-                                        <label class="form-check-label" for="user2FA">Bật xác thực 2 lớp (2FA)</label>
-                                    </div>
                                 </div>
 
-                                <div class="row p-3 bg-light rounded border">
-                                    <h5 class="fw-bold mb-3">Thông tin hệ thống</h5>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">Người tạo</label>
-                                        <input type="text" class="form-control" id="createdBy" value="" readonly />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">Người sửa</label>
-                                        <input type="text" class="form-control" id="updatedBy" value="" readonly />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">Ngày tạo</label>
-                                        <input type="text" class="form-control" id="createdAt" value="" readonly />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">Ngày sửa</label>
-                                        <input type="text" class="form-control" id="updatedAt" value="" readonly />
-                                    </div>
-                                </div>
+                         
                             </form>
                         </div>
 

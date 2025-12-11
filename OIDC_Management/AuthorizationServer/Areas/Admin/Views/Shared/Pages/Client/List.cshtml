@@ -19,7 +19,7 @@
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
                                 <li class="breadcrumb-item"><a href="#">Dasboard</a></li>
-                                <li class="breadcrumb-item active">Title</li>
+                                <li class="breadcrumb-item active">Danh sách ClientApp</li>
                             </ol>
                         </div>
                         <!-- ucBreadcrumb./. -->
@@ -65,7 +65,7 @@
                             <div class="d-flex gap-2 flex-grow-1">
                                 <div class="search-box flex-grow-1">
                                     <i class="ri-search-line search-icon"></i>
-                                    <input type="search" class="form-control search bg-light border-light"
+                                    <input type="search" id="searchBox" class="form-control search bg-light border-light"
                                            placeholder="Search Client...">
                                 </div>
                             </div>
@@ -75,7 +75,7 @@
 
                                 <!-- Removed Filters button -->
 
-                                <a href="#" class="btn btn-outline-primary waves-effect waves-light" id="btnClearFilter">
+                                <a href="#" id="btnClearFillter" class="btn btn-outline-primary waves-effect waves-light" id="btnClearFilter">
                                     <i class="ri-close-circle-fill me-1 align-bottom"></i>
                                     Clear
                                 </a>
@@ -84,7 +84,8 @@
                         <!-- ucSearchBar./. -->
 
                         <div class="card-body">
-                            <div class="live-preview">
+                            <div class="live-preview" style="
+                                 height: 400px;">
                                 <div class="table-responsive">
                                     <table id="clientTable" class="table align-middle table-nowrap mb-0">
                                         <thead class="table-light">
@@ -95,9 +96,9 @@
                                                     </div>
                                                 </th>
                                                 <th class="text-center">STT</th>
+                                                <th class="text-left">Tên hiển thị</th>
                                                 <th class="text-left">Client ID</th>
                                                 <th class="text-left">Client Secret</th>
-                                                <th class="text-left">Tên hiển thị</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-center">Hành động</th>
 
@@ -134,17 +135,17 @@
                                     <h5 class="fw-bold mb-3">Thông tin bắt buộc</h5>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Tên hiển thị *</label>
+                                        <label class="form-label">Tên hiển thị <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="displayName" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Redirect URIs *</label>
+                                        <label class="form-label">Redirect URIs <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="redirectUris" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Scope *</label>
+                                        <label class="form-label">Scope <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="scope"
                                                placeholder="openid profile email"
@@ -152,7 +153,7 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Grant Type *</label>
+                                        <label class="form-label">Grant Type <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="grantType"
                                                placeholder="authorization_code"
@@ -160,7 +161,7 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Authority (Issuer) *</label>
+                                        <label class="form-label">Authority (Issuer) <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="authority"
                                                placeholder="https://your-oidc-server.com"
@@ -168,10 +169,10 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Trạng thái *</label>
+                                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
                                         <select id="clientStatus" class="form-select">
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1">Kích hoạt</option>
+                                            <option value="0">Tạm khóa</option>
                                         </select>
 
 
@@ -202,7 +203,7 @@
                                 </div>
 
                                 <!-- HỆ THỐNG -->
-                                <div class="row p-3 bg-light rounded border">
+                                <div id="systemBlock" class="row p-3 bg-light rounded border">
                                     <h5 class="fw-bold mb-3">Hệ thống</h5>
 
                                     <div class="col-md-6 mb-3">
