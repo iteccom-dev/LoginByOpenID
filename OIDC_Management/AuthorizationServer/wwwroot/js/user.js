@@ -32,6 +32,15 @@
             }
         });
     });
+    $(document).off("click", "#btnClearFillter").on("click", "#btnClearFillter", function (e) {
+        e.preventDefault();
+        
+        $("#searchBox").val("");
+        $("#ClientIdOption").val("");
+        applyFilters(1);
+
+       
+    });
 
 
     // 🔥 NÚT LƯU TRONG FORM (Thêm + Sửa chung)

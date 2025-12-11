@@ -12,9 +12,18 @@
         applyFilters(1);
     });
 
+    $(document).off("click", "#btnClearFillter").on("click", "#btnClearFillter", function (e) {
+        e.preventDefault();
 
+        $("#searchBox").val("");
+        $("#clientStatusFilter").val("");
+        applyFilters(1);
+
+
+    });
    
 });
+
 //Thêm
 $(document).off('click', '#btnAddClient').on('click', '#btnAddClient', function (e) {
     e.preventDefault();
