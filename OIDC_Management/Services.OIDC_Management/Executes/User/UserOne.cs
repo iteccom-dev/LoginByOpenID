@@ -20,9 +20,9 @@ namespace Services.OIDC_Management.Executes
 
         public async Task<List<UserResponse>> Get(string id)
         {
-        var query = _context.AspNetUsers
-              
-               .Where(e => e.Status >= 0 && e.Id == id);
+            var query = _context.AspNetUsers
+
+                   .Where(e => e.Status >= 0 && e.Id == id);
 
             var result = await query
                 .Select(e => new UserResponse
@@ -32,7 +32,7 @@ namespace Services.OIDC_Management.Executes
                     PhoneNumber = e.PhoneNumber,
                     Email = e.Email,
                     Status = e.Status,
-                  
+
                 })
                 .ToListAsync();
 
@@ -42,7 +42,24 @@ namespace Services.OIDC_Management.Executes
         {
             return await _context.Settings.ToListAsync();
         }
+        public async Task<List<object>> GetPathLogo()
+        {
+            var logos = await _context.Settings
+                .Where(x => x.Section == "MainLogo" || x.Section == "SubLogo")
+                .ToListAsync();
 
+            if (logos == null || logos.Count == 0)
+                return new List<object>();
+
+            var mainLogo = logos.FirstOrDefault(x => x.Section == "MainLogo")?.Value;
+            var subLogo = logos.FirstOrDefault(x => x.Section == "SubLogo")?.Value;
+
+            return new List<object>
+    {
+        new { Section = "MainLogo", Value = mainLogo },
+        new { Section = "SubLogo",  Value = subLogo }
+    };
+        }
 
     }
 }

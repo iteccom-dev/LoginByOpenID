@@ -79,9 +79,9 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     var sid = authResult.Principal.FindFirst("sid")?.Value;
                     var settings = await authorizationClientOne.GetSetTime();
 
-                    int sessionTime = settings
-                        .FirstOrDefault(x => x.Name == "SetSessionTime")
-                        ?.Value ?? 8;
+                    var sessionTime = Convert.ToInt32(
+    settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value ?? "8"
+);
                     if (string.IsNullOrEmpty(sid))
                     {
                         // nâng cấp cookie SSO để về sau luôn có sid
@@ -220,9 +220,9 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
             var settings = await authorizationClientOne.GetSetTime();
 
-            int sessionTime = settings
-                .FirstOrDefault(x => x.Name == "SetSessionTime")
-                ?.Value ?? 8;
+            var sessionTime = Convert.ToInt32(
+    settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value ?? "8"
+);
             // 🔥 Đăng nhập SSO cookie (chỉ 1 lần, có claim sid)
             await HttpContext.SignInAsync("SsoAuth", new ClaimsPrincipal(
                 new ClaimsIdentity(new[]
@@ -298,10 +298,9 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 codeStorage.TryRemove(code); // code không được dùng lại
                 var settings = await authorizationClientOne.GetSetTime();
 
-                int TokenTime = settings
-                    .FirstOrDefault(x => x.Name == "SetTokenTime")
-                    ?.Value ?? 600;
-                // Tạo refresh token
+                var TokenTime = Convert.ToInt32(
+    settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value ?? "8"
+);
 
                 //var sid = codeStorageValue.SessionState;
                 //var userId = codeStorageValue.User;

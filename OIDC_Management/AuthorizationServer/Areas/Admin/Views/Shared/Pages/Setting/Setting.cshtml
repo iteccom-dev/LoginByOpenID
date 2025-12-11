@@ -6,8 +6,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                        <h4 class="mb-sm-0">Cài đặt phiên đăng nhập</h4>
-
+                        <h4 class="mb-sm-0">Cài đặt chung</h4>
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
                                 <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
@@ -17,52 +16,115 @@
                     </div>
                 </div>
             </div>
-            <!-- ./Page Title -->
-            <!-- Card Setting -->
-            <div class="card shadow-sm">
 
-             
-                <div class="card-body">
+         
+            <div class="card shadow-lg border-0">
+              
 
-                    <form id="tokenSettingForm">
+                <div class="card-body p-4">
+                    <div class="p-4 bg-white rounded-3 shadow-sm border">
 
-                        <div class="row gy-4 justify-content-center mt-1">
+                        <h5 class="text-info mb-4"><i class="bi bi-image-fill me-2"></i> Cài đặt logo</h5>
 
-                            <!-- Refresh Token -->
-                            <div class="col-lg-4 col-md-6">
-                                <div class="form-group">
-                                    <label for="refreshToken" class="form-label fw-semibold">Thời hạn Refresh Token (Giây)</label>
-                                    <input type="number" class="form-control" id="refreshTokenTime" placeholder="Ví dụ: 600">
+                        <form id="logoSettingForm">
+                            <div class="row g-5">
+
+                                <!-- CỘT 1: LOGO CHÍNH -->
+                                <div class="col-lg-6">
+                                    <div class="text-center">
+                                        <label class="form-label fw-bold text-dark d-block mb-3">Main Logo</label>
+
+                                        <!-- Khu vực preview cố định chiều cao -->
+                                        <div class="mx-auto mb-4 p-4 bg-light border border-2 border-dashed rounded-3"
+                                             style="width: 320px; height: 180px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="previewMainLogo"
+                                                 src="/uploads/logo-main.png"
+                                                 alt="Logo chính"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 140px; max-width: 280px; object-fit: contain;">
+                                        </div>
+
+                                        <!-- Input file nằm ngay dưới ảnh, căn giữa -->
+                                        <input type="file" class="form-control form-control-lg" id="mainLogo" accept="image/*"
+                                               onchange="document.getElementById('previewMainLogo').src = window.URL.createObjectURL(this.files[0])">
+                                        <small class="text-muted d-block mt-2">Khuyến nghị: ≥ 300×100px, PNG trong suốt</small>
+                                    </div>
+                                </div>
+
+                                <!-- CỘT 2: LOGO NHỎ -->
+                                <div class="col-lg-6">
+                                    <div class="text-center">
+                                        <label class="form-label fw-bold text-dark d-block mb-3">Sub Logo</label>
+
+                                        <!-- Khu vực preview vuông cố định -->
+                                        <div class="mx-auto mb-4 p-4 bg-light border border-2 border-dashed rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 200px; height: 180px;">
+                                            <img id="previewSmallLogo"
+                                                 src="/uploads/logo-small.png"
+                                                 alt="Logo nhỏ"
+                                                 class="rounded shadow-sm border"
+                                                 style="width: 120px; height: 120px; object-fit: cover;">
+                                        </div>
+
+                                        <input type="file" class="form-control form-control-lg" id="smallLogo" accept="image/*"
+                                               onchange="document.getElementById('previewSmallLogo').src = window.URL.createObjectURL(this.files[0])">
+                                        <small class="text-muted d-block mt-2">Tốt nhất: 128×128px hoặc 512×512px</small>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Nút lưu căn phải -->
+                            <div class="text-end mt-5">
+                                <button type="button" id="btnUpdateLogo" class="btn btn-info btn-lg px-5 shadow-sm text-white">
+                                    <i class="bi bi-cloud-upload me-2"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- PHẦN 1: THỜI GIAN TOKEN -->
+                    <div class="p-4 bg-white rounded-3 shadow-sm border mb-4 position-relative overflow-hidden">
+                       
+                        <h5 class="text-primary mb-4"><i class="bi bi-clock-history me-2"></i> Thời gian phiên đăng nhập </h5>
+
+                        <form id="tokenSettingForm">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <label class="form-label fw-bold text-dark">Thời hạn Token (giây)</label>
+                                    <input type="number" class="form-control form-control-lg" id="tokenTime"
+                                        value=""    placeholder="1200">
+                                    <div class="text-success small mt-1"><i class="bi bi-info-circle"></i> 1200 giây =  20 phút (khuyến nghị)</div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-label fw-bold text-dark">Thời hạn Session (giờ)</label>
+                                    <input type="number" class="form-control form-control-lg" id="sessionTime"
+                                           value="" placeholder="8">
+                                    <div class="text-warning small mt-1"><i class="bi bi-exclamation-triangle"></i> Sau thời gian này sẽ tự động đăng xuất</div>
                                 </div>
                             </div>
 
-                            <!-- Session -->
-                            <div class="col-lg-4 col-md-6">
-                                <div class="form-group">
-                                    <label for="sessionTime" class="form-label fw-semibold">Thời hạn Session (Giờ)</label>
-                                    <input type="number" class="form-control" id="sessionTime" placeholder="Ví dụ: 8">
-                                </div>
+                            <div class="text-end mt-4">
+                                <button type="button" id="btnUpdateSettingTime"
+                                        class="btn btn-success btn-lg px-5 shadow-sm">
+                                    <i class="bi bi-check2-all me-2"></i>Lưu thay đổi
+                                </button>
                             </div>
+                        </form>
+                    </div>
 
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <button type="button" id="btnUpdateSettingTime" class="btn btn-success px-4 add-btn waves-effect waves-light">
-                                <i class="bi bi-save me-1"></i>
-                                Lưu lại
-                            </button>
-                        </div>
-
-                    </form>
+               
+                  
 
                 </div>
             </div>
-            <!-- ./Card Setting -->
 
         </div>
     </div>
 </div>
+
+<!-- Chỉ cần đoạn này thôi - không cần script dài nữa -->
 <script>
+    // Chỉ để load file setting.js khi trang sẵn sàng
     document.dispatchEvent(new CustomEvent("componentLoaded", {
         detail: { script: "/js/setting.js" }
     }));

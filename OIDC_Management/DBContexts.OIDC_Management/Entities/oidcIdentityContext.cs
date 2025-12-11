@@ -189,7 +189,9 @@ public partial class oidcIdentityContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Setting");
 
-            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Section).HasMaxLength(255);
+            entity.Property(e => e.UpdateBy).HasMaxLength(255);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<UserSession>(entity =>

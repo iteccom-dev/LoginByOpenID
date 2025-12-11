@@ -7,12 +7,10 @@
         <!-- Light Logo-->
         <a asp-controller="Home" asp-action="Index" class="logo logo-light">
             <span class="logo-sm">
-                <img src="/assets/images/login/logo.png" class="logo-part" height="22">
-                <img src="/assets/images/login/textLogo.png" class="logo-part" height="1">
+                <img id="navSmallLogo" src="" height="22">
             </span>
             <span class="logo-lg">
-                <img src="/assets/images/login/logo.png" class="logo-part" height="35">
-                <img src="/assets/images/login/textLogo.png" class="logo-part" height="35">
+                <img id="navMainLogo" src="" height="50">
             </span>
         </a>
 
@@ -60,17 +58,15 @@
             
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#Cai-Dat" data-bs-toggle="collapse">
-                        <i class="ri-account-circle-line"></i>
+                        <i class="ri-settings-line"></i>
                         <span>Cài đặt</span>
                     </a>
                     <div class="collapse menu-dropdown" id="Cai-Dat">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <button id="setting-session-link" class="nav-link">Cài đặt phiên đăng nhập</button>
+                                <button id="setting-session-link" class="nav-link">Cài đặt chung</button>
                             </li>
-                            <li class="nav-item">
-                                <button id="setting-other-link" class="nav-link">Cài đặt khác</button>
-                            </li>
+                          
                         </ul>
                     </div>
                 </li>

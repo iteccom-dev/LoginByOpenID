@@ -156,8 +156,9 @@ namespace EmployeeMangement.Controllers
 
             // 4. Lấy session time setting
             var settings = await _userOne.GetSetTime();
-            int sessionTime = settings.FirstOrDefault(x => x.Name == "SetSessionTime")?.Value ?? 8;
-
+            var sessionTime = Convert.ToInt32(
+    settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value ?? "8"
+);
             // 5. Tạo session_state mới
             string sessionState = Guid.NewGuid().ToString("N");
 

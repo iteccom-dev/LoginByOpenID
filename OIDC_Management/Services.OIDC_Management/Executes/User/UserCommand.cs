@@ -127,16 +127,16 @@ public class UserCommand
         // Nếu có giá trị được truyền vào thì update
         if (sTime.HasValue)
         {
-            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetSessionTime");
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetSessionTime");
 
-            setting.Value = sTime.Value;
+            setting.Value = sTime.Value.ToString();
         }
 
         if (rtTime.HasValue)
         {
-            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Name == "SetTokenTime");
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SetTokenTime");
 
-            setting.Value = rtTime.Value;
+            setting.Value = rtTime.Value.ToString();
         }
 
         // Lưu thay đổi vào DB
@@ -145,7 +145,32 @@ public class UserCommand
         return true;
     }
 
+    public async Task<bool> SetLogo(string? urlLogoMain, string? urlLogoSub)
+    {
 
+
+        // Nếu có giá trị được truyền vào thì update
+        if (!string.IsNullOrWhiteSpace(urlLogoMain))
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "MainLogo");
+
+            setting.Value = urlLogoMain;
+            setting.UpdateDate = DateTime.Now;
+        }
+
+        if (!string.IsNullOrWhiteSpace(urlLogoSub))
+        {
+            var setting = await _context.Settings.FirstOrDefaultAsync(p => p.Section == "SubLogo");
+
+            setting.Value = urlLogoSub;
+            setting.UpdateDate = DateTime.Now;
+        }
+
+        // Lưu thay đổi vào DB
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
 
 
 
