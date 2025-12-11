@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
@@ -14,13 +15,12 @@ namespace test461
     {
         public void Configuration(IAppBuilder app)
         {
-            // 🔥 QUAN TRỌNG – thêm dòng này vào đầu tiên
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
-            // Cookie authentication
+            // Cookie
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                AuthenticationType = CookieAuthenticationDefaults.AuthenticationType, // "Cookies"
+                AuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
                 CookieName = ".client5.auth",
                 CookieSecure = CookieSecureOption.Always,
                 CookieSameSite = SameSiteMode.None,
@@ -42,8 +42,6 @@ namespace test461
 
                 ResponseType = "code",
                 Scope = "openid profile email offline_access",
-
-                SaveTokens = true,
                 RedeemCode = true,
                 UsePkce = true,
 
@@ -55,21 +53,47 @@ namespace test461
 
                 Notifications = new OpenIdConnectAuthenticationNotifications
                 {
+                    // 1️⃣ Lưu id_token & access_token vào Cookie
+                    SecurityTokenValidated = n =>
+                    {
+                        var props = n.AuthenticationTicket.Properties;
+
+                        if (n.ProtocolMessage.IdToken != null)
+                        {
+                            props.Dictionary["id_token"] = n.ProtocolMessage.IdToken;
+                        }
+
+                        if (n.ProtocolMessage.AccessToken != null)
+                        {
+                            props.Dictionary["access_token"] = n.ProtocolMessage.AccessToken;
+                        }
+
+                        if (n.ProtocolMessage.RefreshToken != null)
+                        {
+                            props.Dictionary["refresh_token"] = n.ProtocolMessage.RefreshToken;
+                        }
+
+                        return Task.FromResult(0);
+                    },
+
+                    // 2️⃣ Gửi id_token_hint khi logout
                     RedirectToIdentityProvider = n =>
                     {
-                        if (n.ProtocolMessage.RequestType ==
-                            Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectRequestType.Logout)
+                        if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.Logout)
                         {
-                            var token = n.OwinContext.Authentication.User?.FindFirst("id_token")?.Value;
-                            if (!string.IsNullOrEmpty(token))
-                                n.ProtocolMessage.IdTokenHint = token;
+                            var auth = n.OwinContext.Authentication.AuthenticateAsync("Cookies").Result;
+
+                            if (auth?.Properties.Dictionary.ContainsKey("id_token") == true)
+                            {
+                                n.ProtocolMessage.IdTokenHint = auth.Properties.Dictionary["id_token"];
+                            }
                         }
+
                         return Task.FromResult(0);
                     }
                 }
             });
 
-            // Middleware check session
             app.Use(typeof(test461.Middleware.SsoSessionValidatorMiddleware));
         }
     }
