@@ -3,6 +3,7 @@ using System;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace test461.Middleware
 {
@@ -19,7 +20,7 @@ namespace test461.Middleware
             if (path == "/signin-oidc" || path == "/signout-callback")
             {
                 await Next.Invoke(context);
-                return;
+               
             }
 
             var user = context.Authentication.User;

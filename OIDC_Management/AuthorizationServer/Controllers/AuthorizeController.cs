@@ -295,37 +295,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 var settings = await authorizationClientOne.GetSetTime();
 
                 int TokenTime = int.TryParse(settings.FirstOrDefault(x => x.Section == "SetTokenTime")?.Value, out var tt1) ? tt1 : 600;
-                // Tạo refresh token
-
-                //var sid = codeStorageValue.SessionState;
-                //var userId = codeStorageValue.User;
-                //string scope = codeStorageValue.Scope;
-
-                //var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(
-                //userId, client_id, scope);
-                //if (refreshToken == null)
-                //{
-                //    return BadRequest("Không thể cấp refreshToken");
-                //}
-
-                //// Trả về Token cho user
-                //var result = new AuthenticationResponseModel()
-                //{
-                //    AccessToken = GenerateAccessToken(codeStorageValue, codeStorageValue.User, codeStorageValue.Scope, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
-                //    IdToken = GenerateIdToken(codeStorageValue, codeStorageValue.User, client.ClientId, codeStorageValue.Nonce, jsonWebKey),
-                //    TokenType = "Bearer",
-                //    RefreshToken = refreshToken.Token,
-                //    ExpiresIn = TokenResponseValidSeconds,
-
-                //};
-
-                //logger.LogInformation("access_token: {t}", result.AccessToken);
-                //logger.LogInformation("refresh_token: {t}", result.RefreshToken);
-
-                //return Json(result);
-
-
-                //var sid = codeStorageValue.SessionState;
+                
                 var sid = string.IsNullOrEmpty(codeStorageValue.SessionState)
     ? Guid.NewGuid().ToString("N")
     : codeStorageValue.SessionState;
@@ -347,7 +317,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     ExpiresIn = TokenTime,
                 };
 
-                return Json(result);
+                return new JsonResult(result)
+                {
+                    ContentType = "application/json"
+                };
             }
             // 2. Refresh Token Flow
             if (grant_type == "refresh_token")
@@ -542,7 +515,10 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 s.ExpiresTime
             });
 
-            return Json(result);
+            return new JsonResult(result)
+            {
+                ContentType = "application/json"
+            };
         }
 
 
