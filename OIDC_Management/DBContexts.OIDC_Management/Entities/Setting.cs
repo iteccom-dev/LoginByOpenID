@@ -9,7 +9,13 @@ public partial class Setting
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    public string Section { get; set; }  // Đổi từ Name thành Section
 
-    public int? Value { get; set; }
+    public string Value { get; set; }  // Đổi từ int? thành string
+
+    public string UpdateBy { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
+    public string Note { get; set; }
 }
