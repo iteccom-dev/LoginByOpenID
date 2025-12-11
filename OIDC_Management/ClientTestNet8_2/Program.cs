@@ -52,8 +52,7 @@ builder.Services.AddAuthentication(options =>
 
     options.CallbackPath = oidc["CallbackPath"];
     options.SignedOutCallbackPath = oidc["SignedOutCallbackPath"];
-    options.MetadataAddress = oidc["MetadataAddress"];
-
+  
     options.SignInScheme = "Client4Auth";
 
     // scopes
@@ -77,6 +76,7 @@ builder.Services.AddAuthentication(options =>
 
             return Task.CompletedTask;
         }
+       
     };
 });
 
@@ -92,9 +92,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
-app.UseMiddleware<SsoSessionValidatorMiddleware>();
+
 
 app.UseAuthorization();
+app.UseMiddleware<SsoSessionValidatorMiddleware>();
 
 // ------------------- Routes -------------------
 app.MapControllerRoute(

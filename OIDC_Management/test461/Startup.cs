@@ -17,7 +17,7 @@ namespace test461
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = "Cookies",
-                CookieName = ".client2.auth",
+                CookieName = ".client5.auth",
                 CookieSecure = CookieSecureOption.Always,
             });
 

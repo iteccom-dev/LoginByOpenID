@@ -52,7 +52,7 @@ builder.Services.AddAuthentication(options =>
 
     options.CallbackPath = oidc["CallbackPath"];
     options.SignedOutCallbackPath = oidc["SignedOutCallbackPath"];
-    options.MetadataAddress = oidc["MetadataAddress"];
+
 
     options.SignInScheme = "Client3Auth";
 
@@ -86,8 +86,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
-app.UseMiddleware<SsoSessionValidatorMiddleware>();
+
 app.UseAuthorization();
+app.UseMiddleware<SsoSessionValidatorMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

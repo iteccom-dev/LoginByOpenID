@@ -131,7 +131,26 @@ namespace EmployeeMangement.Controllers
 
             return Challenge(properties, MicrosoftAccountDefaults.AuthenticationScheme);
         }
+        public string GetRedirectBaseUrl(string url)
+        {
+            // Parse URL (gắn domain tạm để parse)
+            var uri = new Uri("https://dummy.com" + url);
 
+            // Lấy query params
+            var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+            if (!queryParams.TryGetValue("redirect_uri", out var redirectUri))
+                return null;
+
+            // decode
+            string decoded = Uri.UnescapeDataString(redirectUri);
+
+            // Parse phần redirect_uri
+            var redirect = new Uri(decoded);
+
+            // Trả về https://localhost:7097/
+            return $"{redirect.Scheme}://{redirect.Host}{(redirect.IsDefaultPort ? "" : ":" + redirect.Port)}/";
+        }
         [HttpGet]
         public async Task<IActionResult> LoginCallback()
         {
@@ -188,8 +207,9 @@ namespace EmployeeMangement.Controllers
 
                 if (!string.IsNullOrEmpty(returnUrl))
                 {
+                    var urlLog = GetRedirectBaseUrl(returnUrl);
                     // Redirect về OIDC flow - hệ thống sẽ tự nhận SsoAuth cookie và cấp code
-                    return Redirect(returnUrl);
+                    return Redirect(urlLog);
                 }
 
                 // Fallback: nếu không có returnUrl, redirect về trang chính
