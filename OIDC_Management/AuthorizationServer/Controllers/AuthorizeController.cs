@@ -36,7 +36,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
       
 
         public AuthorizeController(
-           
+         
             TokenIssuingOptions tokenIssuingOptions,
             JsonWebKey jsonWebKey,
             ICodeStorage codeStorage,
@@ -79,9 +79,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                     var sid = authResult.Principal.FindFirst("sid")?.Value;
                     var settings = await authorizationClientOne.GetSetTime();
 
-                    int sessionTime = settings
-                        .FirstOrDefault(x => x.Name == "SetSessionTime")
-                        ?.Value ?? 8;
+                    int sessionTime = int.TryParse(settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value, out var st1) ? st1 : 8;
                     if (string.IsNullOrEmpty(sid))
                     {
                         // nâng cấp cookie SSO để về sau luôn có sid
@@ -220,9 +218,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
             }
             var settings = await authorizationClientOne.GetSetTime();
 
-            int sessionTime = settings
-                .FirstOrDefault(x => x.Name == "SetSessionTime")
-                ?.Value ?? 8;
+            int sessionTime = int.TryParse(settings.FirstOrDefault(x => x.Section == "SetSessionTime")?.Value, out var st2) ? st2 : 8;
             // 🔥 Đăng nhập SSO cookie (chỉ 1 lần, có claim sid)
             await HttpContext.SignInAsync("SsoAuth", new ClaimsPrincipal(
                 new ClaimsIdentity(new[]
@@ -298,9 +294,7 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 codeStorage.TryRemove(code); // code không được dùng lại
                 var settings = await authorizationClientOne.GetSetTime();
 
-                int TokenTime = settings
-                    .FirstOrDefault(x => x.Name == "SetTokenTime")
-                    ?.Value ?? 600;
+                int TokenTime = int.TryParse(settings.FirstOrDefault(x => x.Section == "SetTokenTime")?.Value, out var tt1) ? tt1 : 600;
                 // Tạo refresh token
 
                 //var sid = codeStorageValue.SessionState;
@@ -339,7 +333,8 @@ namespace OIDCDemo.AuthorizationServer.Controllers
                 // Tạo refresh token
                 var userId = codeStorageValue.User;
                 string scope = codeStorageValue.Scope;
-               
+
+                int sessionTime = int.TryParse(settings.FirstOrDefault(x => x.Section == "SetTokenTime")?.Value, out var st3) ? st3 : 600;
                 var refreshToken = await authorizationClientOne.CreateOrReplaceRefreshTokenAsync(userId, client_id, scope);
                 if (refreshToken == null) return BadRequest("Không thể cấp refreshToken");
 

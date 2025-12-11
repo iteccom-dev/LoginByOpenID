@@ -52,7 +52,6 @@ namespace ClientTestNet8.Controllers
             return Redirect(redirectUrl);
         }
 
-
         public IActionResult LoggedOut()
         {
             return RedirectToAction("Index", "Home");

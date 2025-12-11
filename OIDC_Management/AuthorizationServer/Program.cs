@@ -54,31 +54,49 @@ builder.Services.AddAuthentication(options =>
 
     .AddCookie("SsoAuth", options =>
     {
-        options.Cookie.Name = ".iteccom.Auth";
-        options.Cookie.Domain = ".iteccom.vn";   // ← BẮT BUỘC
+        options.Cookie.Name = ".sso.Auth";
+        // Không set Cookie.Domain để cookie hoạt động trên localhost
+        // options.Cookie.Domain = ".bmwindows.vn";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.LoginPath = "/Authorize/Index";
     })
 
-    .AddMicrosoftAccount(options =>
+    .AddMicrosoftAccount("Microsoft", options =>
     {
         options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "YOUR_CLIENT_ID";
         options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "YOUR_CLIENT_SECRET";
-
-        var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"];
-        if (!string.IsNullOrEmpty(tenantId) && tenantId != "YOUR_TENANT_ID")
-        {
-            options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
-            options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
-        }
+        
+        // CallbackPath - URL Microsoft sẽ redirect về sau khi đăng nhập
+        options.CallbackPath = "/signin-microsoft";
+        
+        // SignInScheme - sau khi Microsoft auth xong, lưu vào cookie nào
+        // Để trống hoặc dùng cookie tạm, AccountController.LoginCallback sẽ tự tạo SsoAuth
+        options.SignInScheme = "AdminCookies";
+        
+        // TenantId = common cho phép mọi tài khoản Microsoft (cá nhân + tổ chức)
+        var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? "common";
+        options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
+        options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
+        
+        // Scope
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
     });
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 builder.Services.AddSingleton<ICodeStorage>(services => new MemoryCodeStorage());
 builder.Services.AddSingleton<IRefreshTokenStorageFactory>(services => new MemoryRefreshTokenStorageFactory());
 
@@ -464,6 +482,7 @@ IResult Error(string error, string description) =>
 
 app.UseRouting();
 app.UseStaticFiles();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -486,5 +505,5 @@ string GetCookieDomain()
     // ⚡ Dev vs Prod
     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         return "localhost"; // dev: localhost
-    return ".iteccom.vn";   // prod: main domain
+    return ".bmwindows.vn";   // prod: main domain
 }

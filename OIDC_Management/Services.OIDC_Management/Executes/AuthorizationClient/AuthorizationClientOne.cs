@@ -28,7 +28,6 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
         {
             return await _db.Settings.ToListAsync();
         }
-
         public async Task<Client?> FindByClientId(string clientId)
         {
             var resutl = await _db.Clients.FirstOrDefaultAsync(c => c.ClientId == clientId);
@@ -60,6 +59,35 @@ namespace Services.OIDC_Management.Executes.AuthorizationClient
             };
         }
 
+        /// <summary>
+        /// Tìm user theo email, nếu không có thì tạo mới (cho MS365 login)
+        /// </summary>
+        public async Task<AspNetUser?> FindOrCreateUserByEmailAsync(string email, string userName)
+        {
+            var user = await _db.AspNetUsers.FirstOrDefaultAsync(x => x.Email == email);
+            
+            if (user != null)
+                return user;
+
+            // Tạo user mới nếu chưa có
+            user = new AspNetUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                Email = email,
+                UserName = userName,
+                NormalizedEmail = email.ToUpperInvariant(),
+                NormalizedUserName = userName.ToUpperInvariant(),
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                Status = 1 // Active
+            };
+
+            _db.AspNetUsers.Add(user);
+            await _db.SaveChangesAsync();
+
+            return user;
+        }
 
         public async Task<RefreshToken?> CreateOrReplaceRefreshTokenAsync(
        string userId,
