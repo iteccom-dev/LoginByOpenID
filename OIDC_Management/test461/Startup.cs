@@ -27,7 +27,7 @@ namespace test461
                 AuthenticationType = "oidc",
                 SignInAsAuthenticationType = "Cookies",
 
-                Authority = "https://sso-uat.iteccom.vn/",
+                Authority = "https://localhost:7101/",
                 ClientId = "client_20251203_044718_799dd1",
                 ClientSecret = "AvGSYZeq9Kj0gYaUiMctpBtsG0Wtk+eGWAttggVlVzvA=",
 
