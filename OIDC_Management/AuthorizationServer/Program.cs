@@ -38,18 +38,7 @@ builder.Services.AddAuthentication(options =>
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
     })
-    //.AddCookie("SsoAuth", options =>
-    //{
-    //    options.Cookie.Name = ".iteccom.Auth";
-    //    options.Cookie.Domain = GetCookieDomain();                  // dev – có dấu chấm đầu
-    //                                                                // options.Cookie.Domain = ".yourcompany.com";              // prod
-    //    options.Cookie.HttpOnly = true;
-    //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    //    options.Cookie.SameSite = SameSiteMode.None;    // bắt buộc cho cross-subdomain
-    //    options.ExpireTimeSpan = TimeSpan.FromHours(8);
-    //    options.SlidingExpiration = true;
-    //    options.LoginPath = "/Authorize/Index";
-    //})
+   
 
 
     .AddCookie("SsoAuth", options =>
@@ -75,7 +64,7 @@ builder.Services.AddAuthentication(options =>
         
         // SignInScheme - sau khi Microsoft auth xong, lưu vào cookie nào
         // Để trống hoặc dùng cookie tạm, AccountController.LoginCallback sẽ tự tạo SsoAuth
-        options.SignInScheme = "AdminCookies";
+        options.SignInScheme = "SsoAuth";
         
         // TenantId = common cho phép mọi tài khoản Microsoft (cá nhân + tổ chức)
         var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? "common";

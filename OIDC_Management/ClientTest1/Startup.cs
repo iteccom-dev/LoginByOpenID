@@ -90,7 +90,7 @@ namespace ClientTest1
             app.UseRouting();
             app.UseAuthentication();  // ⚡ bắt buộc
             app.UseAuthorization();
-
+            app.UseMiddleware<SsoSessionValidatorMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient("SsoServer", client =>
 {
-    client.BaseAddress = new Uri("https://sso-uat.iteccom.vn/");
+    client.BaseAddress = new Uri("https://localhost:7101/");
 });
 
 // ------------------- Authentication -------------------
