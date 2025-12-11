@@ -34,6 +34,8 @@ $(document).off('click', '#btnAddClient').on('click', '#btnAddClient', function 
     $('#clientForm')[0].reset();
     $('#clientId').val("");
     $('#clientSecret').val("");
+
+    $('#systemBlock').hide();
 });
 
 //Hủy
@@ -101,16 +103,16 @@ function loadClients(filter) {
 
             $.each(items, function (index, item) {
                 const row = `
-                    <tr>
+                    <tr style="height: 60px;">
                         <th class="text-center">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" data-id="${item.clientId}">
                             </div>
                         </th>
                         <td class="text-center">${index + 1 + (data.page - 1) * data.pageSize}</td>
+                        <td class="text-left">${item.displayName || ''}</td>
                         <td class="text-left">${item.clientId}</td>
                         <td class="text-left">${item.clientSecret || ''}</td>
-                        <td class="text-left">${item.displayName || ''}</td>
                         <td class="text-center">
                             <span class="badge ${item.status === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
                                 ${item.status === 1 ? 'Kích hoạt' : 'Tạm khóa'}
@@ -123,11 +125,7 @@ function loadClients(filter) {
                                  <i class="ri-more-2-fill"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a href="#" class="dropdown-item view-item-btn text-primary">
-                                            <i class="ri-eye-fill fs-16"></i> Xem chi tiết
-                                        </a>
-                                    </li>
+                                    
                                    <li>
                                         <a href="#" id="edit-client" class="dropdown-item edit-item-btn text-warning" data-id="${item.clientId}">
                                             <i class="ri-edit-fill fs-16"></i> Chỉnh sửa
@@ -220,8 +218,8 @@ function renderPagination(current, total, pageSize) {
     const isLast = current === totalPages;
 
     html += `
-        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« First</label>
-        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="${current - 1}">‹ Prev</label>
+        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« Đầy</label>
+        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="${current - 1}">‹ Trước</label>
     `;
 
     let maxVisible = 5;
@@ -243,8 +241,8 @@ function renderPagination(current, total, pageSize) {
     }
 
     html += `
-        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${current + 1}">Next ›</label>
-        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${totalPages}">Last »</label>
+        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${current + 1}">Sau ›</label>
+        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${totalPages}">Cuối »</label>
     `;
 
     html += `</div>`;
@@ -272,6 +270,8 @@ $(document).on('click', '#edit-client', function (e) {
 
     $('.col-xl-12').has('.card-header .add-btn').hide();
     $('#addClientFormCard').slideDown();
+
+    $('#systemBlock').show();
 
     $.ajax({
         url: `/api/client/${clientId}/edit-json`,

@@ -96,9 +96,9 @@
                                                     </div>
                                                 </th>
                                                 <th class="text-center">STT</th>
+                                                <th class="text-left">Tên hiển thị</th>
                                                 <th class="text-left">Client ID</th>
                                                 <th class="text-left">Client Secret</th>
-                                                <th class="text-left">Tên hiển thị</th>
                                                 <th class="text-center">Status</th>
                                                 <th class="text-center">Hành động</th>
 
@@ -135,17 +135,17 @@
                                     <h5 class="fw-bold mb-3">Thông tin bắt buộc</h5>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Tên hiển thị *</label>
+                                        <label class="form-label">Tên hiển thị <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="displayName" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Redirect URIs *</label>
+                                        <label class="form-label">Redirect URIs <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="redirectUris" required>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Scope *</label>
+                                        <label class="form-label">Scope <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="scope"
                                                placeholder="openid profile email"
@@ -153,7 +153,7 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Grant Type *</label>
+                                        <label class="form-label">Grant Type <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="grantType"
                                                placeholder="authorization_code"
@@ -161,7 +161,7 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Authority (Issuer) *</label>
+                                        <label class="form-label">Authority (Issuer) <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control"
                                                id="authority"
                                                placeholder="https://your-oidc-server.com"
@@ -169,10 +169,10 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Trạng thái *</label>
+                                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
                                         <select id="clientStatus" class="form-select">
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1">Kích hoạt</option>
+                                            <option value="0">Tạm khóa</option>
                                         </select>
 
 
@@ -203,7 +203,7 @@
                                 </div>
 
                                 <!-- HỆ THỐNG -->
-                                <div class="row p-3 bg-light rounded border">
+                                <div id="systemBlock" class="row p-3 bg-light rounded border">
                                     <h5 class="fw-bold mb-3">Hệ thống</h5>
 
                                     <div class="col-md-6 mb-3">

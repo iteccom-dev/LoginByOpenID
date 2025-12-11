@@ -39,6 +39,7 @@ public class UserCommand
             AccessFailedCount = 0,
             Status = request.UserStatus,
             ClientId = request.UserClient,
+            Role = request.Role,
         };
 
         await _context.AspNetUsers.AddAsync(newUser);
@@ -56,16 +57,7 @@ public class UserCommand
         return saved;
     }
 
-    public async Task<int> Delete(string id)
-    {
-        var user = await _context.AspNetUsers.FirstOrDefaultAsync(u => u.Id == id);
-        if (user == null) return 0;
-
-        user.Status = -1;
-        return await _context.SaveChangesAsync();
-    }
-
-     public async Task<int> Update(UserRequest request)
+    public async Task<int> Update(UserRequest request)
     {
         if (string.IsNullOrEmpty(request.Id)) return 0;
 
@@ -74,7 +66,7 @@ public class UserCommand
 
         if (user == null) return 0;
 
-         if (!string.IsNullOrWhiteSpace(request.UserPassword))
+        if (!string.IsNullOrWhiteSpace(request.UserPassword))
         {
             user.SecurityStamp = PasswordHelper.GenerateSalt();
             user.PasswordHash = PasswordHelper.HashPassword(request.UserPassword, user.SecurityStamp);
@@ -85,9 +77,20 @@ public class UserCommand
         user.PhoneNumber = request.UserPhone;
         user.Status = request.UserStatus;
         user.ClientId = request.UserClient;
+        user.Role = request.Role;
+
 
         return await _context.SaveChangesAsync();
     }
+    public async Task<int> Delete(string id)
+    {
+        var user = await _context.AspNetUsers.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null) return 0;
+
+        user.Status = -1;
+        return await _context.SaveChangesAsync();
+    }
+
 
 
     public async Task<int> AddUser(List<UserRequest> users)

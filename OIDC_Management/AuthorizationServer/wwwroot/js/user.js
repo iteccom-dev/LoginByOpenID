@@ -114,25 +114,22 @@ function loadUsers(filter) {
                                 </div>
                             </td>
                             <td class="text-center">${user.email || ''}</td>
-                            <td class="text-center">${user.phoneNumber || ''}</td>
                             <td class="text-center">
                                 <div class="dropdown dropdown-action">
                                     <a href="#" class="btn btn-soft-primary btn-sm dropdown" data-bs-toggle="dropdown">
                                         <i class="ri-more-2-fill"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a href="#" id="btn-user-view" class="dropdown-item view-item-btn text-primary"
-                                               data-id="${user.id}">Xem chi tiết</a>
-                                        </li>
+                                       
                                         <li>
                                             <a href="#" id="btn-user-edit" class="dropdown-item edit-item-btn text-warning"
-                                               data-id="${user.id}">Chỉnh sửa</a>
+                                               data-id="${user.id}"><i class="ri-edit-fill fs-16"></i>Chỉnh sửa</a>
                                         </li>
                                         <li>
                                             <a href="#" id="btn-user-delete" class="dropdown-item remove-item-btn text-danger"
-                                               data-id="${user.id}">Xóa bỏ</a>
+                                               data-id="${user.id}"><i class="ri-delete-bin-5-fill fs-16"></i>Xóa bỏ</a>
                                         </li>
+                                         
                                     </ul>
                                 </div>
                             </td>
@@ -225,8 +222,8 @@ function renderPagination(current, total, pageSize, keyword, clientId) {
     const isLast = current === totalPages;
 
     html += `
-        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« First</label>
-        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="${current - 1}">‹ Prev</label>
+        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« Đầu</label>
+        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="${current - 1}">‹ Trước</label>
     `;
 
     const maxVisible = 5;
@@ -261,8 +258,8 @@ function renderPagination(current, total, pageSize, keyword, clientId) {
     }
 
     html += `
-        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${current + 1}">Next ›</label>
-        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${totalPages}">Last »</label>
+        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${current + 1}">Sau ›</label>
+        <label class="btn btn-outline-primary btn-paging ${isLast ? "disabled" : ""}" data-page="${totalPages}">Cuối »</label>
     `;
 
     html += `</div>`;
@@ -293,7 +290,9 @@ function collectUserForm() {
         UserEmail: form.find("#userEmail").val(),
         UserPhone: form.find("#userPhone").val(),
         UserStatus: parseInt(form.find("#userStatus").val(), 10),
-        UserClient: form.find("#ClientId").val()
+        UserClient: form.find("#ClientId").val(),
+        Role: parseInt($("#userRoles").val(), 10),
+
     };
 }
 

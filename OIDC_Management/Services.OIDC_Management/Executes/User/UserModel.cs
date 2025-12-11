@@ -68,13 +68,15 @@ namespace Services.OIDC_Management.Executes
                 public string? UserEmail { get; set; } = string.Empty;
                 public string? UserPhone { get; set; } = string.Empty;
 
-                public string? UserRoles { get; set; } = string.Empty;
+                //public string? UserRoles { get; set; } = string.Empty;
                 public int UserStatus { get; set; } = 1;
                 public string? UserProvider { get; set; } = string.Empty;
                 public string? UserClient { get; set; } = string.Empty;
                 public bool? User2FA { get; set; } = false;
+            public int? Role { get; set; }
 
-                public string? CreatedBy { get; set; } = string.Empty;
+
+            public string? CreatedBy { get; set; } = string.Empty;
                 public string? UpdatedBy { get; set; } = string.Empty;
                 public string? CreatedAt { get; set; } = string.Empty;
                 public string? UpdatedAt { get; set; } = string.Empty;
