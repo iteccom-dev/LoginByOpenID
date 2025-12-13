@@ -37,7 +37,7 @@ namespace test461.Controllers
             // Xóa cookie local
             auth.SignOut("Cookies");
 
-            var authority = "https://sso-uat.iteccom.vn";
+            var authority = "https://sso-uat.iteccom.vn/";
 
             // Callback sau khi logout
             var postLogoutRedirectUri = Url.Action(

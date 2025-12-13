@@ -19,6 +19,8 @@ using Services.OIDC_Management.Executes.AuthorizationClient;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.HttpOverrides;
+
 using System.Text;
 using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
@@ -38,7 +40,7 @@ builder.Services.AddAuthentication(options =>
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
     })
-   
+
 
 
     .AddCookie("SsoAuth", options =>
@@ -58,24 +60,25 @@ builder.Services.AddAuthentication(options =>
     {
         options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? "YOUR_CLIENT_ID";
         options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? "YOUR_CLIENT_SECRET";
-        
+
         // CallbackPath - URL Microsoft sẽ redirect về sau khi đăng nhập
         options.CallbackPath = "/signin-microsoft";
-        
+
         // SignInScheme - sau khi Microsoft auth xong, lưu vào cookie nào
         // Để trống hoặc dùng cookie tạm, AccountController.LoginCallback sẽ tự tạo SsoAuth
         options.SignInScheme = "SsoAuth";
-        
+
         // TenantId = common cho phép mọi tài khoản Microsoft (cá nhân + tổ chức)
         var tenantId = builder.Configuration["Authentication:Microsoft:TenantId"] ?? "common";
         options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize";
         options.TokenEndpoint = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token";
-        
+
         // Scope
         options.Scope.Clear();
         options.Scope.Add("openid");
         options.Scope.Add("profile");
         options.Scope.Add("email");
+
     });
 
 builder.Services.AddControllersWithViews();
@@ -360,10 +363,6 @@ app.MapGet("/connect/endsession", async (
         logoutHtml += "</body></html>";
 
         return Results.Content(logoutHtml, "text/html");
-
-
-
-
 
     }
 

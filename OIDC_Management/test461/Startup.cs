@@ -45,12 +45,14 @@ namespace test461
                 RedeemCode = true,
                 UsePkce = true,
 
+               
                 TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateIssuer = true,
+                    IssuerValidator = (issuer, token, parameters) => issuer,
                     NameClaimType = "name",
                     RoleClaimType = "role",
                 },
-
                 Notifications = new OpenIdConnectAuthenticationNotifications
                 {
                     // 1️⃣ Lưu id_token & access_token vào Cookie
