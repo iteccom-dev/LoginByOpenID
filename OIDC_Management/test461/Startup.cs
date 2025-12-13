@@ -33,7 +33,7 @@ namespace test461
                 AuthenticationType = "oidc",
                 SignInAsAuthenticationType = CookieAuthenticationDefaults.AuthenticationType,
 
-                Authority = "https://localhost:7101/",
+                Authority = "https://sso-uat.iteccom.vn/",
                 ClientId = "client_20251203_044718_799dd1",
                 ClientSecret = "AvGSYze9Kj0gYaLiMctp8tsG0Wtk+eGWAttgqViWzVA=",
 

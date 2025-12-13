@@ -43,7 +43,7 @@ namespace test461.Middleware
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7101");
+                client.BaseAddress = new Uri("https://sso-uat.iteccom.vn");
                 var resp = await client.GetAsync($"connect/check-session?sid={sid}");
                 var result = await resp.Content.ReadAsStringAsync();
 
