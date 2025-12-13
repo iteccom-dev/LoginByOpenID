@@ -28,7 +28,7 @@ public class Startup
         // HttpClient SSO
         services.AddHttpClient("SsoServer", client =>
         {
-            client.BaseAddress = new Uri("https://sso-uat.iteccom.vn/");
+            client.BaseAddress = new Uri("https://localhost:7101/");
         });
 
         // Authentication
