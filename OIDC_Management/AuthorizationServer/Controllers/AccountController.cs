@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Mvc;
 using Services.OIDC_Management.Executes;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EmployeeMangement.Controllers
 {
-    [Area("Admin")]
+    [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
         private readonly AccountCommand _accountCommand;
@@ -120,7 +120,7 @@ namespace EmployeeMangement.Controllers
         [HttpGet]
         public IActionResult LoginWithMicrosoft(string returnUrl = null)
         {
-            var redirectUrl = Url.Action("LoginCallback", "Account", new { area = "Admin" });
+            var redirectUrl = Url.Action("LoginCallback", "Account");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
 
             // Lưu returnUrl vào Properties để sau khi Microsoft callback, ta biết redirect về đâu

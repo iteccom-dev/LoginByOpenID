@@ -35,7 +35,7 @@ builder.Services.AddAuthentication(options =>
     .AddCookie("AdminCookies", options =>
     {
         options.Cookie.Name = ".iteccom.Admin";
-        options.LoginPath = "/Admin/Account/SignIn";
+        options.LoginPath = "/Account/SignIn";
         options.AccessDeniedPath = "/Admin/Home/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
@@ -79,6 +79,15 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("profile");
         options.Scope.Add("email");
 
+        // DEBUG: Bắt lỗi chi tiết khi 500
+        options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+        {
+            OnRemoteFailure = context =>
+            {
+                context.Response.ContentType = "text/plain";
+                return context.Response.WriteAsync($"Error from Microsoft Auth: {context.Failure?.Message}\n\n{context.Failure?.StackTrace}");
+            }
+        };
     });
 
 builder.Services.AddControllersWithViews();
@@ -131,9 +140,40 @@ var rsaKey = new RsaSecurityKey(rsa)
 };
 builder.Services.AddSingleton<RsaSecurityKey>(rsaKey);
 
+// Cấu hình ForwardedHeaders để nhận diện đúng Scheme (https) khi chạy sau reverse proxy (IIS/Nginx)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 
 
 var app = builder.Build();
+
+// DEBUG: Luôn hiện lỗi chi tiết để sửa lỗi Server
+app.UseDeveloperExceptionPage();
+
+app.UseForwardedHeaders();
+
+app.UseForwardedHeaders();
+
+app.MapGet("/debug-sso", (HttpContext context) =>
+{
+    var sb = new StringBuilder();
+    sb.AppendLine($"Scheme: {context.Request.Scheme}");
+    sb.AppendLine($"Host: {context.Request.Host}");
+    sb.AppendLine($"Path: {context.Request.Path}");
+    sb.AppendLine($"PathBase: {context.Request.PathBase}");
+    sb.AppendLine($"RemoteIp: {context.Connection.RemoteIpAddress}");
+    sb.AppendLine("Headers:");
+    foreach (var header in context.Request.Headers)
+    {
+        sb.AppendLine($"{header.Key}: {header.Value}");
+    }
+    return Results.Text(sb.ToString());
+});
 
 
 
