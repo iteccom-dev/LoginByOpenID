@@ -11,7 +11,7 @@
     });
 
     // Filter client trên list (select lọc)
-    $('#ClientIdOption').off("change").on("change", function () {
+    $('#UserOption').off("change").on("change", function () {
         applyFilters(1);
     });
 
@@ -36,7 +36,7 @@
         e.preventDefault();
         
         $("#searchBox").val("");
-        $("#ClientIdOption").val("");
+        $("#UserOption").val("");
         applyFilters(1);
 
        
@@ -108,7 +108,7 @@ function loadUsers(filter) {
                                     <div class="text-body-tertiary">
                                         <span>Status: </span>
                                         <span class="badge ${user.status === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
-                                            ${user.status === 1 ? 'Active' : 'Inactive'}
+                                            ${user.status === 1 ? 'Kích hoạt' : 'Tạm khóa'}
                                         </span>
                                     </div>
                                 </div>
@@ -193,7 +193,7 @@ function getFilterData() {
         page: getCurrentPage(),
         pageSize: 10,
         KeySearch: $('.search').val() || '',
-        ClientId: $('#ClientIdOption').val() || ''
+        Status: $('#UserOption').val() || ''
     };
 }
 

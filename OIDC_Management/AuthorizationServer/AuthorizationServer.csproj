@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Admin\Views\Client\**" />
+    <Compile Remove="Areas\Data\**" />
+    <Content Remove="Areas\Admin\Views\Client\**" />
+    <Content Remove="Areas\Data\**" />
+    <EmbeddedResource Remove="Areas\Admin\Views\Client\**" />
+    <EmbeddedResource Remove="Areas\Data\**" />
+    <None Remove="Areas\Admin\Views\Client\**" />
+    <None Remove="Areas\Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include=".well-known\jwks.json" />
     <Content Include=".well-known\openid-configuration - Copy - Copy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -53,8 +64,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Admin\Views\Client\" />
-    <Folder Include="Areas\Data\" />
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\media\logo\" />
   </ItemGroup>
 

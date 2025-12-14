@@ -35,7 +35,7 @@ builder.Services.AddAuthentication(options =>
     .AddCookie("AdminCookies", options =>
     {
         options.Cookie.Name = ".iteccom.Admin";
-        options.LoginPath = "/Account/SignIn";
+        options.LoginPath = "/Admin/Account/SignIn";
         options.AccessDeniedPath = "/Admin/Home/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;

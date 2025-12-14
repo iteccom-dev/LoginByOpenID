@@ -13,7 +13,8 @@ namespace Services.OIDC_Management.Executes
         {
             public int Page { get; set; } = 1;
             public int PageSize { get; set; } = 5;
-            public string ClientId { get; set; }
+         
+            public int? Status { get; set; } = 1;
             public string? KeySearch { get; set; }
         }
         public class UserResponse

@@ -218,7 +218,7 @@ function renderPagination(current, total, pageSize) {
     const isLast = current === totalPages;
 
     html += `
-        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« Đầy</label>
+        <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="1">« Đầu</label>
         <label class="btn btn-outline-primary btn-paging ${isFirst ? "disabled" : ""}" data-page="${current - 1}">‹ Trước</label>
     `;
 

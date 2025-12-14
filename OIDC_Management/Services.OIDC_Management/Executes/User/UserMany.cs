@@ -35,12 +35,12 @@ namespace Services.OIDC_Management.Executes
               
             }
 
-            // Filter CliendId
-            if (!string.IsNullOrWhiteSpace(filter.ClientId))
+         
+            // Filter Status
+            if (filter.Status.HasValue)
             {
-                query = query.Where(p => p.ClientId == filter.ClientId);
+                query = query.Where(p => p.Status == filter.Status.Value);
             }
-
             // Count total records
             int totalRecords = await query.CountAsync();
 
